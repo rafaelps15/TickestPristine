@@ -17,9 +17,5 @@ internal class MensagemConfiguration : IEntityTypeConfiguration<Mensagem>
         builder.HasOne(m => m.Usuario)
                .WithMany(u => u.Mensagens)
                .HasForeignKey(m => m.UsuarioId);
-
-        builder.HasOne(m => m.Chamado)
-               .WithMany(c => c.Mensagens)
-               .HasForeignKey(m => m.Chamado);
     }
 }

@@ -23,11 +23,11 @@ internal class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
                .WithOne(ur => ur.Usuario)
                .HasForeignKey(ur => ur.UsuarioId);
 
-        builder.HasMany(u => u.ChamadosAbertos)
+        builder.HasMany(u => u.ChamadosSolicitados)
                .WithOne(c => c.Solicitante)
                .HasForeignKey(c => c.SolicitanteId);
 
-        builder.HasMany(u => u.ChamadosAtendidos)
+        builder.HasMany(u => u.ChamadosAtendentes)
                .WithOne(c => c.Atendente)
                .HasForeignKey(c => c.AtendenteId);
 
