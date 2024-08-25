@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities;
 
-namespace Tickest.Infrastructure.Configurations;
+namespace Tickest.Persistence.Configurations;
 
 internal class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
 {
@@ -61,6 +61,6 @@ internal class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
             .HasForeignKey(m => m.ChamadoId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        
+
     }
 }

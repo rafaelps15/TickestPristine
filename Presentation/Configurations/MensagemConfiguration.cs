@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities;
 
-namespace Tickest.Infrastructure.Configurations;
+namespace Tickest.Persistence.Configurations;
 
 internal class MensagemConfiguration : IEntityTypeConfiguration<Mensagem>
 {

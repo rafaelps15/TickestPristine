@@ -1,16 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Tickest.Infrastructure;
+using Tickest.Infrastructure.Services.Auth;
 
-namespace Infrastructure;
+namespace Tickest.Infrastructure;
 
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<TickestContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddHttpContextAccessor();
+
+        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }

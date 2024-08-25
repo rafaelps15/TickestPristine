@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Application", "Appl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Infrastructure", "Infrastructure\Tickest.Infrastructure.csproj", "{7253E1C6-9AAC-46E3-8B8A-41BC38918E0C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Presentation", "Presentation\Tickest.Presentation.csproj", "{7319AE8A-702D-4464-98EF-2581021573EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Persistence", "Presentation\Tickest.Persistence.csproj", "{7319AE8A-702D-4464-98EF-2581021573EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{4A2377A0-C64C-460C-9C7C-834FAC528B3A}"
 EndProject

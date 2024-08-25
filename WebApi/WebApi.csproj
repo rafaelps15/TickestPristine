@@ -22,7 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Tickest.Application.csproj" />
     <ProjectReference Include="..\Infrastructure\Tickest.Infrastructure.csproj" />
-    <ProjectReference Include="..\Presentation\Tickest.Presentation.csproj" />
+    <ProjectReference Include="..\Presentation\Tickest.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

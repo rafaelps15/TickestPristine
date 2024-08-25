@@ -1,11 +1,11 @@
 ﻿namespace Tickest.Domain.Entities;
 
 public class Usuario : EntidadeBase
-{ 
+{
     public string Nome { get; set; }
     public string Email { get; set; }
     public string Senha { get; set; }
-
+    public string Salt { get; set; }
     public int? AreaId { get; set; }
     public Area Area { get; set; }
 

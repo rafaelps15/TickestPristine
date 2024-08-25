@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Entities;
 
-namespace Tickest.Infrastructure
+namespace Tickest.Persistence
 {
     public class TickestContext : DbContext
     {

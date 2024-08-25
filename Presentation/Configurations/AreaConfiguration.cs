@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities;
 
-namespace Tickest.Infrastructure.Configurations;
+namespace Tickest.Persistence.Configurations;
 
 internal class AreaConfiguration : IEntityTypeConfiguration<Area>
 {
@@ -11,7 +11,7 @@ internal class AreaConfiguration : IEntityTypeConfiguration<Area>
         builder.ToTable("TB_AREA");
 
         builder.HasKey(a => a.Id);
-        builder.Property(a => a.Nome).IsRequired().HasMaxLength(100);
+        builder.Property(a => a.Description).IsRequired().HasMaxLength(100);
 
         builder.HasOne(a => a.Setor)
                .WithMany(s => s.Areas)

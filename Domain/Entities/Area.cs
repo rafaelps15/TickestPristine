@@ -2,7 +2,7 @@
 
 public class Area : EntidadeBase
 {
-    public string Nome { get; set; }
+    public string Description { get; set; }
 
     public int SetorId { get; set; }
     public Setor Setor { get; set; }

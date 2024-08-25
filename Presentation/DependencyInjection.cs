@@ -1,11 +1,25 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Tickest.Domain.Repositories;
+using Tickest.Persistence.Repositories;
 
-namespace Presentation;
+namespace Tickest.Persistence;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddPresentation(this IServiceCollection services)
+    public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddDbContext<TickestContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped(typeof(IBaseRepotirory<>), typeof(BaseRepository<>));
+
+        services.AddScoped<IAreaRepository, AreaRepository>();
+        services.AddScoped<IMensagemRepository, MensagemRepository>();
+        services.AddScoped<ISetorRepository, SetorRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
         return services;
     }
 }

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities;
 
-namespace Tickest.Infrastructure.Configurations;
+namespace Tickest.Persistence.Configurations;
 
 public class UsuarioRegraConfiguration : IEntityTypeConfiguration<UsuarioRegra>
 {
