@@ -1,41 +1,63 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Configuration;
+using System.Net.Mail;
+using System.Text.RegularExpressions;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Repositories;
+using Tickest.Infrastructure.Helpers;
 
 namespace Tickest.Application.Users.CriarUsuario;
 
-public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand>
+public class CriarUsuarioCommandHandler(
+    IUsuarioRepository usuarioRepository, 
+    IConfiguration configuration) : IRequestHandler<CriarUsuarioCommand>
 {
-    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
 
-    public CriarUsuarioCommandHandler(IUsuarioRepository usuarioRepository)
+    private bool IsValidEmail(string email)
     {
-        _usuarioRepository=usuarioRepository;
+        try
+        {
+            var addr = new MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    private bool SenhaAtendeCritérios(string senha)
+    {
+        var senhaRegex = new Regex(@"^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]).{8,}$");
+        int especialCount = new Regex(@"[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]").Matches(senha).Count;
+
+        return senhaRegex.IsMatch(senha) && especialCount >= 2;
     }
 
     public async Task Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
     {
         //Verificar se o email é válido
+        if (string.IsNullOrWhiteSpace(request.Email) || !IsValidEmail(request.Email))
+            throw new TickestException("Email inválido.");
 
-        //verificar se a senha está de acordo com as regras do sistema
+        // Verificar se a senha atende aos critérios
+        if (!SenhaAtendeCritérios(request.Senha))
+            throw new TickestException("A senha deve ter pelo menos 8 caracteres, incluir pelo menos uma letra maiúscula e dois caracteres especiais.");
 
-        //verificar se email já existe
-        if(await _usuarioRepository.ExisteUsuarioEmailAsync(request.Email))
-        {
+        // Verificar se o e-mail já existe
+        if (await _usuarioRepository.ExisteUsuarioEmailAsync(request.Email))
             throw new TickestException("Email já cadastrado");
-        }
 
-        //criptografar senha
-        //..
-
+        var senhaSalt = PasswordHasher.GenerateSalt();
+        string senhaCriptografada = PasswordHasher.HashPassword(request.Senha, senhaSalt);
 
         var usuario = new Usuario
         {
             Nome = request.Nome,
             Email = request.Email,
-            Senha = string.Empty, //senha criptografada
-            Salt = string.Empty, //salt criado para senha
+            Senha = senhaCriptografada,
+            Salt = senhaSalt
         };
 
         await _usuarioRepository.AddAsync(usuario);

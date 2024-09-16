@@ -18,6 +18,11 @@ internal class AuthService : IAuthService
         throw new NotImplementedException();
     }
 
+    private string GerarTokenJWT(string token)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<Usuario> GetCurrentUserAsync()
     {
         throw new NotImplementedException();
