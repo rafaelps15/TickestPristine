@@ -49,8 +49,8 @@ public class CriarUsuarioCommandHandler(
         if (await _usuarioRepository.ExisteUsuarioEmailAsync(request.Email))
             throw new TickestException("Email já cadastrado");
 
-        var senhaSalt = PasswordHasher.GenerateSalt();
-        string senhaCriptografada = PasswordHasher.HashPassword(request.Senha, senhaSalt);
+        var senhaSalt = HasherDeSenha.GenerateSalt();
+        string senhaCriptografada = HasherDeSenha.HashSenha(request.Senha, senhaSalt);
 
         var usuario = new Usuario
         {

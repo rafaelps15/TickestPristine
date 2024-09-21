@@ -1,4 +1,7 @@
-﻿using Tickest.Domain.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+using Tickest.Domain.Entities;
+using Tickest.Domain.Exceptions;
+using Tickest.Infrastructure.Helpers;
 using Tickest.Persistence.Repositories;
 
 namespace Tickest.Infrastructure.Services.Usuarios;
@@ -19,12 +22,24 @@ public class UsuarioService : IUsuarioService
 
 	public async Task<Usuario> ObterUsuarioPorEmailAsync(string email)
 	{
-		return await _usuarioRepository.ObterUsuarioPorEmailAsync(email);
+		var usuario = await _usuarioRepository.ObterUsuarioPorEmailAsync(email)
+			?? throw new TickestException("Usuário não encontrado.");
+
+		return usuario;
 	}
 
 	public async Task<Usuario> ValidarUsuarioAsync(string email, string senha)
 	{
-		return await _usuarioRepository.ValidarUsuarioAsync(email, senha);
+		var usuario = await ObterUsuarioPorEmailAsync(email)
+					   ?? throw new TickestException("Usuário não encontrado.");
+
+		var hashedPassword = HasherDeSenha.HashSenha(senha, usuario.Salt);
+
+		if (!hashedPassword.Equals(usuario.Senha))
+			throw new TickestException("Senha incorreta.");
+
+		return usuario;
 	}
+
 
 }
