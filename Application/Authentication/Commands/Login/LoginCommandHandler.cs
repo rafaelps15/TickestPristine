@@ -50,4 +50,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, TokenModel>
 
         return authResult;
     }
+    public async Task<Usuario>ValidateUserAsync(string email, string senha)
+    {
+        var usuario = await _usuarioRepository.UpdateAsync
+
+    }
 }

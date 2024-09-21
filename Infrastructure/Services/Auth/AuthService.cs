@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Tickest.Domain.Contracts.Models;
 using Tickest.Domain.Entities;
 using Tickest.Infrastructure.Configuracoes;
@@ -25,8 +24,8 @@ namespace Tickest.Infrastructure.Services.Auth
         public Task<TokenModel> AuthenticateAsync(Usuario usuario)
         {
             var token = GenerateTokenJwt(usuario);
-            return Task.FromResult(new TokenModel { Token = token });
-        }
+			return Task.FromResult(new TokenModel(token));
+		}
 
         private string GenerateTokenJwt(Usuario usuario)
         {

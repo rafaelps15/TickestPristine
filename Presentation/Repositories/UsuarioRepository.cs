@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Entities;
-using Tickest.Domain.Repositories;
 
 namespace Tickest.Persistence.Repositories;
 
@@ -10,13 +9,18 @@ internal class UsuarioRepository : BaseRepository<Usuario>, IUsuarioRepository
     {
     }
 
-    public async Task<bool> ExisteUsuarioEmailAsync(string email)
+    public async Task<bool> ExisteEmailCadastroAsync(string email)
     {
-        return await _context.Usuarios.AnyAsync(p => p.Email == email.ToLower());
+        return await _context.Usuarios.AnyAsync(e => e.Email == email.ToLower());
     }
 
-    public async Task<Usuario> GetByEmailAsync(string email)
+    public async Task<Usuario> ObterUsuarioPorEmailAsync(string email)
     {
-        return await _context.Usuarios.FirstOrDefaultAsync(p => p.Email == email);
+        return await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
     }
+
+	public async Task<Usuario> ValidarUsuarioAsync(string email, string senha)
+	{
+		return await _context.Usuarios.SingleOrDefaultAsync(p => p.Email == email && p.Senha == senha);
+	}
 }

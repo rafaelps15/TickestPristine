@@ -1,9 +1,10 @@
 ﻿using Tickest.Domain.Entities;
 
-namespace Tickest.Domain.Repositories;
+namespace Tickest.Persistence.Repositories;
 
 public interface IMensagemRepository : IBaseRepotirory<Mensagem>
 {
 
 }
+
 
