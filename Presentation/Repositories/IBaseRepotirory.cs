@@ -8,7 +8,7 @@ public interface IBaseRepotirory<TEntity> where TEntity : EntidadeBase
 
 	Task<IEnumerable<TEntity>> GetAllAsync();
 
-	Task AddAsync(TEntity entity);
+	Task AddAsync(TEntity entity, CancellationToken cancellationToken);
 
 	Task UpdateAsync(TEntity entity);
 

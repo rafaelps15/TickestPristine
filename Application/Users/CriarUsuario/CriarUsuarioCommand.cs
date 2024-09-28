@@ -2,7 +2,7 @@
 
 namespace Tickest.Application.Users.CriarUsuario;
 
-public class CriarUsuarioCommand : IRequest
+public class CriarUsuarioCommand : IRequest<Unit>
 {
     public string Email { get; set; }
 

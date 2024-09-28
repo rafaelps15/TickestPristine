@@ -4,62 +4,59 @@ using System.Net.Mail;
 using System.Text.RegularExpressions;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Repositories;
 using Tickest.Infrastructure.Helpers;
+using Tickest.Persistence.Repositories;
 
 namespace Tickest.Application.Users.CriarUsuario;
 
-public class CriarUsuarioCommandHandler(
-    IUsuarioRepository usuarioRepository, 
-    IConfiguration configuration) : IRequestHandler<CriarUsuarioCommand>
+public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand, Unit>
 {
-    private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
+	private readonly IUsuarioRepository _usuarioRepository;
+	private readonly IConfiguration _configuration;
 
-    private bool IsValidEmail(string email)
-    {
-        try
-        {
-            var addr = new MailAddress(email);
-            return addr.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-    private bool SenhaAtendeCritérios(string senha)
-    {
-        var senhaRegex = new Regex(@"^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]).{8,}$");
-        int especialCount = new Regex(@"[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]").Matches(senha).Count;
+	public CriarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IConfiguration configuration)
+		=> (_usuarioRepository, _configuration) = (usuarioRepository, configuration);
 
-        return senhaRegex.IsMatch(senha) && especialCount >= 2;
-    }
+	private bool IsValidEmail(string email)
+	{
+		return MailAddress.TryCreate(email, out _);
+	}
 
-    public async Task Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
-    {
-        //Verificar se o email é válido
-        if (string.IsNullOrWhiteSpace(request.Email) || !IsValidEmail(request.Email))
-            throw new TickestException("Email inválido.");
+	private bool SenhaAtendeCritérios(string senha)
+	{
+		// Senha com pelo menos uma letra maiúscula, dois caracteres especiais e 8 caracteres de comprimento
+		var senhaRegex = new Regex(@"^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]).{8,}$");
+		int especialCount = new Regex(@"[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]").Matches(senha).Count;
 
-        // Verificar se a senha atende aos critérios
-        if (!SenhaAtendeCritérios(request.Senha))
-            throw new TickestException("A senha deve ter pelo menos 8 caracteres, incluir pelo menos uma letra maiúscula e dois caracteres especiais.");
+		return senhaRegex.IsMatch(senha) && especialCount >= 2;
+	}
 
-        // Verificar se o e-mail já existe
-        if (await _usuarioRepository.ExisteUsuarioEmailAsync(request.Email))
-            throw new TickestException("Email já cadastrado");
+	public async Task<Unit> Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
+	{
+		if (string.IsNullOrWhiteSpace(request.Email) || !IsValidEmail(request.Email))
+			throw new TickestException("Email inválido.");
 
-        var senhaSalt = HasherDeSenha.GenerateSalt();
-        string senhaCriptografada = HasherDeSenha.HashSenha(request.Senha, senhaSalt);
+		if (!SenhaAtendeCritérios(request.Senha))
+			throw new TickestException("A senha deve ter pelo menos 8 caracteres, incluir pelo menos uma letra maiúscula e dois caracteres especiais.");
 
-        var usuario = new Usuario
-        {
-            Nome = request.Nome,
-            Email = request.Email,
-            Senha = senhaCriptografada,
-            Salt = senhaSalt
-        };
+		if (await _usuarioRepository.ExisteEmailCadastroAsync(request.Email))
+			throw new TickestException("Email já cadastrado.");
 
-        await _usuarioRepository.AddAsync(usuario);
-    }
+		// Criar o salt e criptografar a senha
+		var senhaSalt = HasherDeSenha.GerarSalt();
+		string senhaCriptografada = HasherDeSenha.HashSenha(request.Senha, senhaSalt);
+
+		var usuario = new Usuario
+		{
+			Nome = request.Nome,
+			Email = request.Email,
+			Senha = senhaCriptografada,
+			Salt = senhaSalt,
+			DataCadastro = DateTime.UtcNow
+		};
+
+		await _usuarioRepository.AddAsync(usuario,cancellationToken);
+
+		return Unit.Value; // Retornar um valor padrão do MediatR
+	}
 }

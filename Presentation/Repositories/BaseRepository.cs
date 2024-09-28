@@ -22,10 +22,10 @@ internal class BaseRepository<TEntity> : IBaseRepotirory<TEntity> where TEntity 
         return await _context.Set<TEntity>().FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public async Task AddAsync(TEntity entity)
+    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        await _context.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await _context.AddAsync(entity,cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(TEntity entity)
