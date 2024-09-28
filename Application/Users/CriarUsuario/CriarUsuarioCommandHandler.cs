@@ -1,62 +1,63 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Configuration;
-using System.Net.Mail;
-using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using Tickest.Domain.Contracts.Services;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
-using Tickest.Infrastructure.Helpers;
 using Tickest.Persistence.Repositories;
 
 namespace Tickest.Application.Users.CriarUsuario;
 
 public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand, Unit>
 {
-	private readonly IUsuarioRepository _usuarioRepository;
-	private readonly IConfiguration _configuration;
+    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly IConfiguration _configuration;
+    private readonly IHasherDeSenha _hasherDeSenha;
+    private readonly IUsuarioValidator _validator;
+    private readonly ILogger<CriarUsuarioCommandHandler> _logger;
 
-	public CriarUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IConfiguration configuration)
-		=> (_usuarioRepository, _configuration) = (usuarioRepository, configuration);
+    public CriarUsuarioCommandHandler(
+        IUsuarioRepository usuarioRepository,
+        IConfiguration configuration,
+        IHasherDeSenha hasherDeSenha,
+        IUsuarioValidator validator,
+        ILogger<CriarUsuarioCommandHandler> logger)
+        => (_usuarioRepository, _configuration, _hasherDeSenha, _validator, _logger) = (usuarioRepository, configuration, hasherDeSenha, validator, logger);
 
-	private bool IsValidEmail(string email)
-	{
-		return MailAddress.TryCreate(email, out _);
-	}
+    public async Task<Unit> Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Iniciando a criação de usuário: {Email}", request.Email);
 
-	private bool SenhaAtendeCritérios(string senha)
-	{
-		// Senha com pelo menos uma letra maiúscula, dois caracteres especiais e 8 caracteres de comprimento
-		var senhaRegex = new Regex(@"^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]).{8,}$");
-		int especialCount = new Regex(@"[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]").Matches(senha).Count;
+        _validator.ValidateEmail(request.Email);
+        _validator.ValidateSenha(request.Senha);
 
-		return senhaRegex.IsMatch(senha) && especialCount >= 2;
-	}
+        if (await _usuarioRepository.ExisteEmailCadastroAsync(request.Email, cancellationToken))
+        {
+            _logger.LogWarning("Tentativa de cadastro com email já existente: {Email}", request.Email);
+            throw new TickestException("Email já cadastrado.");
+        }
 
-	public async Task<Unit> Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
-	{
-		if (string.IsNullOrWhiteSpace(request.Email) || !IsValidEmail(request.Email))
-			throw new TickestException("Email inválido.");
+        var (senhaCriptografada, senhaSalt) = CriarHashSenha(request.Senha);
 
-		if (!SenhaAtendeCritérios(request.Senha))
-			throw new TickestException("A senha deve ter pelo menos 8 caracteres, incluir pelo menos uma letra maiúscula e dois caracteres especiais.");
+        var usuario = new Usuario
+        {
+            Nome = request.Nome,
+            Email = request.Email,
+            Senha = senhaCriptografada,
+            Salt = senhaSalt,
+            DataCadastro = DateTime.UtcNow
+        };
 
-		if (await _usuarioRepository.ExisteEmailCadastroAsync(request.Email))
-			throw new TickestException("Email já cadastrado.");
+        await _usuarioRepository.AddAsync(usuario, cancellationToken);
 
-		// Criar o salt e criptografar a senha
-		var senhaSalt = HasherDeSenha.GerarSalt();
-		string senhaCriptografada = HasherDeSenha.HashSenha(request.Senha, senhaSalt);
+        _logger.LogInformation("Usuário criado com sucesso: {Email}", request.Email);
+        return Unit.Value;
+    }
 
-		var usuario = new Usuario
-		{
-			Nome = request.Nome,
-			Email = request.Email,
-			Senha = senhaCriptografada,
-			Salt = senhaSalt,
-			DataCadastro = DateTime.UtcNow
-		};
-
-		await _usuarioRepository.AddAsync(usuario,cancellationToken);
-
-		return Unit.Value; // Retornar um valor padrão do MediatR
-	}
+    private (string senhaCriptografada, string senhaSalt) CriarHashSenha(string senha)
+    {
+        var senhaSalt = _hasherDeSenha.GerarSalt();
+        var senhaCriptografada = _hasherDeSenha.HashSenha(senha, senhaSalt);
+        return (senhaCriptografada, senhaSalt);
+    }
 }
