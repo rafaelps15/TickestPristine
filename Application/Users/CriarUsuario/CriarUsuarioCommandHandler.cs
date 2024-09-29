@@ -31,7 +31,7 @@ public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand, U
         _validator.ValidateEmail(request.Email);
         _validator.ValidateSenha(request.Senha);
 
-        if (await _usuarioRepository.ExisteEmailCadastroAsync(request.Email, cancellationToken))
+        if (await _usuarioRepository.ExisteEmailCadastroAsync(request.Email))
         {
             _logger.LogWarning("Tentativa de cadastro com email já existente: {Email}", request.Email);
             throw new TickestException("Email já cadastrado.");

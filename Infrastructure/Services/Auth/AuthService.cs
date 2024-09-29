@@ -4,28 +4,27 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Tickest.Domain.Contracts.Models;
 using Tickest.Domain.Entities;
 using Tickest.Infrastructure.Configuracoes;
+using Tickest.Infrastructure.Interfaces;
 
 namespace Tickest.Infrastructure.Services.Auth
 {
-    internal class AuthService : IAuthService
+    public class AuthService : IAuthService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JwtConfiguracao _jwtConfiguracao;
 
         public AuthService(IHttpContextAccessor httpContextAccessor, IOptions<JwtConfiguracao> jwtConfiguracao)
-        {
-            _httpContextAccessor = httpContextAccessor;
-            _jwtConfiguracao = jwtConfiguracao.Value;
-        }
+            => (_httpContextAccessor, _jwtConfiguracao) = (httpContextAccessor, jwtConfiguracao.Value);
 
-        public Task<TokenModel> AuthenticateAsync(Usuario usuario)
+        public async Task<TokenModel> AuthenticateAsync(Usuario usuario)
         {
             var token = GenerateTokenJwt(usuario);
-			return Task.FromResult(new TokenModel(token));
-		}
+            return await Task.FromResult(new TokenModel(token));
+        }
 
         private string GenerateTokenJwt(Usuario usuario)
         {
@@ -36,7 +35,10 @@ namespace Tickest.Infrastructure.Services.Auth
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, usuario.Email),
-                    
+                    //Exemplos;
+                    //new Claim(ClaimTypes.Role, usuario.Role), 
+                    //new Claim(ClaimTypes.Email, usuario.Email),
+                    //new Claim("UserId", usuario.Id.ToString()), 
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(_jwtConfiguracao.ExpiracaoEmMinutos),
                 Issuer = _jwtConfiguracao.Emissor,

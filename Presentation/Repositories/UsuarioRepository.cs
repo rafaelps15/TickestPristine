@@ -19,8 +19,8 @@ internal class UsuarioRepository : BaseRepository<Usuario>, IUsuarioRepository
         return await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
     }
 
-	public async Task<Usuario> ValidarUsuarioAsync(string email, string senha)
-	{
-		return await _context.Usuarios.SingleOrDefaultAsync(p => p.Email == email && p.Senha == senha);
-	}
+    public async Task<Usuario> ValidarUsuarioAsync(string email, string senha)
+    {
+        return await _context.Usuarios.SingleOrDefaultAsync(p => p.Email == email && p.Senha == senha);
+    }
 }

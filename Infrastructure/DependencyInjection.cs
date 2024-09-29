@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tickest.Infrastructure.Interfaces;
 using Tickest.Infrastructure.Services.Auth;
 
 namespace Tickest.Infrastructure;

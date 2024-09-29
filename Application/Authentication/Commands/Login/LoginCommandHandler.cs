@@ -4,7 +4,7 @@ using Tickest.Domain.Contracts.Models;
 using Tickest.Domain.Exceptions;
 using Tickest.Infrastructure.Configuracoes;
 using Tickest.Infrastructure.Helpers;
-using Tickest.Infrastructure.Services.Auth;
+using Tickest.Infrastructure.Interfaces;
 using Tickest.Persistence.Repositories;
 
 namespace Tickest.Application.Authentication.Commands.Login;

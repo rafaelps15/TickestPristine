@@ -1,7 +1,7 @@
 ﻿using Tickest.Domain.Contracts.Models;
 using Tickest.Domain.Entities;
 
-namespace Tickest.Infrastructure.Services.Auth;
+namespace Tickest.Infrastructure.Interfaces;
 
 public interface IAuthService
 {
