@@ -1,12 +1,10 @@
 ﻿using Tickest.Domain.Entities;
 
-namespace Tickest.Persistence.Repositories;
+namespace Tickest.Infrastructure.Interfaces;
 
-public interface IUsuarioRepository : IBaseRepotirory<Usuario>
+public interface IUsuarioService
 {
     Task<bool> ExisteEmailCadastroAsync(string email);
     Task<Usuario> ObterUsuarioPorEmailAsync(string email);
-    Task<Usuario> ObterUsuarioPorIdAsync(int userId);
     Task<Usuario> ValidarUsuarioAsync(string email, string senha);
 }
-

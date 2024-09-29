@@ -4,20 +4,16 @@ using System.Security.Claims;
 using System.Text;
 using Tickest.Infrastructure.Configuracoes;
 using Tickest.Infrastructure.Interfaces;
-using Tickest.Domain.Entities; // Importando a entidade Usuario se necessário
 
 namespace Tickest.Infrastructure.Services.Authentication
 {
     public class TokenService : ITokenService
     {
         private readonly JwtConfiguracao _jwtConfiguracao;
-        private readonly Dictionary<string, string> _refreshTokens; // Simulação de armazenamento de refresh tokens
+        private readonly Dictionary<string, string> _refreshTokens;
 
         public TokenService(JwtConfiguracao jwtConfiguracao)
-        {
-            _jwtConfiguracao = jwtConfiguracao;
-            _refreshTokens = new Dictionary<string, string>();
-        }
+            => (_jwtConfiguracao, _refreshTokens) = (jwtConfiguracao, new Dictionary<string, string>());
 
         public async Task<string> GerarTokenAsync(string userId)
         {
@@ -26,7 +22,10 @@ namespace Tickest.Infrastructure.Services.Authentication
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userId)
-                // Adicione outras reivindicações conforme necessário
+                // Exemplos
+                // new Claim(ClaimTypes.Role, usuario.Role ?? string.Empty), 
+                // new Claim(ClaimTypes.Email, usuario.Email),
+                // new Claim("UserId", usuario.Id.ToString()),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

@@ -11,7 +11,7 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
 
-        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         return services;
     }

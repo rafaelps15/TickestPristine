@@ -11,15 +11,15 @@ namespace Tickest.Application.Authentication.Commands.Login;
 
 public class LoginCommandHandler : IRequestHandler<LoginCommand, TokenModel>
 {
-    private readonly IAuthService _authService;
+    private readonly IAuthenticationService _authenticationService;
     private readonly IUsuarioRepository _usuarioRepository;
     private readonly JwtConfiguracao _jwtConfiguracao;
 
     public LoginCommandHandler(
-        IAuthService authService,
+        IAuthenticationService authenticationService,
         IUsuarioRepository usuarioRepository,
         IOptions<JwtConfiguracao> jwtConfiguracao)
-        => (_authService, _usuarioRepository, _jwtConfiguracao) = (authService, usuarioRepository, jwtConfiguracao.Value);
+        => (_authenticationService, _usuarioRepository, _jwtConfiguracao) = (authenticationService, usuarioRepository, jwtConfiguracao.Value);
 
     public async Task<TokenModel> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
@@ -30,7 +30,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, TokenModel>
 
         VerificarSenha(request.Senha, usuario.Salt, usuario.Senha);
 
-        return await _authService.AuthenticateAsync(usuario);
+        return await _authenticationService.AuthenticateAsync(usuario);
     }
 
     private void ValidarCredenciais(LoginCommand request)

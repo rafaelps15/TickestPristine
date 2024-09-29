@@ -4,26 +4,44 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Tickest.Domain.Contracts.Models;
 using Tickest.Domain.Entities;
 using Tickest.Infrastructure.Configuracoes;
 using Tickest.Infrastructure.Interfaces;
+using Tickest.Persistence.Repositories;
 
 namespace Tickest.Infrastructure.Services.Auth
 {
-    public class AuthService : IAuthService
+    public class AuthenticationService : IAuthenticationService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JwtConfiguracao _jwtConfiguracao;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public AuthService(IHttpContextAccessor httpContextAccessor, IOptions<JwtConfiguracao> jwtConfiguracao)
-            => (_httpContextAccessor, _jwtConfiguracao) = (httpContextAccessor, jwtConfiguracao.Value);
+        public AuthenticationService(IHttpContextAccessor httpContextAccessor, IOptions<JwtConfiguracao> jwtConfiguracao, IUsuarioRepository usuarioRepository)
+             => (_httpContextAccessor, _jwtConfiguracao, _usuarioRepository) = (httpContextAccessor, jwtConfiguracao.Value, usuarioRepository);
 
         public async Task<TokenModel> AuthenticateAsync(Usuario usuario)
         {
             var token = GenerateTokenJwt(usuario);
             return await Task.FromResult(new TokenModel(token));
+        }
+
+        public async Task<string> RenewTokenAsync(int userId)
+        {
+            // Obtendo o usuário pelo ID
+            var usuario = await _usuarioRepository.ObterUsuarioPorIdAsync(userId);
+
+            if (usuario == null)
+                throw new ArgumentException($"Usuário com ID {userId} não encontrado.");
+
+            // Gerando um novo token para o usuário encontrado
+            return GenerateTokenJwt(usuario);
+        }
+
+        public Task<string> RenewTokenAsync(string userId)
+        {
+            throw new NotImplementedException();
         }
 
         private string GenerateTokenJwt(Usuario usuario)
@@ -32,13 +50,13 @@ namespace Tickest.Infrastructure.Services.Auth
             var key = Encoding.ASCII.GetBytes(_jwtConfiguracao.ChaveSecreta);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name, usuario.Email),
-                    //Exemplos;
-                    //new Claim(ClaimTypes.Role, usuario.Role), 
-                    //new Claim(ClaimTypes.Email, usuario.Email),
-                    //new Claim("UserId", usuario.Id.ToString()), 
+                    // Você pode descomentar as linhas abaixo se precisar incluir mais informações no token
+                    // new Claim(ClaimTypes.Role, usuario.Role ?? string.Empty), 
+                    // new Claim(ClaimTypes.Email, usuario.Email),
+                    // new Claim("UserId", usuario.Id.ToString()),
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(_jwtConfiguracao.ExpiracaoEmMinutos),
                 Issuer = _jwtConfiguracao.Emissor,

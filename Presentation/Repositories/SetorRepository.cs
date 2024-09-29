@@ -1,4 +1,5 @@
 ﻿using Tickest.Domain.Entities;
+using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tickest.Persistence.Data;
 using Tickest.Persistence.Repositories;
 
 namespace Tickest.Persistence;

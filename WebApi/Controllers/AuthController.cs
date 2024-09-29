@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Tickest.Application.Authentication.Commands;
 using Tickest.Application.Authentication.Commands.Login;
+using Tickest.Application.Authentication.Commands.Tokens;
 
 namespace WebApi.Controllers
 {
