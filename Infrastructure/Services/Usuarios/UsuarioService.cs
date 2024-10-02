@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Tickest.Domain.Entities;
+﻿using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
+using Tickest.Domain.Interfaces;
+using Tickest.Domain.Repositories;
 using Tickest.Infrastructure.Helpers;
-using Tickest.Infrastructure.Interfaces;
-using Tickest.Persistence.Repositories;
 
 namespace Tickest.Infrastructure.Services.Usuarios;
 

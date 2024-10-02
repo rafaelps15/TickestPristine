@@ -1,4 +1,4 @@
-﻿namespace Tickest.Application.Users.CriarUsuario;
+﻿namespace Tickest.Application.Users.Validators;
 
 /// <summary>
 /// Interface responsável pela validação dos dados do usuário.

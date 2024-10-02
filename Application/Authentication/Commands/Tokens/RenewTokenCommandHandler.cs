@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tickest.Domain.Contracts.Models;
 using Tickest.Infrastructure.Configuracoes;
-using Tickest.Infrastructure.Interfaces;
+using Tickest.Domain.Contracts.Services;
 
 namespace Tickest.Application.Authentication.Commands.Tokens;
 

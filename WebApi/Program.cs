@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
-using Tickest.Application.Users.CriarUsuario;
+using Tickest.Application.Users.Validators;
 using Tickest.Domain.Contracts.Services;
 using Tickest.Infrastructure;
 using Tickest.Infrastructure.Configuracoes;
 using Tickest.Infrastructure.Helpers;
-using Tickest.Infrastructure.Interfaces;
 using Tickest.Infrastructure.Mvc.Middlewares;
 using Tickest.Infrastructure.Services.Auth;
 using Tickest.Infrastructure.Services.Authentication;
-using Tickest.Persistence;
+using Tickest.Persistence; 
+
 
 var builder = WebApplication.CreateBuilder(args);
 

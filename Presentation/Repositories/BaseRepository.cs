@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Entities;
+using Tickest.Domain.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class BaseRepository<TEntity> : IBaseRepotirory<TEntity> where TEntity : EntidadeBase
+internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : EntidadeBase
 {
     protected readonly TickestContext _context;
 

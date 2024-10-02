@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Entities;
+using Tickest.Domain.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;

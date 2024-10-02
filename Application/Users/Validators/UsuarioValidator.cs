@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Tickest.Domain.Exceptions;
 
-namespace Tickest.Application.Users.CriarUsuario;
+namespace Tickest.Application.Users.Validators;
 
 public class UsuarioValidator : IUsuarioValidator
 {

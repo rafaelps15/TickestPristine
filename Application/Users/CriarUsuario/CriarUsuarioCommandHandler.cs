@@ -1,10 +1,11 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Tickest.Application.Users.Validators;
 using Tickest.Domain.Contracts.Services;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
-using Tickest.Persistence.Repositories;
+using Tickest.Domain.Repositories;
 
 namespace Tickest.Application.Users.CriarUsuario;
 

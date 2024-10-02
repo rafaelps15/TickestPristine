@@ -1,4 +1,4 @@
-﻿namespace Tickest.Infrastructure.Interfaces;
+﻿namespace Tickest.Domain.Contracts.Services;
 
 public interface ITokenService
 {

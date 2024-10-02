@@ -1,6 +1,6 @@
 ﻿using Tickest.Domain.Entities;
 
-namespace Tickest.Infrastructure.Interfaces;
+namespace Tickest.Domain.Interfaces;
 
 public interface IUsuarioService
 {

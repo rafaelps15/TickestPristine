@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Tickest.Infrastructure.Configuracoes;
-using Tickest.Infrastructure.Interfaces;
+using Tickest.Domain.Contracts.Services;
 
 namespace Tickest.Infrastructure.Services.Authentication
 {
