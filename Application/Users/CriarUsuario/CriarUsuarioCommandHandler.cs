@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Tickest.Application.Users.Validators;
+using Tickest.Domain.Contracts.Responses;
 using Tickest.Domain.Contracts.Services;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
@@ -9,28 +9,24 @@ using Tickest.Domain.Repositories;
 
 namespace Tickest.Application.Users.CriarUsuario;
 
-public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand, Unit>
+public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand, CriarUsuarioResponse>
 {
     private readonly IUsuarioRepository _usuarioRepository;
     private readonly IConfiguration _configuration;
     private readonly IHasherDeSenha _hasherDeSenha;
-    private readonly IUsuarioValidator _validator;
     private readonly ILogger<CriarUsuarioCommandHandler> _logger;
 
     public CriarUsuarioCommandHandler(
         IUsuarioRepository usuarioRepository,
         IConfiguration configuration,
         IHasherDeSenha hasherDeSenha,
-        IUsuarioValidator validator,
         ILogger<CriarUsuarioCommandHandler> logger)
-        => (_usuarioRepository, _configuration, _hasherDeSenha, _validator, _logger) = (usuarioRepository, configuration, hasherDeSenha, validator, logger);
+        => (_usuarioRepository, _configuration, _hasherDeSenha,  _logger) = (usuarioRepository, configuration, hasherDeSenha, logger);
 
-    public async Task<Unit> Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
+    public async Task<CriarUsuarioResponse> Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Iniciando a criação de usuário: {Email}", request.Email);
 
-        _validator.ValidateEmail(request.Email);
-        _validator.ValidateSenha(request.Senha);
 
         if (await _usuarioRepository.ExisteEmailCadastroAsync(request.Email))
         {
@@ -52,7 +48,7 @@ public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand, U
         await _usuarioRepository.AddAsync(usuario, cancellationToken);
 
         _logger.LogInformation("Usuário criado com sucesso: {Email}", request.Email);
-        return Unit.Value;
+        return new CriarUsuarioResponse();
     }
 
     private (string senhaCriptografada, string senhaSalt) CriarHashSenha(string senha)

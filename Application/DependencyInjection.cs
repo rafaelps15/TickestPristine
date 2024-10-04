@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Tickest.Application.Core.Behaviors;
 
 namespace Application;
 
@@ -13,6 +15,8 @@ public static class DependencyInjection
              configuration.RegisterServicesFromAssembly(assembly));
 
         services.AddValidatorsFromAssembly(assembly);
+
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidateCommandBehavior<,>));
 
         return services;
     }

@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Tickest.Domain.Contracts.Models;
+using Tickest.Domain.Contracts.Responses;
 using Tickest.Domain.Contracts.Services;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Repositories;
@@ -21,10 +21,10 @@ public class AuthenticationService : IAuthenticationService
     public AuthenticationService(IHttpContextAccessor httpContextAccessor, IOptions<JwtConfiguracao> jwtConfiguracao, IUsuarioRepository usuarioRepository)
          => (_httpContextAccessor, _jwtConfiguracao, _usuarioRepository) = (httpContextAccessor, jwtConfiguracao.Value, usuarioRepository);
 
-    public async Task<TokenModel> AuthenticateAsync(Usuario usuario)
+    public async Task<TokenResponse> AuthenticateAsync(Usuario usuario)
     {
-        var token = GenerateTokenJwt(usuario);
-        return await Task.FromResult(new TokenModel(token));
+        var token = await GenerateTokenJwt(usuario);
+        return new TokenResponse(token);
     }
 
     public async Task<string> RenewTokenAsync(int userId)
@@ -36,7 +36,7 @@ public class AuthenticationService : IAuthenticationService
             throw new ArgumentException($"Usuário com ID {userId} não encontrado.");
 
         // Gerando um novo token para o usuário encontrado
-        return GenerateTokenJwt(usuario);
+        return await GenerateTokenJwt(usuario);
     }
 
     public Task<string> RenewTokenAsync(string userId)
@@ -44,20 +44,24 @@ public class AuthenticationService : IAuthenticationService
         throw new NotImplementedException();
     }
 
-    private string GenerateTokenJwt(Usuario usuario)
+    private async Task<string> GenerateTokenJwt(Usuario usuario)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_jwtConfiguracao.ChaveSecreta);
+
+        var roles = new List<Claim>
+        {
+            new Claim(ClaimTypes.Sid, usuario.Id.ToString())
+        };
+
+        var usuarioRoles = await _usuarioRepository.ObterRegrasUsuarioAsync(usuario.Id);
+
+        foreach (var usuarioRegra in usuarioRoles)
+            roles.Add(new Claim(ClaimTypes.Role, usuarioRegra.Regra.Nome));
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, usuario.Email),
-                // Você pode descomentar as linhas abaixo se precisar incluir mais informações no token
-                // new Claim(ClaimTypes.Role, usuario.Role ?? string.Empty), 
-                // new Claim(ClaimTypes.Email, usuario.Email),
-                // new Claim("UserId", usuario.Id.ToString()),
-            }),
+            Subject = new ClaimsIdentity(roles),
             Expires = DateTime.UtcNow.AddMinutes(_jwtConfiguracao.ExpiracaoEmMinutos),
             Issuer = _jwtConfiguracao.Emissor,
             Audience = _jwtConfiguracao.Audiencia,

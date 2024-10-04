@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Tickest.Domain.Contracts.Models;
+using Tickest.Domain.Contracts.Responses;
 
 namespace Tickest.Application.Authentication.Commands.Tokens;
 
-public class RenewTokenCommand : IRequest<TokenModel>
+public class RenewTokenCommand : IRequest<TokenResponse>
 {
     public string UserId { get; }
 

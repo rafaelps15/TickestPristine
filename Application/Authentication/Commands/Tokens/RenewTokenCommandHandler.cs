@@ -1,13 +1,13 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Tickest.Domain.Contracts.Models;
-using Tickest.Infrastructure.Configuracoes;
+using Tickest.Domain.Contracts.Responses;
 using Tickest.Domain.Contracts.Services;
+using Tickest.Infrastructure.Configuracoes;
 
 namespace Tickest.Application.Authentication.Commands.Tokens;
 
-public class RenewTokenCommandHandler : IRequestHandler<RenewTokenCommand, TokenModel>
+public class RenewTokenCommandHandler : IRequestHandler<RenewTokenCommand, TokenResponse>
 {
     private readonly IAuthenticationService _authService;
     private readonly JwtConfiguracao _jwtConfiguracao;
@@ -19,7 +19,7 @@ public class RenewTokenCommandHandler : IRequestHandler<RenewTokenCommand, Token
         ILogger<RenewTokenCommandHandler> logger)
         => (_authService, _jwtConfiguracao, _logger) = (authService, jwtConfiguracao.Value, logger);
 
-    public async Task<TokenModel> Handle(RenewTokenCommand request, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Handle(RenewTokenCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.UserId))
         {
@@ -30,7 +30,7 @@ public class RenewTokenCommandHandler : IRequestHandler<RenewTokenCommand, Token
         try
         {
             var newToken = await _authService.RenewTokenAsync(request.UserId);
-            return new TokenModel(newToken);
+            return new TokenResponse(newToken);
         }
         catch (Exception ex)
         {

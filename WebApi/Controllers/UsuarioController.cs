@@ -17,6 +17,7 @@ namespace WebApi.Controllers
             _mediator=mediator;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CriarUsuario([FromBody] CriarUsuarioCommand command)
         {
