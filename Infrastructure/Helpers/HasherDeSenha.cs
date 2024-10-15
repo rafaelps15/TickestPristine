@@ -6,7 +6,7 @@ namespace Tickest.Infrastructure.Helpers;
 
 public sealed class HasherDeSenha : IHasherDeSenha
 {
-    private const int DefaultIterations = 10000; // Número padrão de iterações
+    private const int DefaultIterations = 100000; // Número padrão de iterações
     private const int DefaultHashSize = 32;      // Tamanho padrão do hash
     private const int DefaultSaltSize = 16;      // Tamanho padrão do salt
 

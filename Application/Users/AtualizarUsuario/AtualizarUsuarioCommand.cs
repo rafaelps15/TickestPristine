@@ -1,26 +1,21 @@
 ﻿using MediatR;
 using Tickest.Application.Interfaces;
+using Tickest.Application.Validators;
 using Tickest.Domain.Contracts.Responses;
 using Tickest.Domain.Exceptions;
-using Tickest.Application.Validators;
-using FluentValidation;
-using Tickest.Application.Users.CriarUsuario;
 
 namespace Tickest.Application.Users.AtualizarUsuario;
 
-public class AtualizarUsuarioCommand : IRequest<CriarUsuarioResponse>, ICommandValidator
+public class AtualizarUsuarioCommand : IRequest<AtualizarUsuarioResponse>, ICommandValidator
 {
 	#region Properties
-
-	public Guid Id { get; set; }
+	public int UsuarioId { get; set; }
 	public string Email { get; set; }
 	public string Senha { get; set; }
 	public string Nome { get; set; }
-
 	#endregion
 
 	#region Validation Methods
-
 	public void Validate()
 	{
 		var validator = new AtualizarUsuarioValidatorCommand();
@@ -32,6 +27,5 @@ public class AtualizarUsuarioCommand : IRequest<CriarUsuarioResponse>, ICommandV
 			throw new TickestException(errorMessage);
 		}
 	}
-
 	#endregion
 }

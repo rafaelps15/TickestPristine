@@ -7,54 +7,61 @@ using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Repositories;
 
-namespace Tickest.Application.Users.CriarUsuario;
-
-public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand, CriarUsuarioResponse>
+namespace Tickest.Application.Users.CriarUsuario
 {
-    private readonly IUsuarioRepository _usuarioRepository;
-    private readonly IConfiguration _configuration;
-    private readonly IHasherDeSenha _hasherDeSenha;
-    private readonly ILogger<CriarUsuarioCommandHandler> _logger;
-
-    public CriarUsuarioCommandHandler(
-        IUsuarioRepository usuarioRepository,
-        IConfiguration configuration,
-        IHasherDeSenha hasherDeSenha,
-        ILogger<CriarUsuarioCommandHandler> logger)
-        => (_usuarioRepository, _configuration, _hasherDeSenha,  _logger) = (usuarioRepository, configuration, hasherDeSenha, logger);
-
-    public async Task<CriarUsuarioResponse> Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
+    public class CriarUsuarioCommandHandler : IRequestHandler<CriarUsuarioCommand, CriarUsuarioResponse>
     {
-        _logger.LogInformation("Iniciando a criação de usuário: {Email}", request.Email);
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IConfiguration _configuration;
+        private readonly IHasherDeSenha _hasherDeSenha;
+        private readonly ILogger<CriarUsuarioCommandHandler> _logger;
 
+        // Construtor com injeção de dependências
+        public CriarUsuarioCommandHandler(
+            IUsuarioRepository usuarioRepository,
+            IConfiguration configuration,
+            IHasherDeSenha hasherDeSenha,
+            ILogger<CriarUsuarioCommandHandler> logger)
+            => (_usuarioRepository, _configuration, _hasherDeSenha, _logger) = (usuarioRepository, configuration, hasherDeSenha, logger);
 
-        if (await _usuarioRepository.ExisteEmailCadastroAsync(request.Email))
+        public async Task<CriarUsuarioResponse> Handle(CriarUsuarioCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogWarning("Tentativa de cadastro com email já existente: {Email}", request.Email);
-            throw new TickestException("Email já cadastrado.");
+            // Validar o comando
+            request.Validate();
+
+            _logger.LogInformation("Iniciando a criação de usuário: {Email}", request.Email);
+
+            if (await _usuarioRepository.ExisteEmailCadastroAsync(request.Email))
+            {
+                _logger.LogWarning("Tentativa de cadastro com email já existente: {Email}", request.Email);
+                throw new TickestException("Email já cadastrado.");
+            }
+
+            var (senhaCriptografada, senhaSalt) = CriarHashSenha(request.Senha);
+
+            var usuario = new Usuario
+            {
+                Nome = request.Nome,
+                Email = request.Email,
+                Senha = senhaCriptografada,
+                Salt = senhaSalt,
+                DataCadastro = DateTime.UtcNow
+            };
+
+            await _usuarioRepository.AddAsync(usuario, cancellationToken);
+
+            _logger.LogInformation("Usuário criado com sucesso: {Email}", request.Email);
+            return MapearResposta(usuario);
         }
 
-        var (senhaCriptografada, senhaSalt) = CriarHashSenha(request.Senha);
-
-        var usuario = new Usuario
+        private (string senhaCriptografada, string senhaSalt) CriarHashSenha(string senha)
         {
-            Nome = request.Nome,
-            Email = request.Email,
-            Senha = senhaCriptografada,
-            Salt = senhaSalt,
-            DataCadastro = DateTime.UtcNow
-        };
+            var senhaSalt = _hasherDeSenha.GerarSalt();
+            var senhaCriptografada = _hasherDeSenha.HashSenha(senha, senhaSalt);
+            return (senhaCriptografada, senhaSalt);
+        }
 
-        await _usuarioRepository.AddAsync(usuario, cancellationToken);
-
-        _logger.LogInformation("Usuário criado com sucesso: {Email}", request.Email);
-        return new CriarUsuarioResponse();
-    }
-
-    private (string senhaCriptografada, string senhaSalt) CriarHashSenha(string senha)
-    {
-        var senhaSalt = _hasherDeSenha.GerarSalt();
-        var senhaCriptografada = _hasherDeSenha.HashSenha(senha, senhaSalt);
-        return (senhaCriptografada, senhaSalt);
+        private CriarUsuarioResponse MapearResposta(Usuario usuario) =>
+            new CriarUsuarioResponse(usuario.Id, usuario.Email, usuario.Nome);
     }
 }

@@ -9,7 +9,7 @@ public class AtualizarUsuarioValidatorCommand : AbstractValidator<AtualizarUsuar
 	public AtualizarUsuarioValidatorCommand()
 	{
 		// Validação do Id
-		RuleFor(x => x.Id)
+		RuleFor(x => x.UsuarioId)
 			.NotEmpty().WithMessage("O ID do usuário deve ser informado para a atualização.");
 
 		// Validação do Email

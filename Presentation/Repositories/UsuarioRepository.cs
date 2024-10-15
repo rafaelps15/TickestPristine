@@ -11,19 +11,19 @@ internal class UsuarioRepository : BaseRepository<Usuario>, IUsuarioRepository
     {
     }
 
-    public async Task<Usuario> ObterUsuarioPorIdAsync(int id)
+    public async Task<Usuario> ObterUsuarioPorIdAsync(int usuarioId)
     {
-        return await GetByIdAsync(id); 
+        return await GetByIdAsync(usuarioId); 
     }
 
-    public async Task<bool> ExisteEmailCadastroAsync(string email)
+    public async Task<bool> ExisteEmailCadastroAsync(string usuarioEmail)
     {
-        return await _context.Usuarios.AnyAsync(e => e.Email == email.ToLower());
+        return await _context.Usuarios.AnyAsync(e => e.Email == usuarioEmail.ToLower());
     }
 
-    public async Task<Usuario> ObterUsuarioPorEmailAsync(string email)
+    public async Task<Usuario> ObterUsuarioPorEmailAsync(string usuarioEmail)
     {
-        return await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
+        return await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == usuarioEmail);
     }
 
     public async Task<ICollection<UsuarioRegra>> ObterRegrasUsuarioAsync(int usuarioId)
