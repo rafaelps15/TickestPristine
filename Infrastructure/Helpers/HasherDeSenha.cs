@@ -4,13 +4,13 @@ using Tickest.Domain.Contracts.Services;
 
 namespace Tickest.Infrastructure.Helpers;
 
-public sealed class HasherDeSenha : IHasherDeSenha
+public sealed class PasswordHasher : IPasswordHasher
 {
     private const int DefaultIterations = 100000; // Número padrão de iterações
     private const int DefaultHashSize = 32;      // Tamanho padrão do hash
     private const int DefaultSaltSize = 16;      // Tamanho padrão do salt
 
-    public string GerarSalt(int tamanho = DefaultSaltSize)
+    public string GenerateSalt(int tamanho = DefaultSaltSize)
     {
         if (tamanho <= 0)
             throw new ArgumentOutOfRangeException(nameof(tamanho), "O tamanho do salt deve ser maior que zero.");
@@ -21,7 +21,7 @@ public sealed class HasherDeSenha : IHasherDeSenha
         return Convert.ToBase64String(saltBytes);
     }
 
-    public string HashSenha(string senha, string salt, int iteracoes = DefaultIterations, int tamanhoHash = DefaultHashSize)
+    public string HashPassword(string senha, string salt, int iteracoes = DefaultIterations, int tamanhoHash = DefaultHashSize)
     {
         if (string.IsNullOrWhiteSpace(senha))
             throw new ArgumentException("A senha não pode ser nula ou vazia.", nameof(senha));

@@ -18,10 +18,10 @@ public class TickestContext : DbContext
     }
 
     public DbSet<Area> Areas { get; set; }
-    public DbSet<Chamado> Chamados { get; set; }
-    public DbSet<Mensagem> Mensagens { get; set; }
-    public DbSet<Regra> Regras { get; set; }
-    public DbSet<Setor> Setores { get; set; }
-    public DbSet<Usuario> Usuarios { get; set; }
-    public DbSet<UsuarioRegra> UsuarioRegras { get; set; }
+    public DbSet<SupportTicket> SupportTickets { get; set; }
+    public DbSet<Message> Messages { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Department> Departments { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<UserRole> UserRoles { get; set; }
 }

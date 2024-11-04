@@ -2,12 +2,12 @@
 {
     public class JwtConfiguracao
     {
-        public string ChaveSecreta { get; set; }
-        public string Emissor { get; set; }
-        public string Audiencia { get; set; }
-        public int ExpiracaoEmMinutos { get; set; }
+        public string SecretKey { get; set; }
+        public string Issuer { get; set; }
+        public string Audience { get; set; }
+        public int ExpirationInMinutes { get; set; }
         public double TokenExpirationMinutes { get; set; }
-        public int ExpiracaoRefreshTokenDias { get; set; }
+        public int RefreshTokenExpirationDays { get; set; }
         public char[] Secret { get; internal set; }
     }
 }

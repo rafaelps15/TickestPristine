@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Entities;
-using Tickest.Domain.Repositories;
+using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : EntidadeBase
+internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : EntityBase
 {
     protected readonly TickestContext _context;
 
@@ -36,7 +36,7 @@ internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity 
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteByIdAsync(int id)
+    public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken)
     {
         var entity = await _context.Set<TEntity>().FindAsync(id);
         if (entity != null)

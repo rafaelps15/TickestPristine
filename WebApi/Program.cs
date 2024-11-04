@@ -33,9 +33,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtConfig.Emissor,
-        ValidAudience = jwtConfig.Audiencia,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.ChaveSecreta))
+        ValidIssuer = jwtConfig.Issuer,
+        ValidAudience = jwtConfig.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.SecretKey))
     };
 });
 
@@ -47,7 +47,7 @@ builder.Services.AddSwaggerGen();
 // Adicionar serviços de autenticação e outros
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IHasherDeSenha, HasherDeSenha>(); 
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>(); 
 
 // Adicionar a infraestrutura e a persistência
 builder.Services.AddApplication()

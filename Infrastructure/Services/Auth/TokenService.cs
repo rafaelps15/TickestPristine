@@ -18,7 +18,7 @@ namespace Tickest.Infrastructure.Services.Authentication
         public async Task<string> GerarTokenAsync(string userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtConfiguracao.ChaveSecreta);
+            var key = Encoding.ASCII.GetBytes(_jwtConfiguracao.SecretKey);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userId)

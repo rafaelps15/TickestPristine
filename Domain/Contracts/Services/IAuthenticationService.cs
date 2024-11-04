@@ -6,6 +6,6 @@ namespace Tickest.Domain.Contracts.Services;
 
 public interface IAuthenticationService
 {
-	Task<TokenResponse> AuthenticateAsync(Usuario usuario);
+	Task<TokenResponse> AuthenticateAsync(User usuario);
 	Task<Result<string>> RenewTokenAsync(string userId); // Método atualizado
 }

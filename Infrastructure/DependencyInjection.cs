@@ -19,7 +19,7 @@ public static class DependencyInjection
         services.AddScoped<ITokenService, TokenService>();
 
         // Registra serviços auxiliares
-        services.AddScoped<IHasherDeSenha, HasherDeSenha>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         return services;
     }

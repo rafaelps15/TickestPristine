@@ -1,46 +1,50 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tickest.Domain.Contracts.Responses;
+using Tickest.Domain.Contracts.Responses.UserResponses;
 using Tickest.Domain.Contracts.Services;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Repositories;
+using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Infrastructure.Configuracoes;
 using Tickest.Infrastructure.Helpers;
 
 namespace Tickest.Application.Authentication.Commands.Login;
 
-public class LoginCommandHandler : IRequestHandler<LoginCommand, TokenResponse>
+public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
 {
     private readonly IAuthenticationService _authenticationService;
-    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly IUserRepository _usuarioRepository;
     private readonly JwtConfiguracao _jwtConfiguracao;
+    private readonly ILogger<LoginCommandHandler> _logger;
 
     public LoginCommandHandler(
         IAuthenticationService authenticationService,
-        IUsuarioRepository usuarioRepository,
-        IOptions<JwtConfiguracao> jwtConfiguracao)
-        => (_authenticationService, _usuarioRepository, _jwtConfiguracao) = (authenticationService, usuarioRepository, jwtConfiguracao.Value);
+        IUserRepository usuarioRepository,
+        IOptions<JwtConfiguracao> jwtConfiguracao,
+        ILogger<LoginCommandHandler> logger)
+        => (_authenticationService, _usuarioRepository, _jwtConfiguracao, _logger) = (authenticationService, usuarioRepository, jwtConfiguracao.Value,logger);
 
-    #region Utilities 
-
-    private void VerificarSenha(string senha, string salt, string senhaArmazenada)
+    public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var hasher = new HasherDeSenha();
-        var hashedPassword = hasher.HashSenha(senha, salt);
+        request.validate();
+        _logger.LogInformation($"Usuário {request.Email} tentando fazer login.");
 
-        if (!hashedPassword.Equals(senhaArmazenada))
-            throw new TickestException("Senha incorreta.");
+        var user = await _usuarioRepository.ObterUsuarioPorEmailAsync(request.Email)
+            ?? throw new TickestException("Usuário não encontrado.");
+
+        ValidatePassword(request.Password, user.Salt, user.Password);
+      
+        var token = await _authenticationService.AuthenticateAsync(user);
+        return new LoginResponse(user.Id, user.Email, user.Name, token);
     }
 
-    #endregion
-
-    public async Task<TokenResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
+    private void ValidatePassword(string senha, string salt, string storedPassword)
     {
-        var usuario = await _usuarioRepository.ObterUsuarioPorEmailAsync(request.Email)
-                      ?? throw new TickestException("Usuário não encontrado.");
+        var hasher = new PasswordHasher();
+        var hashedPassword = hasher.HashPassword(senha, salt);
 
-        VerificarSenha(request.Senha, usuario.Salt, usuario.Senha);
-
-        return await _authenticationService.AuthenticateAsync(usuario);
+        if (!hashedPassword.Equals(storedPassword))
+            throw new TickestException("Senha incorreta.");
     }
 }

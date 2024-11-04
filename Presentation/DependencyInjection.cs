@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using Tickest.Domain.Repositories;
 using Tickest.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 using Tickest.Persistence.Repositories;
+using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Persistence
 {
@@ -16,7 +16,7 @@ namespace Tickest.Persistence
 
             // Registra repositórios
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
-            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            services.AddScoped<IUserRepository, UsuarioRepository>();
             services.AddScoped<IAreaRepository, AreaRepository>();
             services.AddScoped<ISetorRepository, SetorRepository>();
 

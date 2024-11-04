@@ -9,21 +9,21 @@ using Tickest.Domain.Contracts.Responses;
 using Tickest.Domain.Contracts.Services;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Repositories;
+using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Infrastructure.Configuracoes;
 
 namespace Tickest.Infrastructure.Services.Auth
 {
-	public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
 	{
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly JwtConfiguracao _jwtConfiguracao;
-		private readonly IUsuarioRepository _usuarioRepository;
+		private readonly IUserRepository _usuarioRepository;
 
-		public AuthenticationService(IHttpContextAccessor httpContextAccessor, IOptions<JwtConfiguracao> jwtConfiguracao, IUsuarioRepository usuarioRepository)
+		public AuthenticationService(IHttpContextAccessor httpContextAccessor, IOptions<JwtConfiguracao> jwtConfiguracao, IUserRepository usuarioRepository)
 			=> (_httpContextAccessor, _jwtConfiguracao, _usuarioRepository) = (httpContextAccessor, jwtConfiguracao.Value, usuarioRepository);
 
-		public async Task<TokenResponse> AuthenticateAsync(Usuario usuario)
+		public async Task<TokenResponse> AuthenticateAsync(User usuario)
 		{
 			if (usuario == null)
 			{
@@ -52,18 +52,18 @@ namespace Tickest.Infrastructure.Services.Auth
 		}
 
 
-		private async Task<string> GenerateTokenJwtAsync(Usuario usuario)
+		private async Task<string> GenerateTokenJwtAsync(User usuario)
 		{
 			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = Encoding.ASCII.GetBytes(_jwtConfiguracao.ChaveSecreta);
+			var key = Encoding.ASCII.GetBytes(_jwtConfiguracao.SecretKey);
 
 			var claims = await CreateClaimsAsync(usuario);
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
 				Subject = new ClaimsIdentity(claims),
-				Expires = DateTime.UtcNow.AddMinutes(_jwtConfiguracao.ExpiracaoEmMinutos),
-				Issuer = _jwtConfiguracao.Emissor,
-				Audience = _jwtConfiguracao.Audiencia,
+				Expires = DateTime.UtcNow.AddMinutes(_jwtConfiguracao.ExpirationInMinutes),
+				Issuer = _jwtConfiguracao.Issuer,
+				Audience = _jwtConfiguracao.Audience,
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
 
@@ -71,7 +71,7 @@ namespace Tickest.Infrastructure.Services.Auth
 			return tokenHandler.WriteToken(token);
 		}
 
-		private async Task<IEnumerable<Claim>> CreateClaimsAsync(Usuario usuario)
+		private async Task<IEnumerable<Claim>> CreateClaimsAsync(User usuario)
 		{
 			var claims = new List<Claim>
 			{
@@ -80,7 +80,7 @@ namespace Tickest.Infrastructure.Services.Auth
 
 			var usuarioRoles = await _usuarioRepository.ObterRegrasUsuarioAsync(usuario.Id);
 			foreach (var usuarioRegra in usuarioRoles)
-				claims.Add(new Claim(ClaimTypes.Role, usuarioRegra.Regra.Nome));
+				claims.Add(new Claim(ClaimTypes.Role, usuarioRegra.Rule.Name));
 			
 			return claims;
 		}
