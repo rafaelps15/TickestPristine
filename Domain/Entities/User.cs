@@ -11,7 +11,7 @@ public class User : EntityBase
     public DateTime DateRegistered { get; set; }
     public Area Area { get; set; }
 
-    public ICollection<UserRole> UserRules { get; private set; } = new List<UserRole>();// Papéis (roles) do usuário
+    public ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();// Papéis (roles) do usuário
     public ICollection<SupportTicket> RequestedTickets { get; set; } // Chamados que o usuário abriu
     public ICollection<SupportTicket> AttendedTickets { get; set; } // Chamados atendidos pelo usuário
     public ICollection<SupportTicket> AnalystTickets { get; set; } // Chamados onde o usuário é analista

@@ -80,7 +80,7 @@ namespace Tickest.Infrastructure.Services.Auth
 
 			var usuarioRoles = await _usuarioRepository.ObterRegrasUsuarioAsync(usuario.Id);
 			foreach (var usuarioRegra in usuarioRoles)
-				claims.Add(new Claim(ClaimTypes.Role, usuarioRegra.Rule.Name));
+				claims.Add(new Claim(ClaimTypes.Role, usuarioRegra.Role.Name));
 			
 			return claims;
 		}

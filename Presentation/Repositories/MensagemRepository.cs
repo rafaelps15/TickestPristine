@@ -4,7 +4,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class MensagemRepository : BaseRepository<Message>, IMensagemRepository
+internal class MensagemRepository : BaseRepository<Message>, IMessageRepository
 {
     public MensagemRepository(TickestContext context) : base(context)
     {

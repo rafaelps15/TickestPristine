@@ -19,7 +19,7 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
                .HasForeignKey(p => p.AreaId);
 
 
-        builder.HasMany(u => u.UserRules)
+        builder.HasMany(u => u.UserRoles)
                .WithOne(ur => ur.User)
                .HasForeignKey(ur => ur.UserId);
 

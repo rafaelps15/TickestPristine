@@ -2,9 +2,7 @@
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-public interface IMensagemRepository : IBaseRepository<Message>
+public interface IDepartmentRepository : IBaseRepository<Department>
 {
 
 }
-
-

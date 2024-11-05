@@ -18,7 +18,7 @@ namespace Tickest.Persistence
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IUserRepository, UsuarioRepository>();
             services.AddScoped<IAreaRepository, AreaRepository>();
-            services.AddScoped<ISetorRepository, SetorRepository>();
+            services.AddScoped<IDepartmentRepository, SetorRepository>();
 
             return services;
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
@@ -9,40 +10,48 @@ internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity 
 {
     protected readonly TickestContext _context;
 
-    public BaseRepository(TickestContext context)
+    public BaseRepository(TickestContext context) =>
+        _context = context;
+
+    public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken)
     {
-        _context=context;
+        return await _context.Set<TEntity>().ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync()
+    public async Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        return await _context.Set<TEntity>().ToListAsync();
-    }
-
-    public async Task<TEntity> GetByIdAsync(int id)
-    {
-        return await _context.Set<TEntity>().FirstOrDefaultAsync(p => p.Id == id);
+        return await _context.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);
     }
 
     public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        await _context.AddAsync(entity,cancellationToken);
+        await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(TEntity entity)
+    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken)
     {
         _context.Set<TEntity>().Update(entity);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var entity = await _context.Set<TEntity>().FindAsync(id);
+        var entity = await _context.Set<TEntity>().FindAsync(id, cancellationToken);
         if (entity != null)
         {
             _context.Set<TEntity>().Remove(entity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    {
+        return await _context.Set<TEntity>().Where(predicate).ToListAsync(cancellationToken);
+    }
+
+    private async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }
