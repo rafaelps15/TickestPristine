@@ -6,7 +6,9 @@ namespace Tickest.Persistence.Repositories;
 
 internal class SetorRepository : BaseRepository<Department>, IDepartmentRepository
 {
-    public SetorRepository(TickestContext context) : base(context)
-    {
-    } 
+    protected readonly TickestContext _context;
+
+    public SetorRepository(TickestContext context) : base(context) =>
+        _context = context;
+
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Tickest.Domain.Entities;
+﻿using Tickest.Domain.Entities;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
@@ -7,12 +6,8 @@ namespace Tickest.Persistence.Repositories;
 
 internal class AreaRepository : BaseRepository<Area>, IAreaRepository
 {
-    public AreaRepository(TickestContext context) : base(context)
-    {
-    }
+    protected readonly TickestContext _context;
 
-    public async Task<ICollection<Area>> GetByDescription(string description)
-    {
-        return await _context.Areas.Where(p => p.Description.Contains(description)).ToListAsync();
-    }
+    public AreaRepository(TickestContext context) : base(context) =>
+        _context = context;
 }

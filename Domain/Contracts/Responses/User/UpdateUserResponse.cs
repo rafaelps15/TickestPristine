@@ -1,0 +1,3 @@
+﻿namespace Tickest.Domain.Contracts.Responses.User;
+
+public record UpdateUserResponse(Guid Id, string Email, string Name) : IResponse;

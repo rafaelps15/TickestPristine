@@ -1,16 +1,17 @@
 ﻿namespace Tickest.Domain.Entities;
 
+#region UserRole
+/// <summary>
+/// Representa o relacionamento entre um usuário e uma função (papel) no sistema.
+/// Esta classe mapeia a atribuição de funções a usuários, estabelecendo um relacionamento muitos para muitos.
+/// </summary>
 public class UserRole : EntityBase
 {
-    public int UserId { get; private set; }
-    public User User { get; private set; }
+    public Guid UserId { get; set; }
+    public User User { get; set; }
 
-    public int RoleId { get; private set; }
-    public Role Role { get; private set; }
-
-    public UserRole(int userId, int roleId)
-    {
-        UserId = userId;
-        RoleId = roleId;
-    }
+    public Guid RoleId { get; set; }
+    public Role Role { get; set; }
+    public string Description { get; set; }
 }
+#endregion

@@ -1,20 +1,24 @@
-﻿namespace Tickest.Domain.Entities;
-
-public class User : EntityBase
+﻿namespace Tickest.Domain.Entities
 {
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
-    public bool IsActive { get; set; }
-    public string Salt { get; set; }
-    public int? AreaId { get; set; }
-    public DateTime DateRegistered { get; set; }
-    public Area Area { get; set; }
+    #region User
+    /// <summary>
+    /// Representa um usuário no sistema, com informações de login, papéis e estado.
+    /// Cada usuário pode estar associado a múltiplos tickets.
+    /// </summary>
+    public class User : EntityBase
+    {
+        #region Properties
 
-    public ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();// Papéis (roles) do usuário
-    public ICollection<SupportTicket> RequestedTickets { get; set; } // Chamados que o usuário abriu
-    public ICollection<SupportTicket> AttendedTickets { get; set; } // Chamados atendidos pelo usuário
-    public ICollection<SupportTicket> AnalystTickets { get; set; } // Chamados onde o usuário é analista
-    public ICollection<Message> Messages { get; set; } // Mensagens enviadas pelo usuário
+        public string Name { get; set; } 
+        public string Email { get; set; } 
+        public string Password { get; set; } // Armazena o hash da senha.
+        public string Salt { get; set; } // Armazena o salt gerado.
+        public string Role { get; set; } // Ex: Admin, Analyst, Collaborator, etc.
+        public ICollection<Ticket> Tickets { get; set; } // Coleção de tickets associados ao usuário.
+        public DateTime DateRegistrationDate { get; set; } // Data de registro do usuário no sistema.
+        public bool IsActive { get; set; } // Indica se o usuário está ativo ou não.
 
+        #endregion
+    }
+    #endregion
 }

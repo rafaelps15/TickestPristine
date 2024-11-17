@@ -8,20 +8,13 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 {
     public void Configure(EntityTypeBuilder<Department> builder)
     {
-        builder.ToTable("TB_DEPARTMENT");
-
-        builder.HasKey(s => s.Id);
-        builder.Property(s => s.Name)
-               .IsRequired()
-               .HasMaxLength(100);
-
-        builder.HasOne(s => s.ResponsibleUser)
-               .WithMany()
-               .HasForeignKey(s => s.ResponsibleUserId)
-               .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(s => s.Areas)
+        builder.HasKey(d => d.Id);
+        builder.Property(d => d.Name).IsRequired().HasMaxLength(100);
+        builder.Property(d => d.Description).HasMaxLength(500);
+        builder.HasMany(d => d.Areas)
                .WithOne(a => a.Department)
-               .HasForeignKey(a => a.DepartmentId);
+               .HasForeignKey(a => a.DepartmentId); // Relacionamento com Areas
+        builder.HasMany(d => d.Sectors)
+               .WithMany(s => s.Departments); // Relacionamento com Sectors
     }
 }

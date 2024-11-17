@@ -1,20 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tickest.Domain.Helpers; 
+﻿namespace Tickest.Domain.Helpers;
 
 public class EncryptionHelper
 {
-    public string CreateSaltaKey(int lenght)
+    /// <summary>
+    /// Cria uma chave de sal (salt) com o comprimento especificado.
+    /// </summary>
+    public static string CreateSaltaKey(int length)
     {
-        return string.Empty;
+        using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
+        {
+            var buffer = new byte[length];
+            rng.GetBytes(buffer);
+            return Convert.ToBase64String(buffer); // Convertendo o salt para Base64
+        }
     }
 
-    public string CreatePasswordHash(string password, string salt)
+    /// <summary>
+    /// Cria um hash de senha utilizando o valor da senha e o salt fornecido.
+    /// </summary>
+    public static string CreatePasswordHash(string password, string salt)
     {
-        return string.Empty;
+        using (var sha256 = System.Security.Cryptography.SHA256.Create())
+        {
+            var combined = salt + password; // Combine o salt com a senha
+            var hashBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(combined));
+            return Convert.ToBase64String(hashBytes); // Retorna o hash como Base64
+        }
     }
 }

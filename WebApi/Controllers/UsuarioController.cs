@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Tickest.Application.Authentication.Commands.Register;
+using Tickest.Application.Users.Commands.Create;
 
 namespace WebApi.Controllers
 {
@@ -19,11 +19,7 @@ namespace WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command)
-        {
-            await _mediator.Send(command);
-
-            return Ok();
-        }
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command) =>
+            Ok(await _mediator.Send(command));
     }
 }

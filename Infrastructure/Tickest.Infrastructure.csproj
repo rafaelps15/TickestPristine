@@ -18,8 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Tickest.Domain.csproj" />
-    <ProjectReference Include="..\Presentation\Tickest.Persistence.csproj" />
+    <ProjectReference Include="..\Application\Tickest.Application.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,10 +2,10 @@
 
 public class Result<T>
 {
-	public T Data { get; private set; }
-	public string Error { get; private set; }
-	public bool IsSuccess => string.IsNullOrEmpty(Error);
+    public bool IsSuccess { get; set; }
+    public T Data { get; set; }
+    public string ErrorMessage { get; set; }
 
-	public static Result<T> Success(T data) => new Result<T> { Data = data };
-	public static Result<T> Failure(string error) => new Result<T> { Error = error };
+    public static Result<T> Success(T data) => new Result<T> { IsSuccess = true, Data = data };
+    public static Result<T> Failure(string errorMessage) => new Result<T> { IsSuccess = false, ErrorMessage = errorMessage };
 }

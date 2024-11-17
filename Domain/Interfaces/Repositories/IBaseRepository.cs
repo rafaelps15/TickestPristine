@@ -1,13 +1,24 @@
-﻿using System.Threading;
-using Tickest.Domain.Entities;
+﻿using System.Linq.Expressions;
 
-namespace Tickest.Domain.Interfaces.Repositories;
-
-public interface IBaseRepository<TEntity> where TEntity : EntityBase
+namespace Tickest.Domain.Interfaces.Repositories
 {
-    Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);
-    Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken);
-    Task AddAsync(TEntity entity, CancellationToken cancellationToken);
-    Task UpdateAsync(TEntity entity, CancellationToken cancellationToken);
-    Task DeleteByIdAsync(int id, CancellationToken cancellationToken);
+    public interface IBaseRepository<TEntity>
+    {
+        #region CRUD Operations
+
+        Task<IEnumerable<TEntity>> GetAllAsync();
+        Task<TEntity> GetByIdAsync(Guid id);
+        Task AddAsync(TEntity entity, CancellationToken token = default);
+        Task UpdateAsync(TEntity entity);
+        Task DeleteByIdAsync(Guid id);
+
+        #endregion
+
+        #region Custom Queries
+
+        Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<IEnumerable<TEntity>> FindByDescriptionAsync(string description);
+
+        #endregion
+    }
 }

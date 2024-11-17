@@ -1,8 +1,15 @@
 ﻿namespace Tickest.Domain.Entities;
 
+#region Role
+/// <summary>
+/// Representa um papel (Role) no sistema.
+/// </summary>
 public class Role : EntityBase
 {
-    public string Name { get; set; }
+    public string Name { get; set; } // Nome do papel, exemplo: "Admin", "GestorTickets"
+    public string Description { get; set; } // Descrição do papel, como "Administrador geral"
 
-    public ICollection<UserRole> UserRoles { get; set; }
+    // Permissões associadas a esse papel via RolePermission
+    public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
 }
+#endregion

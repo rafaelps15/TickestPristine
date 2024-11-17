@@ -1,25 +1,12 @@
-﻿using MediatR;
-using Tickest.Application.Interfaces;
-using Tickest.Application.Validators;
-using Tickest.Domain.Contracts.Responses.UserResponses;
-using Tickest.Domain.Exceptions;
+﻿using Tickest.Application.Abstractions.Messaging;
+using Tickest.Domain.Contracts.Responses.User;
 
-namespace Tickest.Application.Users.Commands.UpdateUserCommand;
+namespace Tickest.Application.Users.Commands.Update;
 
-public class UpdateUserCommand : IRequest<UpdateUserResponse>, ICommandValidator
+public class UpdateUserCommand : ICommand<UpdateUserResponse>
 {
-    public int UsuerId { get; set; }
+    public Guid UserId { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
     public string Name { get; set; }
-
-    public void Validate()
-    {
-        var validationResult = new UpdateUserValidator().Validate(this);
-        if (!validationResult.IsValid)
-        {
-            var errorMessage = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-            throw new TickestException(errorMessage);
-        }
-    }
 }

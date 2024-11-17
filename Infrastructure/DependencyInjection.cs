@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Infrastructure.Authentication;
+using Infrastructure.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Tickest.Domain.Contracts.Services;
-using Tickest.Infrastructure.Helpers;
-using Tickest.Infrastructure.Services.Auth;
-using Tickest.Infrastructure.Services.Authentication;
+using Tickest.Application.Abstractions.Authentication;
+using Tickest.Infrastructure.Authentication;
 
 namespace Tickest.Infrastructure;
 
@@ -14,12 +15,24 @@ public static class DependencyInjection
         // Adiciona suporte ao HttpContext
         services.AddHttpContextAccessor();
 
-        // Registra serviços de autenticação
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
-        services.AddScoped<ITokenService, TokenService>();
+        // Registra serviços de autenticação e autorização
+        services.AddScoped<IPermissionProvider, PermissionProvider>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
-        // Registra serviços auxiliares
+
+        // Adicionar serviços de autenticação e outros
+        //services.AddScoped<IAuthService, Authenticator>();
+        services.AddScoped<IAuthService, AuthenticationService>();
+        services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+        // Configuração de políticas de autorização
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("CreateTicket", policy => policy.Requirements.Add(new PermissionRequirement("CreateTicket")));
+            options.AddPolicy("ManageTickets", policy => policy.Requirements.Add(new PermissionRequirement("ManageTickets")));
+        });
 
         return services;
     }

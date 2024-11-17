@@ -1,26 +1,26 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Tickest.Persistence.Data;
-using Microsoft.EntityFrameworkCore;
-using Tickest.Persistence.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 using Tickest.Domain.Interfaces.Repositories;
+using Tickest.Persistence.Data;
+using Tickest.Persistence.Repositories;
 
-namespace Tickest.Persistence
+namespace Tickest.Persistence;
+
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDbContext<TickestContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddDbContext<TickestContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-            // Registra repositórios
-            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
-            services.AddScoped<IUserRepository, UsuarioRepository>();
-            services.AddScoped<IAreaRepository, AreaRepository>();
-            services.AddScoped<IDepartmentRepository, SetorRepository>();
+        // Registra repositórios
+        services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAreaRepository, AreaRepository>();
+        services.AddScoped<IDepartmentRepository, SetorRepository>();
+        services.AddScoped<ITicketRepository, TicketRepository>();
 
-            return services;
-        }
+        return services;
     }
 }

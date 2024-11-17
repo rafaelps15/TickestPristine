@@ -2,37 +2,23 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities;
 
-namespace Tickest.Persistence.Configurations;
-
-internal class UserConfiguration : IEntityTypeConfiguration<User>
+namespace Tickest.Persistence.Configurations
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public class UserConfiguration : IEntityTypeConfiguration<User>
     {
-        builder.ToTable("TB_USER");
-
-        builder.HasKey(p => p.Id);
-        builder.Property(p => p.Name).IsRequired().HasMaxLength(50);
-        builder.Property(p => p.Email).IsRequired().HasMaxLength(100);
-
-        builder.HasOne(p => p.Area)
-               .WithMany(p => p.Users)
-               .HasForeignKey(p => p.AreaId);
-
-
-        builder.HasMany(u => u.UserRoles)
-               .WithOne(ur => ur.User)
-               .HasForeignKey(ur => ur.UserId);
-
-        builder.HasMany(u => u.RequestedTickets)
-               .WithOne(c => c.Requester)
-               .HasForeignKey(c => c.RequesterId);
-
-        builder.HasMany(u => u.AttendedTickets)
-               .WithOne(c => c.Attendant)
-               .HasForeignKey(c => c.AttendantId);
-
-        builder.HasMany(u => u.Messages)
-               .WithOne(m => m.User)
-               .HasForeignKey(m => m.UserId);
+        public void Configure(EntityTypeBuilder<User> builder)
+        {
+            //builder.HasKey(u => u.Id);
+            //builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
+            //builder.Property(u => u.Email).IsRequired().HasMaxLength(200);
+            //builder.Property(u => u.Password).IsRequired().HasMaxLength(200);
+            //builder.Property(u => u.Role).IsRequired().HasMaxLength(100); // Definir o papel
+            //builder.HasMany(u => u.Tickets)
+            //       .WithOne(t => t.Requester)
+            //       .HasForeignKey(t => t.RequesterId); // Relacionamento com Tickets
+            //builder.HasMany(u => u.ResponsibleTickets)
+            //       .WithOne(t => t.Responsible)
+            //       .HasForeignKey(t => t.ResponsibleId); // Relacionamento com Tickets (Responsável)
+        }
     }
 }

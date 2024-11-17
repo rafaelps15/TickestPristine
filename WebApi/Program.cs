@@ -3,20 +3,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
-using Tickest.Domain.Contracts.Services;
 using Tickest.Infrastructure;
-using Tickest.Infrastructure.Configuracoes;
-using Tickest.Infrastructure.Helpers;
+using Tickest.Infrastructure.Configurations;
 using Tickest.Infrastructure.Mvc.Middlewares;
-using Tickest.Infrastructure.Services.Auth;
-using Tickest.Infrastructure.Services.Authentication;
 using Tickest.Persistence;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Carregar configuração do JWT
-var jwtConfig = builder.Configuration.GetSection("JwtConfiguracao").Get<JwtConfiguracao>();
+var jwtConfig = builder.Configuration.GetSection("JwtConfiguracao").Get<JwtConfiguration>();
 builder.Services.AddSingleton(jwtConfig); // Adicionando a configuração do JWT ao contêiner
 
 // Configurar autenticação JWT
@@ -27,6 +23,9 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    // Usando a configuração do JWT para validar o token
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -35,19 +34,15 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtConfig.Issuer,
         ValidAudience = jwtConfig.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.SecretKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.SecretKey)),// Utilizando a chave secreta do JWT
+        ClockSkew = TimeSpan.Zero // Remove atraso padrão de 5 min para validação do token
     };
 });
 
 // Adicionar outros serviços
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Adicionar serviços de autenticação e outros
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>(); 
+builder.Services.AddSwaggerGen(); 
 
 // Adicionar a infraestrutura e a persistência
 builder.Services.AddApplication()
@@ -59,7 +54,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DefaultPolicy", builder =>
     {
-        builder.WithOrigins("http://localhost:4200")
+        builder.WithOrigins("http://localhost:4200")// Configurando origem para o frontend
+               .AllowAnyHeader()
                .AllowAnyHeader()
                .AllowAnyMethod();
     });
@@ -75,15 +71,21 @@ var app = builder.Build();
 app.UseCors("DefaultPolicy");
 if (app.Environment.IsDevelopment())
 {
+    // Habilitar Swagger no ambiente de desenvolvimento
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Middleware de tratamento de erros
 app.UseMiddleware<ErrorHandlerMiddleware>();
+
+// Logs das requisições com Serilog
 app.UseSerilogRequestLogging();
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
+
+app.UseHttpsRedirection();// Redirecionar para HTTPS
+app.UseAuthentication();// Ativar autenticação JWT
+app.UseAuthorization();// Habilitar autorização
+
+app.MapControllers();// Mapeia os controladores
 
 app.Run();

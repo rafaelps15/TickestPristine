@@ -1,19 +1,19 @@
-﻿using MediatR;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Tickest.Domain.Contracts.Responses.UserResponses;
-using Tickest.Domain.Contracts.Services;
+using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.Abstractions.Messaging;
+using Tickest.Domain.Contracts.Responses.User;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Users.Commands.UpdateUserCommand;
+namespace Tickest.Application.Users.Commands.Update;
 
-public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UpdateUserResponse>
+public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, UpdateUserResponse>
 {
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
-    private readonly IPasswordHasher _passwordHasher; 
+    private readonly IPasswordHasher _passwordHasher;
     private readonly ILogger<UpdateUserCommandHandler> _logger;
 
     public UpdateUserCommandHandler(
@@ -25,8 +25,10 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Updat
 
     public async Task<UpdateUserResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        request.Validate();
-        var user = await GetUserAsync(request.UsuerId);
+        var user = await _userRepository.GetByIdAsync(request.UserId);
+        if(user is null)
+            throw new TickestException($"Usuário com ID {request.UserId} não encontrado.");
+
         UpdateUserProperties(user, request);
         await _userRepository.UpdateAsync(user);
 
@@ -34,24 +36,16 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Updat
         return MapResponse(user);
     }
 
-    private async Task<User> GetUserAsync(int userId)
+    private async Task<User> GetUserAsync(Guid userId)
     {
-        var user = await _userRepository.ObterUsuarioPorIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(userId);
         return user ?? throw new TickestException($"Usuário com ID {userId} não encontrado.");
     }
 
     private void UpdateUserProperties(User usuario, UpdateUserCommand request)
     {
-        if (request == null) throw new ArgumentNullException(nameof(request), "O comando de atualização não pode ser nulo.");
-
         usuario.Email = request.Email;
         usuario.Name = request.Name;
-
-        if (!string.IsNullOrWhiteSpace(request.Password))
-        {
-            var salt = _passwordHasher.GenerateSalt();
-            usuario.Password = _passwordHasher.HashPassword(request.Password, salt);
-        }
     }
 
     private UpdateUserResponse MapResponse(User user) =>

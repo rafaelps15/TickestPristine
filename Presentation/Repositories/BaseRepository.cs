@@ -10,48 +10,68 @@ internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity 
 {
     protected readonly TickestContext _context;
 
-    public BaseRepository(TickestContext context) =>
+    public BaseRepository(TickestContext context)
+    {
         _context = context;
-
-    public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken)
-    {
-        return await _context.Set<TEntity>().ToListAsync(cancellationToken);
+        _context.SaveChangesFailed += OnSaveChangesFailed;
     }
 
-    public async Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken)
+    #region CRUD Operations
+
+    public async Task<IEnumerable<TEntity>> GetAllAsync() =>
+        await _context.Set<TEntity>().AsNoTracking().ToListAsync();
+
+    public async Task<TEntity> GetByIdAsync(Guid id) =>
+        await _context.Set<TEntity>().FindAsync(new object[] { id });
+
+    public async Task AddAsync(TEntity entity, CancellationToken token = default)
     {
-        return await _context.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);
+        await _context.Set<TEntity>().AddAsync(entity, token);
+        await _context.SaveChangesAsync(token);
     }
 
-    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
-    {
-        await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken)
+    public async Task UpdateAsync(TEntity entity)
     {
         _context.Set<TEntity>().Update(entity);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task DeleteByIdAsync(Guid id)
     {
-        var entity = await _context.Set<TEntity>().FindAsync(id, cancellationToken);
+        var entity = await GetByIdAsync(id);
         if (entity != null)
         {
             _context.Set<TEntity>().Remove(entity);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync();
         }
     }
+    #endregion
 
-    public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    #region Custom Queries
+
+    public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) =>
+        await _context.Set<TEntity>().AsNoTracking().Where(predicate).ToListAsync();
+
+    public async Task<IEnumerable<TEntity>> FindByDescriptionAsync(string description)
     {
-        return await _context.Set<TEntity>().Where(predicate).ToListAsync(cancellationToken);
+        if (typeof(TEntity).GetProperty("Description") == null)
+            throw new InvalidOperationException("A entidade não possui uma propriedade 'Description'.");
+
+        return await _context.Set<TEntity>()
+                             .AsNoTracking()
+                             .Where(entity => EF.Property<string>(entity, "Description").Contains(description))
+                             .ToListAsync();
     }
 
-    private async Task SaveChangesAsync(CancellationToken cancellationToken)
+    #endregion
+
+    #region Handle Exception
+
+    private void OnSaveChangesFailed(object sender, SaveChangesFailedEventArgs e)
     {
-        await _context.SaveChangesAsync(cancellationToken);
+        //NÃO LANÇAR OUTRA EXCEPTION
+        //PODE LOGGAR
     }
+
+    #endregion
 }

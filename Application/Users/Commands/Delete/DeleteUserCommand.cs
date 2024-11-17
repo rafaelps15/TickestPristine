@@ -1,23 +1,10 @@
-﻿using MediatR;
-using Tickest.Application.Interfaces;
-using Tickest.Application.Validators;
-using Tickest.Domain.Contracts.Responses.UserResponses;
-using Tickest.Domain.Exceptions;
+﻿using Tickest.Application.Abstractions.Messaging;
+using Tickest.Domain.Contracts.Responses.User;
 
-namespace Tickest.Application.Users.Commands.DeleteUserCommand;
+namespace Tickest.Application.Users.Commands.Delete;
 
-public class DeleteUserCommand : IRequest<DeleteUserResponse>, ICommandValidator
+public class DeleteUserCommand : ICommand<DeleteUserResponse>
 {
-    public int UserId { get; set; }
-
-    public void Validate()
-    {
-        // Usando o DeleteUserValidator para validar o comando
-        var validationResult = new DeleteUserValidator().Validate(this);
-        if (!validationResult.IsValid)
-        {
-            var errorMessage = string.Join(",", validationResult.Errors.Select(e => e.ErrorMessage));
-            throw new TickestException(errorMessage);
-        }
-    }
+    public Guid UserId { get; set; }
+    public Guid RequestedById { get; set; }
 }

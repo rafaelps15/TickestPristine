@@ -1,10 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Tickest.Application.Authentication.Commands;
-using Tickest.Application.Authentication.Commands.Login;
-using Tickest.Application.Authentication.Commands.Tokens;
+using Tickest.Application.Users.Commands.Login;
 
 namespace WebApi.Controllers
 {
@@ -20,20 +17,19 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginCommand command)
-        {
-            var tokenModel = await _mediator.Send(command);
-            return Ok(tokenModel);
-        }
+        public async Task<IActionResult> Login([FromBody] LoginCommand command) =>
+            Ok(await _mediator.Send(command));
 
         [HttpPost("renew")]
         [Authorize]
         public async Task<IActionResult> Renew()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var command = new RenewTokenCommand(userId);
-            var newTokenModel = await _mediator.Send(command);
-            return Ok(newTokenModel);
+            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //var command = new RenewTokenCommand(userId);
+            //var newTokenModel = await _mediator.Send(command);
+            //return Ok(newTokenModel);
+
+            return Ok();
         }
     }
 }
