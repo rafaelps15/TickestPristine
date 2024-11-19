@@ -10,6 +10,18 @@ public class Role : EntityBase
     public string Description { get; set; } // Descrição do papel, como "Administrador geral"
 
     // Permissões associadas a esse papel via RolePermission
-    public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }
 #endregion
+
+
+/*
+ * 
+ * ROLE
+ * 
+ * ADMIN (TICKET -> ATUALIZAR), (USER -> CRIAR, ATUALIZAR, DELETAR), (DEPARTAMENTO -> CRIAR, ATUALIZAR, DELETAR)
+ * PUBLIC (TICKET -> VISUALIZAR)
+ * ANALISTA ()
+ * 
+ * PERMISSOES (CRIAR, ATUALIZAR, DELETAR)
+ */

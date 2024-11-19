@@ -30,7 +30,7 @@ internal sealed class TokenProvider : ITokenProvider
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role) // Adiciona os dados do usuário como claims
+                //new Claim(ClaimTypes.Role, user.Role) // Adiciona os dados do usuário como claims
             }),
             Expires = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("Jwt:ExpirationInMinutes")),// Define a expiração do token
             SigningCredentials = credentials, // Credenciais para assinar o token

@@ -12,6 +12,5 @@ public class UserRole : EntityBase
 
     public Guid RoleId { get; set; }
     public Role Role { get; set; }
-    public string Description { get; set; }
 }
 #endregion

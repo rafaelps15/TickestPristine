@@ -4,11 +4,11 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class MensagemRepository : BaseRepository<Message>, IMessageRepository
+internal class SectorRepository : BaseRepository<Department>, IDepartmentRepository
 {
     protected readonly TickestContext _context;
 
-    public MensagemRepository(TickestContext context) : base(context) =>
+    public SectorRepository(TickestContext context) : base(context) =>
         _context = context;
 
 }

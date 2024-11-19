@@ -29,7 +29,7 @@ namespace Infrastructure.Authorization
                 ["AdminSetor"] = GetAdminSetorPermissions,
                 ["AdminDepartamento"] = GetAdminDepartamentoPermissions,
                 ["AdminArea"] = GetAdminAreaPermissions,
-                ["GestorTickets"] = GetGestorTicketsPermissions,
+               // ["GestorTickets"] = GetGestorTicketsPermissions,
                 ["Colaborador"] = GetColaboradorPermissions,
                 ["AnalistaSuporte"] = GetAnalistaSuportePermissions
             };
@@ -96,7 +96,7 @@ namespace Infrastructure.Authorization
         private static HashSet<string> GetAdminSetorPermissions() => new() { "ManageDepartments", "DefinePolicies" };
         private static HashSet<string> GetAdminDepartamentoPermissions() => new() { "MonitorTickets", "AssignRoles" };
         private static HashSet<string> GetAdminAreaPermissions() => new() { "ManageArea", "ViewAreaReports" };
-        private static HashSet<string> GetGestorTicketsPermissions() => new() { "ManageTickets", "ViewAllTickets" };
+        //private static HashSet<string> GetGestorTicketsPermissions() => new() { "ManageTickets", "ViewAllTickets" };
         private static HashSet<string> GetColaboradorPermissions() => new() { "CreateTicket", "ViewOwnTickets" };
         private static HashSet<string> GetAnalistaSuportePermissions() => new() { "ManageAssignedTickets", "ChatWithRequester" };
 

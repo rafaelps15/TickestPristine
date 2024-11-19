@@ -7,8 +7,11 @@
 /// </summary>
 public class Sector : EntityBase
 {
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public ICollection<Department> Departments { get; set; }
+    public string Name { get; set; }  // Nome do setor (ex: Comercial, Produção, etc.)
+    public string Description { get; set; }  // Descrição do setor
+
+    // Coleção de Departamentos no Setor -- Relacionamento um-para-muitos com Department
+    public ICollection<Department> Departments { get; set; } = new List<Department>();
 }
+
 #endregion

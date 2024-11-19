@@ -85,7 +85,7 @@ namespace Tickest.Application.Users.Commands.Create
                 Email = request.Email,
                 Password = passwordHash,
                 Salt = salt,  // Armazenando o salt
-                DateRegistrationDate = DateTime.UtcNow,
+                RegistrationDate = DateTime.UtcNow,
                 IsActive = request.IsActive
             };
         }
