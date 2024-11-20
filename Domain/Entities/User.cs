@@ -15,31 +15,47 @@ public class User : EntityBase
     public DateTime RegistrationDate { get; set; }
     public bool IsActive { get; set; }
 
-    // Relacionamento obrigatório com uma especialidade principal
+    /// <summary>
+    /// Relacionamento obrigatório com uma especialidade principal
+    /// </summary>
     public Guid MainSpecialtyId { get; set; }
     public Specialty MainSpecialty { get; set; }
 
-    // Relacionamento N:N com especialidades adicionais
+    /// <summary>
+    /// Relacionamento N:N com especialidades adicionais
+    /// </summary>
     public virtual ICollection<UserSpecialty> UserSpecialties { get; set; }
 
-    // Relação de um para muitos com Ticket
+    /// <summary>
+    /// Relação de um para muitos com Ticket
+    /// </summary>
     public ICollection<Ticket> Tickets { get; set; }
     public ICollection<TicketUser> TicketUsers { get; set; } // Relacionamento com a tabela de junção
 
-    // Relação de um para muitos com UserRole
+    /// <summary>
+    /// Relação de um para muitos com UserRole
+    /// </summary>
     public ICollection<UserRole> UserRoles { get; set; }
 
-    // Relacionamento de um para muitos com as mensagens enviadas pelo usuário
+    /// <summary>
+    /// Relacionamento de um para muitos com as mensagens enviadas pelo usuário
+    /// </summary>
     public ICollection<Message> Messages { get; set; }
 
-    // Relacionamento de um para muitos com as respostas dadas pelo usuário (Awnser)
+    /// <summary>
+    /// Relacionamento de um para muitos com as respostas dadas pelo usuário (Awnser)
+    /// </summary>
     public Guid? AnsweredId { get; set; } // Chave estrangeira para o usuário que enviou a mensagem
     public Message Answered { get; set; } // Navegação para a mensagem respondida (se houver) 
 
-    // Propriedades de auditoria
+    /// <summary>
+    /// Propriedades de auditoria
+    /// </summary>
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
 
+    public Guid? RefreshTokenId { get; set; }
+    public ICollection<RefreshToken> RefreshTokens { get; set; }
 
     #endregion
 }

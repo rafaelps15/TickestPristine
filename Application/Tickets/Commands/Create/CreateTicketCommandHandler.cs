@@ -17,11 +17,8 @@ public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, T
     public CreateTicketCommandHandler(
         ITicketRepository ticketRepository,
         ILogger<CreateTicketCommandHandler> logger,
-        IAuthService authService)
-    {
-        (_ticketRepository, _logger) = (ticketRepository, logger);
-        _authService = authService;
-    }
+        IAuthService authService) =>
+        (_ticketRepository, _logger, _authService) = (ticketRepository, logger, authService);
 
     public async Task<Ticket> Handle(CreateTicketCommand request, CancellationToken cancellationToken)
     {

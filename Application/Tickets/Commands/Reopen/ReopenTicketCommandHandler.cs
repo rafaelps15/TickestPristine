@@ -6,15 +6,6 @@ using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Tickets.Commands.Reopen
 {
-    public interface IUSerService
-    {
-        Task CreateUser();
-
-        Task UpdateUser();
-
-        Task GetUserById();
-    }
-
     public class ReopenTicketCommandHandler : ICommandHandler<ReopenTicketCommand, ReopenTicketResponse>
     {
         private readonly ITicketRepository _ticketRepository;

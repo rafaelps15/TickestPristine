@@ -11,11 +11,8 @@ namespace Tickest.Application.Tickets.Commands.Update
 
         public UpdateTicketCommandHandler(
             ITicketRepository ticketRepository,
-            IAuthService authenticator)
-        {
-            _ticketRepository = ticketRepository;
-            _authenticator = authenticator;
-        }
+            IAuthService authenticator) =>
+            (_ticketRepository, _authenticator) = (ticketRepository, authenticator);
 
         public async Task<bool> Handle(UpdateTicketCommand request, CancellationToken cancellationToken)
         {

@@ -8,37 +8,42 @@ using Tickest.Domain.Entities;
 
 namespace Infrastructure.Authentication;
 
-internal sealed class TokenProvider : ITokenProvider
+internal sealed class TokenProvider(IConfiguration configuration) : ITokenProvider
 {
-    private readonly IConfiguration _configuration;
-
-    public TokenProvider(IConfiguration configuration) => 
-        _configuration = configuration;
-
-    #region Criar Token
     /// <summary>
-    /// Cria um token JWT para o usuário.
+    /// Gera um token JWT com base no usuário fornecido.
     /// </summary>
-    public string Create(User user)
+    /// <param name="user">Usuário para o qual o token será gerado.</param>
+    /// <returns>Um token JWT válido como string.</returns>
+    public string Create(User user, double expirationInMinutes)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
+        // Configuração do segredo e chave de segurança
+        string secretKey = configuration["Jwt:Secret"]!;
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var tokenDescriptor = new SecurityTokenDescriptor
+        // Criação das claims do usuário
+        var claims = new[]
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                //new Claim(ClaimTypes.Role, user.Role) // Adiciona os dados do usuário como claims
-            }),
-            Expires = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("Jwt:ExpirationInMinutes")),// Define a expiração do token
-            SigningCredentials = credentials, // Credenciais para assinar o token
-            Issuer = _configuration["Jwt:Issuer"],// Emissor do token
-            Audience = _configuration["Jwt:Audience"]// Público do token
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.UserRoles.ToString()) // Role do usuário
         };
 
-        return new JsonWebTokenHandler().CreateToken(tokenDescriptor); // Cria o token e o retorna
+        // Configuração do token
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes")),
+            Issuer = configuration["Jwt:Issuer"],
+            Audience = configuration["Jwt:Audience"],
+            SigningCredentials = credentials
+        };
+
+        // Criação do token usando JsonWebTokenHandler
+        var handler = new JsonWebTokenHandler();
+        return handler.CreateToken(tokenDescriptor);
     }
-    #endregion
 }
+
+
