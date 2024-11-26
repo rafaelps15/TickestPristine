@@ -10,14 +10,10 @@ public class Ticket : EntityBase
 {
     public string Title { get; set; }
     public string Description { get; set; }
-    public DateTime CreatedDate { get; set; } = DateTime.UtcNow; // Data de criação
-    public DateTime? CompletionDate { get; set; } // Data de conclusão
-    public DateTime? DeactivatedDate { get; set; } // Data de desativação
-    public bool IsActive { get; set; } = true; // Status ativo
-
+ 
     // Relacionamentos
     public Guid? AssignedUserId { get; set; }
-    public User? AssignedUser { get; set; }
+    public User AssignedUser { get; set; }
 
     public TicketPriority Priority { get; set; }
     public TicketStatus Status { get; set; }

@@ -12,8 +12,6 @@ public class User : EntityBase
     public string Email { get; set; }
     public string Password { get; set; }
     public string Salt { get; set; }
-    public DateTime RegistrationDate { get; set; }
-    public bool IsActive { get; set; }
 
     /// <summary>
     /// Relacionamento obrigatório com uma especialidade principal
@@ -48,14 +46,9 @@ public class User : EntityBase
     public Guid? AnsweredId { get; set; } // Chave estrangeira para o usuário que enviou a mensagem
     public Message Answered { get; set; } // Navegação para a mensagem respondida (se houver) 
 
-    /// <summary>
-    /// Propriedades de auditoria
-    /// </summary>
-    public DateTime CreatedDate { get; set; }
-    public DateTime? UpdatedDate { get; set; }
-
     public Guid? RefreshTokenId { get; set; }
     public ICollection<RefreshToken> RefreshTokens { get; set; }
+    public ICollection<Permission> Permissions { get; private set; }
 
     #endregion
 }

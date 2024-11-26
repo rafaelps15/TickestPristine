@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Tickets\Queries\" />
+    <Folder Include="Users\Permissions\" />
   </ItemGroup>
 
 </Project>

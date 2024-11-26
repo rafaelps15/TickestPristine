@@ -3,8 +3,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Tickest.Application.Tickets.Commands.Create;
-using Tickest.Application.Tickets.Commands.Update;
+using Tickest.Application.Tickets.Create;
+using Tickest.Application.Tickets.Update;
 using Tickest.Infrastructure.Configurations;
 
 namespace WebApi.Controllers;

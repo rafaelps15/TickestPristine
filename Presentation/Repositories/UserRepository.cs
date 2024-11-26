@@ -5,48 +5,41 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class UserRepository : BaseRepository<User>, IUserRepository
+internal class UserRepository : GenericRepository<User>, IUserRepository
 {
     public UserRepository(TickestContext context) : base(context) { }
 
-    /// <summary>
-    /// Método para buscar o usuário pelo e-mail
-    /// </summary>
+    #region Métodos de Consulta
+
     public async Task<User> GetUserByEmailAsync(string userEmail) =>
         await _context.Users
                       .AsNoTracking()
                       .FirstOrDefaultAsync(u => u.Email == userEmail);
 
-    /// <summary>
-    /// Método para verificar se o e-mail já existe no banco de dados
-    /// </summary>
+    public async Task<User?> GetByNameAsync(string userName) =>
+        await _context.Set<User>()
+                      .AsNoTracking()
+                      .FirstOrDefaultAsync(user => user.Name == userName);
+
+    public async Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId)
+    {
+        var userRoles = await _context.UserRoles
+                                      .AsNoTracking()
+                                      .Include(ur => ur.Role)
+                                      .Where(ur => ur.UserId == userId)
+                                      .ToListAsync();
+
+        return userRoles ?? new List<UserRole>();
+    }
+
+    #endregion
+
+    #region Métodos de Verificação
+
     public async Task<bool> DoesEmailExistAsync(string userEmail) =>
         await _context.Users
                       .AsNoTracking()
                       .AnyAsync(u => u.Email == userEmail);
 
-
-
-    // Método para buscar os papéis do usuário com suas permissões
-    //public async Task<List<UserRole>> GetUserRolesAsync(Guid userId) =>
-    //    await _context.UserRoles
-    //                   .Where(ur => ur.UserId == userId)
-    //                   .Include(ur => ur.Role)
-    //                   .ThenInclude(r => r.Permissions) // Inclui as permissões associadas ao papel
-    //                   .AsNoTracking()
-    //                   .ToListAsync();
-
-    //// Método para obter apenas os nomes dos papéis do usuário
-    //public async Task<IEnumerable<string>> GetUserRoleNamesAsync(Guid userId) =>
-    //    await _context.UserRoles
-    //                  .Where(ur => ur.UserId == userId)
-    //                  .Select(ur => ur.Role.Name)
-    //                  .AsNoTracking()
-    //                  .ToListAsync();
-
-    //// Método para verificar se o usuário possui uma permissão específica
-    //public async Task<bool> UserHasPermissionAsync(Guid userId, string permission) =>
-    //    await _context.UserRoles
-    //                  .Where(ur => ur.UserId == userId)
-    //                  .AnyAsync(ur => ur.Role.Permissions.Any(p => p.Name == permission));
+    #endregion
 }

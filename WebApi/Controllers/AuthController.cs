@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Tickest.Application.Users.Commands.Login;
+using Tickest.Application.Users.Login;
 
 namespace WebApi.Controllers
 {

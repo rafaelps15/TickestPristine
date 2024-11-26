@@ -15,6 +15,7 @@ public sealed class HasPermissionAttribute : AuthorizeAttribute
     /// </summary>
     /// <param name="permission">A permissão necessária para acessar o recurso.</param>
     public HasPermissionAttribute(string permission) => Policy = permission; // Atribui a permissão diretamente
+
 }
 
 #endregion

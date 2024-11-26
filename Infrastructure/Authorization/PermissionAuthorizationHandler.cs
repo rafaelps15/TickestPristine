@@ -55,7 +55,6 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
         {
             return cachedPermissions;
         }
-
         // Carrega as permissões e as armazena no cache
         var permissions = await CachePermissions(userId);
         return permissions;

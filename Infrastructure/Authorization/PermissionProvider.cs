@@ -1,113 +1,185 @@
-﻿using Tickest.Application.Abstractions.Authentication;
-using Tickest.Domain.Interfaces.Repositories;
+﻿using Tickest.Domain.Interfaces.Repositories;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Tickest.Application.Abstractions.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading;
+using Tickest.Domain.Entities;
 
 namespace Infrastructure.Authorization
 {
-    #region "Provedor de Permissões para Usuários"
-
     internal sealed class PermissionProvider : IPermissionProvider
     {
+        #region Campos Privados
+
         private readonly IUserRepository _userRepository;
-        private Dictionary<string, Func<HashSet<string>>> _rolePermissions;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IPermissionRepository _permissionRepository;
+        private readonly ILogger<PermissionProvider> _logger;
+        private readonly Dictionary<string, Func<HashSet<string>>> _rolePermissions;
 
-        // O construtor agora inicializa a variável _rolePermissions
-        public PermissionProvider(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-            InitializeRolePermissions();  
-        }
+        #endregion
+
+        #region Construtor
 
         /// <summary>
-        /// Inicializa o dicionário de permissões por função.
+        /// Inicializa a classe PermissionProvider com os repositórios e logger.
         /// </summary>
-        private void InitializeRolePermissions()
-        {
-            // Mapeamento de funções para permissões
-            _rolePermissions = new Dictionary<string, Func<HashSet<string>>>
-            {
-                ["AdminGeral"] = GetAdminGeralPermissions, // AdminGeral tem todas as permissões
-                ["AdminSetor"] = GetAdminSetorPermissions,
-                ["AdminDepartamento"] = GetAdminDepartamentoPermissions,
-                ["AdminArea"] = GetAdminAreaPermissions,
-               // ["GestorTickets"] = GetGestorTicketsPermissions,
-                ["Colaborador"] = GetColaboradorPermissions,
-                ["AnalistaSuporte"] = GetAnalistaSuportePermissions
-            };
+        public PermissionProvider(
+            IUserRepository userRepository,
+            IRoleRepository roleRepository,
+            ILogger<PermissionProvider> logger)
+            => (_userRepository, _roleRepository, _permissionRepository, _logger, _rolePermissions)
+                = (userRepository, roleRepository,, logger, InitializeRolePermissions());
 
-            //Adiciona a permissão "CreateTicket" para todos os usuários
-            foreach (var key in _rolePermissions.Keys.ToList())
+        #endregion
+
+        #region Permissões por Papel
+
+        /// <summary>
+        /// Permissões do papel "AdminMaster" (Controle total do sistema).
+        /// </summary>
+        private static HashSet<string> GetAdminMasterPermissions() => new HashSet<string>
+        {
+            "FullSystemControl", "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments",
+            "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings"
+        };
+
+        /// <summary>
+        /// Permissões do papel "GeneralAdmin" (Administrador geral com permissões sobre usuários, setores, departamentos e tickets).
+        /// </summary>
+        private static HashSet<string> GetGeneralAdminPermissions() => new HashSet<string>
+        {
+            "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments", "ManageAreas",
+            "ManageTickets", "ViewReports"
+        };
+
+        /// <summary>
+        /// Permissões do papel "SectorAdmin" (Administrador de setores).
+        /// </summary>
+        private static HashSet<string> GetSectorAdminPermissions() => new HashSet<string>
+        {
+            "ManageSectors", "ManageDepartments", "ManageAreas"
+        };
+
+        /// <summary>
+        /// Permissões do papel "DepartmentAdmin" (Administrador de departamentos).
+        /// </summary>
+        private static HashSet<string> GetDepartmentAdminPermissions() => new HashSet<string>
+        {
+            "ManageDepartments", "ManageAreas", "AssignDepartmentRoles"
+        };
+
+        /// <summary>
+        /// Permissões do papel "AreaAdmin" (Administrador de áreas).
+        /// </summary>
+        private static HashSet<string> GetAreaAdminPermissions() => new HashSet<string>
+        {
+            "ManageAreas", "ManageTasks", "ManageCollaborators"
+        };
+
+        /// <summary>
+        /// Permissões do papel "TicketManager" (Responsável por gerenciar tickets).
+        /// </summary>
+        private static HashSet<string> GetTicketManagerPermissions() => new HashSet<string>
+        {
+            "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance"
+        };
+
+        /// <summary>
+        /// Permissões do papel "Collaborator" (Colaborador que pode criar e rastrear tickets).
+        /// </summary>
+        private static HashSet<string> GetCollaboratorPermissions() => new HashSet<string>
+        {
+            "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst"
+        };
+
+        /// <summary>
+        /// Permissões do papel "SupportAnalyst" (Analista de suporte que gerencia tickets atribuídos e interage com solicitantes).
+        /// </summary>
+        private static HashSet<string> GetSupportAnalystPermissions() => new HashSet<string>
+        {
+            "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester"
+        };
+
+        #endregion
+
+        // Inicialização de Permissões por Papel
+        private Dictionary<string, Func<HashSet<string>>> InitializeRolePermissions()
+        {
+            return new Dictionary<string, Func<HashSet<string>>>
             {
-                var currentPermissions = _rolePermissions[key].Invoke();
-                currentPermissions.Add("CreateTicket"); // Todos terão permissão para criar tickets
-                _rolePermissions[key] = () => currentPermissions;
-            }
+                ["AdminMaster"] = GetAdminMasterPermissions,
+                ["GeneralAdmin"] = GetGeneralAdminPermissions,
+                ["SectorAdmin"] = GetSectorAdminPermissions,
+                ["DepartmentAdmin"] = GetDepartmentAdminPermissions,
+                ["AreaAdmin"] = GetAreaAdminPermissions,
+                ["TicketManager"] = GetTicketManagerPermissions,
+                ["Collaborator"] = GetCollaboratorPermissions,
+                ["SupportAnalyst"] = GetSupportAnalystPermissions
+            };
         }
 
         /// <summary>
-        /// Obtém as permissões de um usuário com base nas funções atribuídas.
+        /// Permissões de exemplo para os papéis:
+        /// <list type="bullet">
+        ///     <item><description>FullSystemControl – Controle total do sistema</description></item>
+        ///     <item><description>ManageUsers – Gerenciar usuários</description></item>
+        ///     <item><description>ManagePermissions – Gerenciar permissões</description></item>
+        ///     <item><description>ManageSectors – Gerenciar setores</description></item>
+        ///     <item><description>ManageDepartments – Gerenciar departamentos</description></item>
+        ///     <item><description>ManageAreas – Gerenciar áreas</description></item>
+        ///     <item><description>ManageTickets – Gerenciar tickets</description></item>
+        ///     <item><description>ViewReports – Visualizar relatórios</description></item>
+        ///     <item><description>AccessCriticalSettings – Acessar configurações críticas</description></item>
+        ///     <item><description>AssignDepartmentRoles – Atribuir funções de departamento</description></item>
+        ///     <item><description>ManageTasks – Gerenciar tarefas</description></item>
+        ///     <item><description>ManageCollaborators – Gerenciar colaboradores</description></item>
+        ///     <item><description>ChangeTicketStatus – Alterar status do ticket</description></item>
+        ///     <item><description>ReassignTickets – Reatribuir tickets</description></item>
+        ///     <item><description>MonitorTicketPerformance – Monitorar o desempenho do ticket</description></item>
+        ///     <item><description>CreateTicket – Criar ticket</description></item>
+        ///     <item><description>TrackTicketStatus – Rastrear status do ticket</description></item>
+        ///     <item><description>InteractWithAnalyst – Interagir com o analista</description></item>
+        ///     <item><description>ManageAssignedTickets – Gerenciar tickets atribuídos</description></item>
+        ///     <item><description>UpdateTicketStatus – Atualizar status do ticket</description></item>
+        ///     <item><description>InteractWithRequester – Interagir com o solicitante</description></item>
+        /// </list>
         /// </summary>
         public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
         {
-            // Obtém as funções do usuário e mapeia para as permissões correspondentes
-            //var roles = await _userRepository.GetUserRolesAsync(userId);
+            var roles = await _userRepository.GetUserRolesAsync(userId);
+            var permissions = new HashSet<string>();
 
-            //var roles = new string[1];
-
-            //var permissions = new HashSet<string>();
-
-            //foreach (var role in roles)
-            //{
-            //    if (_rolePermissions.TryGetValue(role.Description, out var getPermissions))
-            //    {
-            //        permissions.UnionWith(getPermissions());
-            //    }
-            //    else
-            //    {
-            //        // Função desconhecida
-            //        Console.WriteLine($"Função desconhecida: {role.Description}");
-            //    }
-            //}
-
-            //return permissions;
-
-            return null;
-        }
-
-        #region "Permissões por Função"
-
-        /// <summary>
-        /// Permissões associadas a cada função de usuário.
-        /// </summary>
-        private static HashSet<string> GetAdminGeralPermissions() {
-
-            // AdminGeral tem acesso completo a todas as funções do sistema
-            return new HashSet<string>
+            // Add permissions by role
+            foreach (var role in roles)
             {
-                "ControlSystem", "ManageUsers", "ViewReports",
-                "ManageDepartments", "DefinePolicies", "MonitorTickets", "AssignRoles",
-                "ManageArea", "ViewAreaReports", "ManageTickets", "ViewAllTickets",
-                "CreateTicket", "ViewOwnTickets", "ManageAssignedTickets", "ChatWithRequester"
-            };
+                if (_rolePermissions.TryGetValue(role.Role.Name, out var permissionFunc))
+                {
+                    permissions.UnionWith(permissionFunc());
+                }
+                else
+                {
+                    _logger.LogWarning($"Unknown role: {role.Role.Name}");
+                }
+            }
+
+            // Add permissions assigned directly to the user
+            var userPermissions = await GetPermissionsForUserDirectlyAsync(userId);
+            permissions.UnionWith(userPermissions);
+
+            return permissions;
         }
 
-        //Demais regras....
-
-
-        private static HashSet<string> GetAdminSetorPermissions() => new() { "ManageDepartments", "DefinePolicies" };
-        private static HashSet<string> GetAdminDepartamentoPermissions() => new() { "MonitorTickets", "AssignRoles" };
-        private static HashSet<string> GetAdminAreaPermissions() => new() { "ManageArea", "ViewAreaReports" };
-        //private static HashSet<string> GetGestorTicketsPermissions() => new() { "ManageTickets", "ViewAllTickets" };
-        private static HashSet<string> GetColaboradorPermissions() => new() { "CreateTicket", "ViewOwnTickets" };
-        private static HashSet<string> GetAnalistaSuportePermissions() => new() { "ManageAssignedTickets", "ChatWithRequester" };
-
-        public Task<HashSet<string>> GetForUserIdAsync(Guid userId)
+        private async Task<HashSet<string>> GetPermissionsForUserDirectlyAsync(Guid userId)
         {
-            throw new NotImplementedException();
+            var userPermissions = await _permissionRepository.GetPermissionsByUserIdAsync(userId);
+            return new HashSet<string>(userPermissions.Select(up => up.Permission.Name));
         }
 
-        #endregion
+  
     }
-
-    #endregion
 }
-
