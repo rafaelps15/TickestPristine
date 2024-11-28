@@ -1,65 +1,74 @@
 ﻿using System.Linq.Expressions;
+using Tickest.Domain.Entities;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
 /// <summary>
-/// Interface genérica para operações de repositório, incluindo CRUD e consultas personalizadas.
+/// Interface do repositório genérico para operações CRUD básicas e consultas personalizadas.
 /// </summary>
-/// <typeparam name="TEntity">Tipo da entidade para operações do repositório.</typeparam>
+/// <typeparam name="TEntity">O tipo da entidade gerenciada pelo repositório.</typeparam>
 public interface IGenericRepository<TEntity> where TEntity : class
 {
     /// <summary>
-    /// Obtém todas as entidades do tipo especificado.
+    /// Recupera todas as entidades do tipo <typeparamref name="TEntity"/>.
     /// </summary>
-    /// <returns>Uma lista de entidades.</returns>
-    Task<IEnumerable<TEntity>> GetAllAsync();
+    /// <param name="cancellationToken">O token de cancelamento para observar enquanto aguarda a operação assíncrona.</param>
+    /// <returns>Uma tarefa que representa a operação assíncrona, contendo a lista de entidades.</returns>
+    Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Obtém uma entidade pelo ID fornecido.
+    /// Recupera uma entidade pelo seu ID.
     /// </summary>
-    /// <param name="id">O identificador único da entidade.</param>
-    /// <returns>A entidade com o ID especificado.</returns>
+    /// <param name="id">O ID da entidade a ser recuperada.</param>
+    /// <param name="cancellationToken">O token de cancelamento para observar enquanto aguarda a operação assíncrona.</param>
+    /// <returns>Uma tarefa que representa a operação assíncrona, contendo a entidade ou null se não encontrada.</returns>
     Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Adiciona uma nova entidade ao repositório.
     /// </summary>
     /// <param name="entity">A entidade a ser adicionada.</param>
-    /// <returns>A tarefa representando a operação assíncrona.</returns>
-    Task AddAsync(TEntity entity);
+    /// <param name="cancellationToken">O token de cancelamento para observar enquanto aguarda a operação assíncrona.</param>
+    /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
+    Task AddAsync(TEntity entity, CancellationToken cancellationToken);
 
     /// <summary>
     /// Atualiza uma entidade existente no repositório.
     /// </summary>
     /// <param name="entity">A entidade a ser atualizada.</param>
-    /// <returns>A tarefa representando a operação assíncrona.</returns>
-    Task UpdateAsync(TEntity entity);
+    /// <param name="cancellationToken">O token de cancelamento para observar enquanto aguarda a operação assíncrona.</param>
+    /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
+    Task UpdateAsync(TEntity entity, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Exclui uma entidade do repositório.
+    /// Exclui uma entidade existente do repositório.
     /// </summary>
     /// <param name="entity">A entidade a ser excluída.</param>
-    /// <returns>A tarefa representando a operação assíncrona.</returns>
-    Task DeleteAsync(TEntity entity);
+    /// <param name="cancellationToken">O token de cancelamento para observar enquanto aguarda a operação assíncrona.</param>
+    /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
+    Task DeleteAsync(TEntity entity, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Exclui uma entidade pelo ID fornecido.
+    /// Exclui uma entidade pelo seu ID do repositório.
     /// </summary>
-    /// <param name="id">O identificador único da entidade a ser excluída.</param>
-    /// <returns>A tarefa representando a operação assíncrona.</returns>
-    Task DeleteByIdAsync(Guid id);
+    /// <param name="id">O ID da entidade a ser excluída.</param>
+    /// <param name="cancellationToken">O token de cancelamento para observar enquanto aguarda a operação assíncrona.</param>
+    /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
+    Task DeleteByIdAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Realiza uma consulta personalizada baseada em uma expressão de filtro.
+    /// Encontra entidades com base em um predicado.
     /// </summary>
-    /// <param name="predicate">A expressão que define o critério de filtro.</param>
-    /// <returns>Uma lista de entidades que atendem ao critério.</returns>
-    Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
+    /// <param name="predicate">O predicado para filtrar as entidades.</param>
+    /// <param name="cancellationToken">O token de cancelamento para observar enquanto aguarda a operação assíncrona.</param>
+    /// <returns>Uma tarefa que representa a operação assíncrona, contendo a lista de entidades que atendem ao predicado.</returns>
+    Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Realiza uma consulta por descrição, se a entidade possuir uma propriedade "Description".
+    /// Encontra entidades com base na propriedade 'Description'.
     /// </summary>
-    /// <param name="description">A descrição a ser filtrada.</param>
-    /// <returns>Uma lista de entidades que contêm a descrição especificada.</returns>
-    Task<IEnumerable<TEntity>> FindByDescriptionAsync(string description);
+    /// <param name="description">A descrição para buscar.</param>
+    /// <param name="cancellationToken">O token de cancelamento para observar enquanto aguarda a operação assíncrona.</param>
+    /// <returns>Uma tarefa que representa a operação assíncrona, contendo a lista de entidades com uma descrição correspondente.</returns>
+    Task<IEnumerable<TEntity>> FindByDescriptionAsync(string description, CancellationToken cancellationToken);
 }

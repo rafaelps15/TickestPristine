@@ -12,6 +12,9 @@ public class Area : EntityBase
     public Department Department { get; set; }  // Relacionamento com o Departamento
 
     // Relacionamento: Uma Área pode ter várias Especialidades.
-    public ICollection<Specialty> Specialties { get; set; } = new List<Specialty>();
+    public ICollection<Specialty> Specialties { get; set; } 
+
+    // Relacionamento 1:N com User
+    public ICollection<User> Users { get; set; } 
 }
 #endregion

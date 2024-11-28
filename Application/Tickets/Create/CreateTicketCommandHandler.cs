@@ -29,7 +29,7 @@ public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, T
         // Validação do comando
         ValidateCommand(request);
 
-        var currentUser = await _authService.GetCurrentUserAsync();
+        var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
 
         // Criação do ticket
         var ticket = new Ticket

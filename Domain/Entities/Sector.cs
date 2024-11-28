@@ -12,6 +12,9 @@ public class Sector : EntityBase
 
     // Coleção de Departamentos no Setor -- Relacionamento um-para-muitos com Department
     public ICollection<Department> Departments { get; set; } = new List<Department>();
+
+    // Relacionamento 1:N com User
+    public ICollection<User> Users { get; set; } = new HashSet<User>();
 }
 
 #endregion

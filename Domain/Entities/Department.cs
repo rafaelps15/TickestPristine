@@ -15,6 +15,9 @@ public class Department : EntityBase
 
     // Coleção de Áreas dentro do Departamento
     public ICollection<Area> Areas { get; set; } = new List<Area>();
-    
+
+    // Relacionamento 1:N com User
+    public ICollection<User> Users { get; set; } = new HashSet<User>();
+
 }
 #endregion

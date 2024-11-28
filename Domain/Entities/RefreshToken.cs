@@ -1,30 +1,21 @@
-﻿namespace Tickest.Domain.Entities;
-
-public class RefreshToken : EntityBase
+﻿namespace Tickest.Domain.Entities
 {
-    public Guid UserId { get; private set; }
-    public string Token { get; private set; }
-    public DateTime ExpiresAt { get; private set; }
-    public bool IsActive { get; private set; }
-
-    // Propriedade de navegação para o usuário associado ao token
-    public User User { get; set; } 
-
-    // Construtor para criação de um novo RefreshToken
-    public RefreshToken(Guid userId, string token, DateTime expiresAt)
+    public class RefreshToken : EntityBase
     {
-        UserId = userId;
-        Token = token ?? throw new ArgumentNullException(nameof(token), "Token cannot be null.");
-        ExpiresAt = expiresAt;
-        IsActive = true;
-    }
+        public Guid UserId { get; set; }
+        public string Token { get; set; }
+        public int ExpirationInMinutes { get; set; } // Define a expiração do token
+        public User User { get; set; }
 
-    // Método para invalidar o token
-    public void Invalidate()
-    {
-        IsActive = false;
-    }
+        public RefreshToken() { }
 
-    // Método que verifica se o token expirou
-    public bool HasExpired() => DateTime.UtcNow >= ExpiresAt;
+        public RefreshToken(Guid userId, string token, DateTime createdDate, DateTime? deactivatedDate = null, int expirationInMinutes = 60)
+        {
+            UserId = userId;
+            Token = token;
+            CreatedDate = createdDate;
+            DeactivatedDate = deactivatedDate;
+            ExpirationInMinutes = expirationInMinutes;
+        }
+    }
 }

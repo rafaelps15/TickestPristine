@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 using Tickest.Persistence.Repositories;
-using YourProject.Domain.Interfaces.Repositories;
 
 namespace Tickest.Persistence;
 
@@ -16,7 +16,7 @@ public static class DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         // Registra repositórios
-        services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+        //services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAreaRepository, AreaRepository>();
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
@@ -27,6 +27,9 @@ public static class DependencyInjection
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ISectorRepository, SectorRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+        services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
 
         return services;
     }

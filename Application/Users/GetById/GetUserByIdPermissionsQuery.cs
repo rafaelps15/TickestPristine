@@ -6,8 +6,6 @@ namespace Tickest.Application.Users.GetById;
 public class GetUserByIdPermissionsQuery : IQuery<IEnumerable<Permission>>
 {
     public Guid UserId { get; set; }
-
-  
 }
 
 

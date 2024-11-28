@@ -2,7 +2,7 @@
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-public interface IRefreshTokenRepository : IBaseRepository<RefreshToken>
+public interface IRefreshTokenRepository : IGenericRepository<RefreshToken>
 {
     #region Custom Methods
 

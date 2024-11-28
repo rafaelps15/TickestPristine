@@ -17,27 +17,23 @@ public class PermissionRepository : GenericRepository<Permission>, IPermissionRe
 
     #region Métodos de Consulta
 
-    public async Task<IEnumerable<Permission>> GetPermissionsByUserIdAsync(Guid userId)
-    {
-        if (userId == Guid.Empty)
-        {
-            throw new ArgumentException("O ID do usuário não pode ser vazio.", nameof(userId));
-        }
-
-        return await _context.UserPermissions
+    public async Task<IEnumerable<Permission>> GetPermissionsByUserIdAsync(Guid userId) =>
+             await _context.UserPermissions
             .Where(userPermission => userPermission.UserId == userId)
             .Select(userPermission => userPermission.Permission)
             .AsNoTracking()
             .ToListAsync();
-    }
 
-    
-    public async Task<IEnumerable<Permission>> GetAllPermissionsAsync()
-    {
-        return await _context.Permissions
+    public async Task<IEnumerable<Permission>> GetAllPermissionsAsync() =>
+             await _context.Permissions
             .AsNoTracking()
             .ToListAsync();
-    }
+
+    public async Task<IEnumerable<Permission>> GetPermissionsByNamesAsync(IEnumerable<string> permissionNames, CancellationToken cancellationToken) =>
+             await _context.Permissions
+            .Where(p => permissionNames.Contains(p.Name))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
 
     #endregion
 }

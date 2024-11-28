@@ -20,8 +20,8 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
                .IsRequired()
                .HasMaxLength(500); // Defina o tamanho conforme necessário
 
-        builder.Property(rt => rt.ExpiresAt)
-               .IsRequired();
+        builder.Property(rt => rt.DeactivatedDate)
+               .IsRequired(false); // Se for opcional, como no seu caso
 
         builder.Property(rt => rt.IsActive)
                .IsRequired();
@@ -30,11 +30,16 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.HasIndex(rt => rt.Token)
                .IsUnique();
 
-        //// Propriedades de auditoria
-        //builder.Property(rt => rt.CreatedDate)
-        //       .HasDefaultValueSql("GETDATE()");
+        // Propriedades de auditoria (como CreatedDate e UpdatedDate)
+        builder.Property(rt => rt.CreatedDate)
+               .HasDefaultValueSql("GETDATE()") // Define o valor padrão como a data/hora atual
+               .IsRequired();
 
-        //builder.Property(rt => rt.UpdatedDate)
-        //       .IsRequired(false);
+        builder.Property(rt => rt.UpdatedDate)
+               .IsRequired(false); // Pode ser nulo, dependendo da sua lógica de auditoria
+
+        // Caso o `EntityBase` tenha as propriedades `CreatedDate` e `UpdatedDate`, você pode adicionar também algo assim:
+        // builder.Property(rt => rt.CreatedDate).HasDefaultValueSql("GETDATE()");
+        // builder.Property(rt => rt.UpdatedDate).IsRequired(false);
     }
 }

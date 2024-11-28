@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Common;
 using Tickest.Domain.Contracts.Responses;
@@ -11,7 +12,7 @@ using Tickest.Infrastructure.Configurations;
 
 namespace Tickest.Infrastructure.Authentication;
 
-internal class AuthenticationService : IAuthService
+internal class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
@@ -19,7 +20,7 @@ internal class AuthenticationService : IAuthService
     private readonly ITokenProvider _tokenProvider;
     private readonly JwtConfiguration _jwtConfiguration;
 
-    public AuthenticationService(
+    public AuthService(
         IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository,
         ITokenProvider tokenProvider,
@@ -32,23 +33,27 @@ internal class AuthenticationService : IAuthService
     /// <summary>
     /// Autentica o usuário e retorna um token JWT.
     /// </summary>
-    public async Task<TokenResponse> AuthenticateAsync(User user)
+    public async Task<TokenResponse> AuthenticateAsync(User user, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
 
-        // Aqui você pode passar a configuração de expiração para o provider
         var expirationInMinutes = _jwtConfiguration.ExpirationInMinutes;
         var token = _tokenProvider.Create(user, expirationInMinutes);
         var refreshToken = CreateRefreshToken(user);
-        await _refreshTokenRepository.AddAsync(refreshToken);
 
-        return await Task.FromResult(new TokenResponse(token, refreshToken.Token));
+        // Salvar o refreshToken
+        await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+
+        // Gerar o token de resposta com a data de expiração
+        var expiresAt = DateTime.UtcNow.AddMinutes(expirationInMinutes);
+
+        return new TokenResponse(token, refreshToken.Token, expiresAt);
     }
 
     /// <summary>
     /// Obtém o usuário atual a partir do contexto HTTP autenticado.
     /// </summary>
-    public async Task<User> GetCurrentUserAsync()
+    public async Task<User> GetCurrentUserAsync(CancellationToken cancellationToken)
     {
         var principal = await GetPrincipalFromContextAsync();
         if (principal is null) return null;
@@ -56,7 +61,7 @@ internal class AuthenticationService : IAuthService
         var userId = ExtractUserIdFromClaims(principal.Claims);
         if (userId == Guid.Empty) return null;
 
-        var user = await _userRepository.GetByIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
         ValidadeUserIsActive(user);
 
         return user;
@@ -65,7 +70,7 @@ internal class AuthenticationService : IAuthService
     /// <summary>
     /// Renova o token JWT utilizando o refresh token fornecido.
     /// </summary>
-    public async Task<Result<string>> RenewTokenAsync(string refreshToken)
+    public async Task<Result<string>> RenewTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
             return Result<string>.Failure("O token de atualização é inválido.");
@@ -87,7 +92,7 @@ internal class AuthenticationService : IAuthService
         user.RefreshTokens.Add(refreshTokenEntity);
 
         // Salvando a atualização do usuário
-        await _userRepository.UpdateAsync(user);
+        await _userRepository.UpdateAsync(user, cancellationToken);
 
         return Result<string>.Success(newJwtToken);
     }
@@ -128,9 +133,9 @@ internal class AuthenticationService : IAuthService
 
     private static RefreshToken CreateRefreshToken(User user)
     {
-        var expirationInMinutes = DateTime.UtcNow.AddDays(30); 
+        var expirationInMinutes = DateTime.UtcNow.AddDays(30);
         var token = Guid.NewGuid().ToString("N");
-        return new RefreshToken(user.Id, token, expirationInMinutes); 
+        return new RefreshToken(user.Id, token, expirationInMinutes);
     }
 
     public async Task<User> GetUserByRefreshTokenAsync(string refreshToken)

@@ -1,4 +1,6 @@
-﻿namespace Tickest.Domain.Entities;
+﻿using System.Reflection.Metadata.Ecma335;
+
+namespace Tickest.Domain.Entities;
 
 #region Role
 /// <summary>
@@ -6,8 +8,9 @@
 /// </summary>
 public class Role : EntityBase
 {
-    public string Name { get; set; } 
-  
+    public string Name { get; set; }
+    public string? Description { get; set; }
+
     // Permissões associadas a esse papel via RolePermission
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<Permission> Permissions { get; private set; }

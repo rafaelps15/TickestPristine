@@ -36,10 +36,17 @@ internal class UserRepository : GenericRepository<User>, IUserRepository
 
     #region Métodos de Verificação
 
-    public async Task<bool> DoesEmailExistAsync(string userEmail) =>
+    public async Task<bool> DoesEmailExistAsync(string userEmail, CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()
                       .AnyAsync(u => u.Email == userEmail);
+
+    public async Task<bool> AnyUsersExistAsync(CancellationToken cancellationToken) =>
+        await _context.Users
+                      .AsNoTracking()
+                      .AnyAsync(cancellationToken);
+
+
 
     #endregion
 }

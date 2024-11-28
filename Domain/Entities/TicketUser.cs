@@ -1,6 +1,6 @@
 ﻿namespace Tickest.Domain.Entities;
 
-public class TicketUser
+public class TicketUser : EntityBase
 {
     public Guid TicketId { get; set; }
     public Ticket Ticket { get; set; }

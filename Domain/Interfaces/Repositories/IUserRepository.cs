@@ -3,36 +3,42 @@
 namespace Tickest.Domain.Interfaces.Repositories;
 
 /// <summary>
-/// Interface que define os métodos específicos para o repositório de usuários.
-/// Herda os métodos genéricos de CRUD do <see cref="IGenericRepository{User}"/>.
+/// Interface para operações de repositório relacionadas aos usuários.
 /// </summary>
 public interface IUserRepository : IGenericRepository<User>
 {
     /// <summary>
-    /// Obtém um usuário com base no seu endereço de e-mail.
+    /// Obtém um usuário pelo email.
     /// </summary>
-    /// <param name="userEmail">O endereço de e-mail do usuário.</param>
-    /// <returns>O usuário encontrado, ou <c>null</c> se não encontrado.</returns>
+    /// <param name="userEmail">O email do usuário.</param>
+    /// <returns>O usuário correspondente ao email fornecido.</returns>
     Task<User> GetUserByEmailAsync(string userEmail);
 
     /// <summary>
-    /// Obtém um usuário com base no seu nome.
+    /// Obtém um usuário pelo nome.
     /// </summary>
     /// <param name="userName">O nome do usuário.</param>
-    /// <returns>O usuário encontrado, ou <c>null</c> se não encontrado.</returns>
+    /// <returns>O usuário correspondente ao nome fornecido.</returns>
     Task<User?> GetByNameAsync(string userName);
 
     /// <summary>
-    /// Obtém os papéis de um usuário com base no seu ID.
+    /// Obtém os papéis (roles) de um usuário.
     /// </summary>
     /// <param name="userId">O ID do usuário.</param>
-    /// <returns>Uma lista de papéis atribuídos ao usuário.</returns>
-    Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken);
+    /// <returns>Uma lista de papéis associados ao usuário.</returns>
+    Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId);
 
     /// <summary>
-    /// Verifica se já existe um usuário com o e-mail fornecido.
+    /// Verifica se o email de um usuário já existe.
     /// </summary>
-    /// <param name="userEmail">O endereço de e-mail a ser verificado.</param>
-    /// <returns><c>true</c> se o e-mail já estiver em uso, <c>false</c> caso contrário.</returns>
-    Task<bool> DoesEmailExistAsync(string userEmail);
+    /// <param name="userEmail">O email a ser verificado.</param>
+    /// <returns>True se o email já existir, caso contrário False.</returns>
+    Task<bool> DoesEmailExistAsync(string userEmail, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Verifica se existem usuários cadastrados.
+    /// </summary>
+    /// <param name="cancellationToken">Token de cancelamento para a operação.</param>
+    /// <returns>True se existirem usuários cadastrados, caso contrário False.</returns>
+    Task<bool> AnyUsersExistAsync(CancellationToken cancellationToken);
 }

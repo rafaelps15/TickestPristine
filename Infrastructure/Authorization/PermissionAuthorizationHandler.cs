@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using Tickest.Application.Abstractions.Authentication;
 
 namespace Infrastructure.Authorization;
@@ -23,9 +24,10 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
     /// <summary>
     /// Verifica se o usuário possui a permissão necessária.
     /// </summary>
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement )
     {
-        var currentUser = await _authService.GetCurrentUserAsync();
+
+        var currentUser = await _authService.GetCurrentUserAsync(CancellationToken.None); 
 
         // Verificação do usuário
         if (currentUser is null)

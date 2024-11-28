@@ -3,7 +3,7 @@ using Tickest.Domain.Enum;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-public interface ITicketRepository : IBaseRepository<Ticket>
+public interface ITicketRepository : IGenericRepository<Ticket>
 {
     #region Custom Methods
 

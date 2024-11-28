@@ -16,7 +16,7 @@ namespace Tickest.Application.Tickets.Update
 
         public async Task<bool> Handle(UpdateTicketCommand request, CancellationToken cancellationToken)
         {
-            var currentUser = await _authenticator.GetCurrentUserAsync();
+            var currentUser = await _authenticator.GetCurrentUserAsync(cancellationToken);
 
             return false;
 

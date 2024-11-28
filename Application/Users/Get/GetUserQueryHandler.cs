@@ -1,9 +1,8 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
+using Tickest.Application.Users.Get;
 using Tickest.Domain.Contracts.Responses.User;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
-
-namespace Tickest.Application.Users.Get;
 
 internal class GetUserQueryHandler : IQueryHandler<GetUserQuery, UserResponse>
 {
@@ -16,16 +15,22 @@ internal class GetUserQueryHandler : IQueryHandler<GetUserQuery, UserResponse>
     {
         if (request.Id.HasValue)  // Verifica se o ID foi fornecido
         {
-            var user = await _userRepository.GetByIdAsync(request.Id.Value);
+            var user = await _userRepository.GetByIdAsync(request.Id.Value, cancellationToken);
             if (user == null) throw new TickestException("Usuário não encontrado.");
-            return new UserResponse(user.Id, user.Name);
+
+            var roles = user.UserRoles.Select(ur => ur.Role).ToList();
+
+            return new UserResponse(user.Id, user.Name, roles, user.Email);
         }
 
-        if (!string.IsNullOrEmpty(request.Name)) // Verifica se o nome foi fornecido
+        if (!string.IsNullOrEmpty(request.Name))  // Verifica se o nome foi fornecido
         {
             var user = await _userRepository.GetByNameAsync(request.Name);
             if (user == null) throw new TickestException("Usuário não encontrado.");
-            return new UserResponse(user.Id, user.Name);
+
+            var roles = user.UserRoles.Select(ur => ur.Role).ToList();
+
+            return new UserResponse(user.Id, user.Name, roles, user.Email);
         }
 
         throw new TickestException("Nenhum critério de busca válido fornecido.");

@@ -23,7 +23,7 @@ public static class DependencyInjection
 
         // Adicionar serviços de autenticação e outros
         //services.AddScoped<IAuthService, Authenticator>();
-        services.AddScoped<IAuthService, AuthenticationService>();
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 

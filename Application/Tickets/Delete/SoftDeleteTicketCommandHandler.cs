@@ -8,18 +8,18 @@ namespace Tickest.Application.Tickets.Delete;
 
 public class SoftDeleteTicketCommandHandler : ICommandHandler<SoftDeleteTicketCommand, Ticket>
 {
-    private readonly IBaseRepository<Ticket> _baseRepository;
+    private readonly IGenericRepository<Ticket> _genericRepository;
     private readonly ILogger<SoftDeleteTicketCommandHandler> _logger;
 
-    public SoftDeleteTicketCommandHandler(IBaseRepository<Ticket> baseRepository, ILogger<SoftDeleteTicketCommandHandler> logger) =>
-        (_baseRepository, _logger) = (baseRepository, logger);
+    public SoftDeleteTicketCommandHandler(IGenericRepository<Ticket> genericRepository, ILogger<SoftDeleteTicketCommandHandler> logger) =>
+        (_genericRepository, _logger) = (genericRepository, logger);
 
     public async Task<Ticket> Handle(SoftDeleteTicketCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Iniciando exclusão lógica do ticket: {TicketId}", request.TicketId);
 
         // Busca o ticket no repositório
-        var ticket = await _baseRepository.GetByIdAsync(request.TicketId);
+        var ticket = await _genericRepository.GetByIdAsync(request.TicketId, cancellationToken);
         if (ticket == null)
         {
             _logger.LogWarning("Ticket não encontrado: {TicketId}", request.TicketId);
@@ -31,7 +31,7 @@ public class SoftDeleteTicketCommandHandler : ICommandHandler<SoftDeleteTicketCo
         ticket.IsActive = false;
         ticket.DeactivatedDate = DateTime.UtcNow;
 
-        await _baseRepository.UpdateAsync(ticket);
+        await _genericRepository.UpdateAsync(ticket, cancellationToken);
 
         _logger.LogInformation("Ticket excluído logicamente com sucesso: {TicketId}", request.TicketId);
         return ticket;

@@ -10,6 +10,9 @@ public class TickestContext : DbContext
 
     // DbSets para cada entidade do sistema
     public DbSet<User> Users { get; set; }
+    public DbSet<Sector> Sectors { get; set; }
+    public DbSet<Department> Departments { get; set; }
+    public DbSet<Area> Areas { get; set; }
     public DbSet<Specialty> Specialties { get; set; }
     public DbSet<UserSpecialty> UserSpecialties { get; set; }
     public DbSet<Role> Roles { get; set; }
@@ -19,7 +22,8 @@ public class TickestContext : DbContext
     public DbSet<TicketUser> TicketUsers { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<UserPermission> UserPermissions { get; internal set; }
+    public DbSet<UserPermission> UserPermissions { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

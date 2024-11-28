@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Exceptions;
+using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
@@ -12,6 +13,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     private readonly TickestContext _context;
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
+    private readonly IUserRoleRepository _userRoleRepository;
     private readonly IGenericRepository<TickestContext> _genericRepository;
     private bool _disposed;
 
@@ -23,26 +25,18 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         TickestContext context,
         IUserRepository userRepository,
         IRoleRepository roleRepository,
+        IUserRoleRepository userRoleRepository,
         IGenericRepository<TickestContext> genericRepository) =>
-        (_context, _userRepository, _roleRepository, _genericRepository) =
-        (context ?? throw new ArgumentNullException(nameof(context)),
-         userRepository ?? throw new ArgumentNullException(nameof(userRepository)),
-         roleRepository ?? throw new ArgumentNullException(nameof(roleRepository)),
-         genericRepository ?? throw new ArgumentNullException(nameof(genericRepository)));
+        (_context, _userRepository, _roleRepository, _userRoleRepository, _genericRepository) =
+        (context, userRepository, roleRepository, userRoleRepository, genericRepository);
 
     #endregion
 
     #region - Métodos Públicos
 
-    /// <summary>
-    /// Obtém o repositório genérico para a entidade especificada.
-    /// </summary>
     public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class =>
         (IGenericRepository<TEntity>)_genericRepository;
 
-    /// <summary>
-    /// Salva as alterações no banco de dados de forma assíncrona.
-    /// </summary>
     public async Task<int> CommitAsync()
     {
         try
@@ -59,9 +53,6 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    /// <summary>
-    /// Aplica o filtro para considerar apenas entidades ativas.
-    /// </summary>
     public IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class =>
         query.Where(e => EF.Property<bool>(e, "IsActive"));
 
@@ -69,9 +60,6 @@ public class UnitOfWork : IUnitOfWork, IDisposable
 
     #region - Métodos Privados
 
-    /// <summary>
-    /// Libera os recursos utilizados pelo UnitOfWork.
-    /// </summary>
     public void Dispose()
     {
         if (!_disposed)
@@ -79,22 +67,20 @@ public class UnitOfWork : IUnitOfWork, IDisposable
             _context?.Dispose();
             _disposed = true;
         }
-        GC.SuppressFinalize(this); // Impede o GC de finalizar a classe após Dispose ser chamado
+        GC.SuppressFinalize(this);
     }
 
     #endregion
 
     #region - Propriedades de Repositórios
 
-    /// <summary>
-    /// Propriedade para acessar o repositório de usuários.
-    /// </summary>
     public IUserRepository Users => _userRepository;
 
-    /// <summary>
-    /// Propriedade para acessar o repositório de roles.
-    /// </summary>
     public IRoleRepository Roles => _roleRepository;
+
+    public IUserRoleRepository UserRoles => _userRoleRepository;
+
+    public IGenericRepository<TickestContext> GenericRepository => _genericRepository;
 
     #endregion
 }

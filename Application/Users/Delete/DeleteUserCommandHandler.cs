@@ -1,48 +1,44 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Contracts.Responses.User;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Users.Delete
+namespace Tickest.Application.Users.Delete;
+
+public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, DeleteUserResponse>
 {
-    public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, DeleteUserResponse>
+    private readonly IGenericRepository<User> _genericRepository;
+    private readonly ILogger<DeleteUserCommandHandler> _logger;
+
+    public DeleteUserCommandHandler(
+        IGenericRepository<User> genericRepository,
+        ILogger<DeleteUserCommandHandler> logger)
+        => (_genericRepository, _logger) = (genericRepository, logger);
+
+    public async Task<DeleteUserResponse> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
-        private readonly IBaseRepository<User> _baseRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly ILogger<DeleteUserCommandHandler> _logger;
+        // Validação do comando de exclusão
+        _logger.LogInformation("Iniciando solicitação de exclusão de usuário.");
 
-        public DeleteUserCommandHandler(
-            IUserRepository userRepository,
-            IBaseRepository<User> baseRepository,
-            ILogger<DeleteUserCommandHandler> logger)
-            => (_userRepository, _baseRepository, _logger) = (userRepository, baseRepository, logger);
+        // Busca o usuário
+        var user = await GetUserAsync(request.UserId, cancellationToken);
 
-        public async Task<DeleteUserResponse> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
-        {
-            // Validação do comando de exclusão
-            _logger.LogInformation("Validação da solicitação de exclusão de usuário concluída com sucesso.");
+        // Deleta o usuário
+        await _genericRepository.DeleteByIdAsync(user.Id, cancellationToken);
+        _logger.LogInformation($"Usuário com ID {user.Id} deletado com sucesso.");
 
-            // Busca o usuário
-            var user = await GetUserAsync(request.UserId);
+        // Retorna a resposta com os dados do usuário deletado
+        return new DeleteUserResponse(user.Id, user.Email, user.Name);
+    }
 
-            // Deleta o usuário
-            await _baseRepository.DeleteByIdAsync(user.Id);
-            _logger.LogInformation($"Usuário com ID {user.Id} deletado com sucesso.");
+    private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await _genericRepository.GetByIdAsync(userId, cancellationToken);
+        if (user == null)
+            throw new TickestException($"Usuário com ID {userId} não encontrado.");
 
-            // Retorna a resposta com os dados do usuário deletado
-            return new DeleteUserResponse(user.Id, user.Email, user.Name);
-        }
-
-        private async Task<User> GetUserAsync(Guid userId)
-        {
-            var user = await _baseRepository.GetByIdAsync(userId);
-            if (user == null)
-                throw new TickestException($"Usuário com ID {userId} não encontrado.");
-
-            return user;
-        }
+        return user;
     }
 }

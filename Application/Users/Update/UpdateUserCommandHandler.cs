@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Contracts.Responses.User;
@@ -25,20 +26,20 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Updat
 
     public async Task<UpdateUserResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(request.UserId);
+        var user = await _userRepository.GetByIdAsync(request.UserId,cancellationToken);
         if (user is null)
             throw new TickestException($"Usuário com ID {request.UserId} não encontrado.");
 
         UpdateUserProperties(user, request);
-        await _userRepository.UpdateAsync(user);
+        await _userRepository.UpdateAsync(user,cancellationToken);
 
         _logger.LogInformation($"Usuário com ID {user.Id} atualizado com sucesso.");
         return MapResponse(user);
     }
 
-    private async Task<User> GetUserAsync(Guid userId)
+    private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
         return user ?? throw new TickestException($"Usuário com ID {userId} não encontrado.");
     }
 

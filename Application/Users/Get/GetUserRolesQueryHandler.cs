@@ -1,48 +1,35 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Contracts.Responses.User;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces.Repositories;
-using Tickest.Domain.Entities;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Tickest.Domain.Interfaces;
 
-namespace Tickest.Application.Users.Get
+namespace Tickest.Application.Users.Get;
+
+public sealed class GetUserRolesQueryHandler : IQueryHandler<GetUserRolesQuery, UserResponse>
 {
-    public sealed class GetUserRolesQueryHandler : IQueryHandler<GetUserRolesQuery, UserResponse>
+    private readonly IUnitOfWork _unitOfWork;
+
+    public GetUserRolesQueryHandler(IUnitOfWork unitOfWork) =>
+        _unitOfWork = unitOfWork;
+
+    public async Task<UserResponse> Handle(GetUserRolesQuery request, CancellationToken cancellationToken)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        // Verificar se o Id do usuário foi fornecido
+        if (!request.Id.HasValue)
+            throw new TickestException("O Id do usuário é obrigatório.");
 
-        public GetUserRolesQueryHandler(IUnitOfWork unitOfWork) =>
-            _unitOfWork = unitOfWork;
+        var userId = request.Id.Value;
 
-        public async Task<UserResponse> Handle(GetUserRolesQuery request, CancellationToken cancellationToken)
-        {
-            // Verificar se o Id do usuário foi fornecido
-            if (!request.Id.HasValue)
-                throw new TickestException("O Id do usuário é obrigatório.");
+        // 1. Obter as UserRoles associadas ao usuário
+        var userRoles = await _unitOfWork.UserRoles.FindAsync(ur => ur.UserId == userId, cancellationToken)
+            ?? throw new TickestException("Nenhuma role encontrada para este usuário.");
 
-            var userId = request.Id.Value;
+        // 2. Obter o usuário
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken)
+            ?? throw new TickestException($"Usuário com Id {userId} não encontrado.");
 
-            // 1. Obter as UserRoles associadas ao usuário a partir do repositório
-            var userRoles = await _unitOfWork.UserRoles.FindAsync(ur => ur.UserId == userId, cancellationToken);
-
-            // Verificar se foram encontradas UserRoles
-            if (userRoles == null || !userRoles.Any())
-                throw new TickestException("Nenhuma role encontrada para este usuário.");
-
-            // 2. Obter o usuário
-            var user = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken)
-                ?? throw new TickestException($"Usuário com Id {userId} não encontrado.");
-
-            // 3. Obter as roles associadas às UserRoles
-            var roles = userRoles.Select(ur => ur.Role).ToList();
-
-            // 4. Criar o UserResponse com as roles encontradas
-            var userResponse = new UserResponse(user.Id, user.Name, roles.Select(role => role.Name).ToList());
-
-            // Retornar o UserResponse
-            return userResponse;
-        }
+        // 3. Criar o UserResponse com as roles associadas ao usuário
+        // Utilizando o UserResponseFactory para simplificar a criação
+        return UserResponseFactory.CreateFromUserRoles(user.Id, user.Name, "Roles carregadas com sucesso.", userRoles);
     }
 }
