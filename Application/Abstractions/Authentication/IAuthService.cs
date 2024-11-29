@@ -1,5 +1,4 @@
 ﻿using Tickest.Domain.Common;
-using Tickest.Domain.Contracts.Responses;
 using Tickest.Domain.Entities;
 
 namespace Tickest.Application.Abstractions.Authentication;

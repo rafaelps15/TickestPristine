@@ -1,9 +1,9 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Entities;
 
-namespace Tickest.Application.Users.GetById;
+namespace Tickest.Application.Permissions.GetById;
 
-public class GetUserByIdPermissionsQuery : IQuery<IEnumerable<Permission>>
+public class GetByIdUserPermissionsQuery : IQuery<IEnumerable<Permission>>
 {
     public Guid UserId { get; set; }
 }

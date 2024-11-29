@@ -8,12 +8,13 @@ namespace Tickest.Domain.Entities;
 /// </summary>
 public class Ticket : EntityBase
 {
+
     public string Title { get; set; }
     public string Description { get; set; }
  
     // Relacionamentos
-    public Guid? AssignedUserId { get; set; }
-    public User AssignedUser { get; set; }
+    public Guid? AssignedUserId { get; set; } // IdUsuárioResponsável
+    public User AssignedUser { get; set; } // UsuárioResponsável 
 
     public TicketPriority Priority { get; set; }
     public TicketStatus Status { get; set; }
@@ -28,7 +29,4 @@ public class Ticket : EntityBase
     public ICollection<TicketUser> TicketUsers { get; set; } // Relacionamento com a tabela de junção
     public ICollection<Message> Messages { get; set; }  // Relacionamento com mensagens
 
-    public bool IsDeleted { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public Guid UserId { get; set; }
 }

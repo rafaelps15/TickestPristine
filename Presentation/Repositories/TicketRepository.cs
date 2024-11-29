@@ -24,24 +24,20 @@ internal class TicketRepository : GenericRepository<Ticket>, ITicketRepository
         return new Tuple<IEnumerable<Ticket>, int>(tickets, tickets.Count);
     }
 
-    public async Task<Tuple<IEnumerable<Ticket>, int>> GetTicketsByUserIdAsync(Guid userId)
-    {
-        var tickets = await _context.Tickets
-            .Where(t => t.UserId == userId)
-            .ToListAsync();
+    public async Task<IEnumerable<Ticket>> GetTicketsByUserAsync(Guid userId, CancellationToken cancellationToken) =>
+        await _context.Tickets
+            .Where(ticket => ticket.AssignedUserId == userId)
+            .ToListAsync(cancellationToken);
 
-        return new Tuple<IEnumerable<Ticket>, int>(tickets, tickets.Count);
-    }
 
     #endregion
 
     #region Métodos de Verificação
 
-    public async Task<bool> TicketExistsAsync(Guid ticketId)
-    {
-        return await _context.Tickets
+    public async Task<bool> TicketExistsAsync(Guid ticketId)=>
+         await _context.Tickets
             .AnyAsync(t => t.Id == ticketId);
-    }
+    
 
     #endregion
 }

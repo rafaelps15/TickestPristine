@@ -7,17 +7,7 @@
 /// </summary>
 public class Message : EntityBase
 {
-    public Message(string content, Guid ticketId, Guid userId)
-    {
-        Content = content ?? throw new ArgumentNullException(nameof(content));
-        TicketId = ticketId;
-        UserId = userId;
-        SentDate = DateTime.UtcNow;
-    }
-
     public string Content { get; set; }
-    public DateTime SentDate { get; set; }
-
     public Guid TicketId { get; set; }
     public Ticket Ticket { get; set; }
 
@@ -29,7 +19,7 @@ public class Message : EntityBase
     public Guid? AnsweredId { get; set; } // Pode ser nulo, pois nem toda mensagem é uma resposta
     public Message Answered { get; set; } // Navegação para a mensagem respondida (auto-relacionamento)
 
-
+    // Lista de usuários que responderam a esta mensagem
     public ICollection<User> UsersWhoAnswered { get; set; } = new List<User>();
 }
 

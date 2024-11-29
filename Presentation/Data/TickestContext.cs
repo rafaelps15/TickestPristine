@@ -20,7 +20,7 @@ public class TickestContext : DbContext
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<TicketUser> TicketUsers { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
+    //public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<UserPermission> UserPermissions { get; set; }
 

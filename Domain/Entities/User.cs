@@ -42,8 +42,8 @@
         public Guid? AnsweredId { get; set; } // Chave estrangeira para o usuário que enviou a mensagem
         public Message Answered { get; set; } // Navegação para a mensagem respondida (se houver)
 
-        public Guid? RefreshTokenId { get; set; }
-        public ICollection<RefreshToken> RefreshTokens { get; set; }
+        //public Guid? RefreshTokenId { get; set; }
+        //public ICollection<RefreshToken> RefreshTokens { get; set; }
         public ICollection<Permission> Permissions { get; private set; }
 
         /// <summary>

@@ -4,15 +4,15 @@ using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Users.GetById;
 
-internal class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, UserResponse>
+public class GetByIdUserQueryHandler : IQueryHandler<GetByIdUserQuery, UserResponse>
 {
     private readonly IUserRepository _userRepository;
 
-    public GetUserByIdQueryHandler(IUserRepository userRepository) =>
+    public GetByIdUserQueryHandler(IUserRepository userRepository) =>
         _userRepository = userRepository;
 
 
-    public async Task<UserResponse> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+    public async Task<UserResponse> Handle(GetByIdUserQuery request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.Id,cancellationToken);
 

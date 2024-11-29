@@ -1,21 +1,20 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
-using Tickest.Application.Users.GetById;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Interfaces.Repositories;
 
 
-namespace Tickest.Application.Users.GetPermissions;
+namespace Tickest.Application.Permissions.GetById;
 
-public class GetUserByIdPermissionsQueryHandler : IQueryHandler<GetUserByIdPermissionsQuery, IEnumerable<Permission>>
+public class GetByIdUserPermissionsQueryHandler : IQueryHandler<GetByIdUserPermissionsQuery, IEnumerable<Permission>>
 {
     private readonly IUserRepository _userRepository;
 
-    public GetUserByIdPermissionsQueryHandler(IUserRepository userRepository) =>
-    
-        _userRepository = userRepository;
-    
+    public GetByIdUserPermissionsQueryHandler(IUserRepository userRepository) =>
 
-    public async Task<IEnumerable<Permission>> Handle(GetUserByIdPermissionsQuery query, CancellationToken cancellationToken)
+        _userRepository = userRepository;
+
+
+    public async Task<IEnumerable<Permission>> Handle(GetByIdUserPermissionsQuery query, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(query.UserId, cancellationToken);
 

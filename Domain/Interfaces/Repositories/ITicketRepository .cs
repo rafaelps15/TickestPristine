@@ -13,9 +13,12 @@ public interface ITicketRepository : IGenericRepository<Ticket>
     Task<Tuple<IEnumerable<Ticket>, int>> GetTicketsByStatusAsync(TicketStatus status);
 
     /// <summary>
-    /// Obtém todos os tickets de um usuário específico.
+    /// Recupera todos os tickets atribuídos a um usuário específico.
     /// </summary>
-    Task<Tuple<IEnumerable<Ticket>, int>> GetTicketsByUserIdAsync(Guid userId);
+    /// <param name="userId">O identificador do usuário cujo tickets devem ser recuperados.</param>
+    /// <param name="cancellationToken">O token de cancelamento para a operação assíncrona.</param>
+    /// <returns>Uma coleção de tickets atribuídos ao usuário.</returns>
+    Task<IEnumerable<Ticket>> GetTicketsByUserAsync(Guid userId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Verifica se um ticket existe com o ID fornecido.

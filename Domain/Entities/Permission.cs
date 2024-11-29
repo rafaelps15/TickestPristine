@@ -9,7 +9,7 @@ namespace Tickest.Domain.Entities
         public string Description { get; set; }// Descrição da permissão, ex: "Gerenciar usuários".
 
         //public ICollection<Permission> Permissions { get; private set; }
-        public ICollection<UserPermission> UserPermissions { get; private set; } = new HashSet<UserPermission>();
+        public ICollection<UserPermission> UserPermissions { get; private set; }
     }
     #endregion
 }
