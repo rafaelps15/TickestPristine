@@ -14,6 +14,7 @@ public static class DependencyInjection
         services.AddMediatR(configuration =>
              configuration.RegisterServicesFromAssembly(assembly));
 
+        // Registra todos os validadores do FluentValidation encontrados no assembly
         services.AddValidatorsFromAssembly(assembly);
 
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));

@@ -13,23 +13,37 @@ public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, T
     private readonly ITicketRepository _ticketRepository;
     private readonly ILogger<CreateTicketCommandHandler> _logger;
     private readonly IAuthService _authService;
+    private readonly IPermissionProvider _permissionProvider;
 
     public CreateTicketCommandHandler(
         ITicketRepository ticketRepository,
         ILogger<CreateTicketCommandHandler> logger,
-        IAuthService authService) =>
-        (_ticketRepository, _logger, _authService) = (ticketRepository, logger, authService);
+        IAuthService authService,
+        IPermissionProvider permissionProvider) =>
+        (_ticketRepository, _logger, _authService, _permissionProvider) = (ticketRepository, logger, authService, permissionProvider);
 
     public async Task<Ticket> Handle(CreateTicketCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Iniciando a criação de um novo ticket.");
 
-        //ESSA PESSOA LOGADA PODE CRIAR UM TICKET??????
-
-        // Validação do comando
+        // Validação de prioridade
         ValidateCommand(request);
 
+        // Verificar se o usuário tem permissão para criar um ticket
         var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
+        if (currentUser == null)
+        {
+            throw new UnauthorizedAccessException("Usuário não autenticado.");
+        }
+
+        var userPermissions = await _permissionProvider.GetPermissionsForUserAsync(currentUser.Id);
+        var requiredPermissions = new HashSet<string> { "CreateTicket", "ManageTickets" };
+
+        // Verifica se o usuário tem todas as permissões necessárias
+        if (!requiredPermissions.All(permission => userPermissions.Contains(permission)))
+        {
+            throw new UnauthorizedAccessException("Usuário não tem permissão para criar um ticket.");
+        }
 
         // Criação do ticket
         var ticket = new Ticket
@@ -58,6 +72,7 @@ public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, T
 
     private void ValidateCommand(CreateTicketCommand request)
     {
+        // Validação da prioridade
         if (!Enum.IsDefined(typeof(TicketPriority), request.Priority))
         {
             _logger.LogWarning("Prioridade inválida fornecida: {Priority}", request.Priority);

@@ -20,8 +20,4 @@
     <ProjectReference Include="..\Presentation\Tickest.Persistence.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Tickets\Queries\" />
-  </ItemGroup>
-
 </Project>

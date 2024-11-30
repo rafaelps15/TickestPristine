@@ -12,4 +12,8 @@
     <None Remove="Entities\Models\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Contracts\" />
+  </ItemGroup>
+
 </Project>

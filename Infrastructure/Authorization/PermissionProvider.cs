@@ -18,82 +18,55 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     #region Construtor
 
-    /// <summary>
-    /// Inicializa a classe PermissionProvider com os repositórios e logger.
-    /// </summary>
     public PermissionProvider(
-     IUserRepository userRepository,
-     IRoleRepository roleRepository,
-     IPermissionRepository permissionRepository,
-     ILogger<PermissionProvider> logger)
-     => (_userRepository, _roleRepository, _permissionRepository, _logger, _rolePermissions)
-         = (userRepository, roleRepository, permissionRepository, logger, InitializeRolePermissions());
+        IUserRepository userRepository,
+        IRoleRepository roleRepository,
+        IPermissionRepository permissionRepository,
+        ILogger<PermissionProvider> logger)
+        => (_userRepository, _roleRepository, _permissionRepository, _logger, _rolePermissions)
+            = (userRepository, roleRepository, permissionRepository, logger, InitializeRolePermissions());
 
     #endregion
 
     #region Permissões por Papel
 
-    /// <summary>
-    /// Permissões do papel "AdminMaster" (Controle total do sistema).
-    /// </summary>
     private static HashSet<string> GetMasterAdminPermissions() => new HashSet<string>
     {
         "FullSystemControl", "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments",
         "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings"
     };
 
-    /// <summary>
-    /// Permissões do papel "GeneralAdmin" (Administrador geral com permissões sobre usuários, setores, departamentos e tickets).
-    /// </summary>
     private static HashSet<string> GetGeneralAdminPermissions() => new HashSet<string>
     {
         "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments", "ManageAreas",
         "ManageTickets", "ViewReports"
     };
 
-    /// <summary>
-    /// Permissões do papel "SectorAdmin" (Administrador de setores).
-    /// </summary>
     private static HashSet<string> GetSectorAdminPermissions() => new HashSet<string>
     {
         "ManageSectors", "ManageDepartments", "ManageAreas"
     };
 
-    /// <summary>
-    /// Permissões do papel "DepartmentAdmin" (Administrador de departamentos).
-    /// </summary>
     private static HashSet<string> GetDepartmentAdminPermissions() => new HashSet<string>
     {
         "ManageDepartments", "ManageAreas", "AssignDepartmentRoles"
     };
 
-    /// <summary>
-    /// Permissões do papel "AreaAdmin" (Administrador de áreas).
-    /// </summary>
     private static HashSet<string> GetAreaAdminPermissions() => new HashSet<string>
     {
         "ManageAreas", "ManageTasks", "ManageCollaborators"
     };
 
-    /// <summary>
-    /// Permissões do papel "TicketManager" (Responsável por gerenciar tickets).
-    /// </summary>
     private static HashSet<string> GetTicketManagerPermissions() => new HashSet<string>
     {
         "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance"
     };
 
-    /// <summary>
-    /// Permissões do papel "Collaborator" (Colaborador que pode criar e rastrear tickets).
-    /// </summary>
     private static HashSet<string> GetCollaboratorPermissions() => new HashSet<string>
     {
         "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst"
     };
 
-    /// <summary>
-    /// Permissões do papel "SupportAnalyst" (Analista de suporte que gerencia tickets atribuídos e interage com solicitantes).
-    /// </summary>
     private static HashSet<string> GetSupportAnalystPermissions() => new HashSet<string>
     {
         "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester"
@@ -117,53 +90,33 @@ internal sealed class PermissionProvider : IPermissionProvider
         };
     }
 
-    /// <summary>
-    /// Permissões de exemplo para os papéis:
-    /// <list type="bullet">
-    ///     <item><description>FullSystemControl – Controle total do sistema</description></item>
-    ///     <item><description>ManageUsers – Gerenciar usuários</description></item>
-    ///     <item><description>ManagePermissions – Gerenciar permissões</description></item>
-    ///     <item><description>ManageSectors – Gerenciar setores</description></item>
-    ///     <item><description>ManageDepartments – Gerenciar departamentos</description></item>
-    ///     <item><description>ManageAreas – Gerenciar áreas</description></item>
-    ///     <item><description>ManageTickets – Gerenciar tickets</description></item>
-    ///     <item><description>ViewReports – Visualizar relatórios</description></item>
-    ///     <item><description>AccessCriticalSettings – Acessar configurações críticas</description></item>
-    ///     <item><description>AssignDepartmentRoles – Atribuir funções de departamento</description></item>
-    ///     <item><description>ManageTasks – Gerenciar tarefas</description></item>
-    ///     <item><description>ManageCollaborators – Gerenciar colaboradores</description></item>
-    ///     <item><description>ChangeTicketStatus – Alterar status do ticket</description></item>
-    ///     <item><description>ReassignTickets – Reatribuir tickets</description></item>
-    ///     <item><description>MonitorTicketPerformance – Monitorar o desempenho do ticket</description></item>
-    ///     <item><description>CreateTicket – Criar ticket</description></item>
-    ///     <item><description>TrackTicketStatus – Rastrear status do ticket</description></item>
-    ///     <item><description>InteractWithAnalyst – Interagir com o analista</description></item>
-    ///     <item><description>ManageAssignedTickets – Gerenciar tickets atribuídos</description></item>
-    ///     <item><description>UpdateTicketStatus – Atualizar status do ticket</description></item>
-    ///     <item><description>InteractWithRequester – Interagir com o solicitante</description></item>
-    /// </list>
-    /// </summary>
     public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
     {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("O ID do usuário não pode ser vazio.", nameof(userId));
+
+        // Obtém as funções associadas ao usuário
         var roles = await _userRepository.GetUserRolesAsync(userId);
+        if (roles == null || !roles.Any())
+            return new HashSet<string>(); // Nenhuma permissão encontrada para o usuário
+
         var permissions = new HashSet<string>();
 
-        // Add permissions by role
+        // Adiciona permissões baseadas nos papéis do usuário
         foreach (var role in roles)
         {
-            if (_rolePermissions.TryGetValue(role.Role.Name, out var permissionFunc))
+            if (!string.IsNullOrWhiteSpace(role.Role?.Name))
             {
-                permissions.UnionWith(permissionFunc());
-            }
-            else
-            {
-                _logger.LogWarning($"Unknown role: {role.Role.Name}");
+                var rolePermissions = GetPermissionsForRole(role.Role.Name);
+                if (rolePermissions != null)
+                    permissions.UnionWith(rolePermissions);
             }
         }
 
-        // Add permissions assigned directly to the user
+        // Adiciona permissões atribuídas diretamente ao usuário
         var userPermissions = await GetPermissionsForUserDirectlyAsync(userId);
-        permissions.UnionWith(userPermissions);
+        if (userPermissions != null)
+            permissions.UnionWith(userPermissions);
 
         return permissions;
     }
@@ -183,15 +136,34 @@ internal sealed class PermissionProvider : IPermissionProvider
         return new HashSet<string>(userPermissions.Select(up => up.Name));
     }
 
-
     public HashSet<string> GetPermissionsForRole(string roleName)
     {
+        // Verifica se o papel está no dicionário de permissões
         if (_rolePermissions.ContainsKey(roleName))
         {
-            return _rolePermissions[roleName]();
+            return _rolePermissions[roleName](); // Chama o método associado
         }
-        return new HashSet<string>(); // Retorna um conjunto vazio caso a role não seja encontrada
+
+        // Caso o papel não seja encontrado no dicionário, aplica o switch expression para verificar o papel
+        return roleName switch
+        {
+            "AdminMaster" => GetMasterAdminPermissions(),
+            "GeneralAdmin" => GetGeneralAdminPermissions(),
+            "SectorAdmin" => GetSectorAdminPermissions(),
+            "DepartmentAdmin" => GetDepartmentAdminPermissions(),
+            "AreaAdmin" => GetAreaAdminPermissions(),
+            "TicketManager" => GetTicketManagerPermissions(),
+            "Collaborator" => GetCollaboratorPermissions(),
+            "SupportAnalyst" => GetSupportAnalystPermissions(),
+            _ => new HashSet<string>() // Retorna um conjunto vazio se o papel não for reconhecido
+        };
     }
 
-
+    // Adicionando um método de verificação de permissões por nome
+    public bool UserHasPermission(Guid userId, string permission)
+    {
+        // Verifica se o usuário tem a permissão
+        var userPermissions = GetPermissionsForUserAsync(userId).Result;
+        return userPermissions.Contains(permission);
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Tickest.Domain.Exceptions;
 
 namespace Infrastructure.Authentication;
 
@@ -12,7 +13,7 @@ internal static class ClaimsPrincipalExtensions
     public static Guid GetUserId(this ClaimsPrincipal? principal) =>
         Guid.TryParse(principal?.FindFirstValue(JwtRegisteredClaimNames.Sub), out var userId)
             ? userId
-            : throw new ApplicationException("ID do usuário não está disponível.");
+            : throw new TickestException("ID do usuário não está disponível.");
     #endregion
 
     #region Obter Papel do Usuário
@@ -21,6 +22,6 @@ internal static class ClaimsPrincipalExtensions
     /// </summary>
     public static string GetUserRole(this ClaimsPrincipal? principal) =>
         principal?.FindFirstValue(ClaimTypes.Role)
-        ?? throw new ApplicationException("Papel do usuário não está disponível.");
+        ?? throw new TickestException("Papel do usuário não está disponível.");
     #endregion
 }
