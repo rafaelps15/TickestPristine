@@ -25,8 +25,15 @@ public class Ticket : EntityBase
     public Guid ResponsibleId { get; set; }
     public User Responsible { get; set; }
 
+    // Lista de usuários que têm permissão para interagir com o ticket
     public ICollection<User> Users { get; set; }  // Relacionamento N:N com User
     public ICollection<TicketUser> TicketUsers { get; set; } // Relacionamento com a tabela de junção
+
+    // Mensagens associadas ao ticket
     public ICollection<Message> Messages { get; set; }  // Relacionamento com mensagens
 
+    // Controla quais roles podem visualizar as mensagens
+    public ICollection<TicketRolePermission> RolePermissions { get; set; } // Definindo roles com acesso
 }
+
+

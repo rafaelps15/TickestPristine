@@ -89,7 +89,6 @@ internal sealed class PermissionProvider : IPermissionProvider
             ["SupportAnalyst"] = GetSupportAnalystPermissions
         };
     }
-
     public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
     {
         if (userId == Guid.Empty)
@@ -160,10 +159,10 @@ internal sealed class PermissionProvider : IPermissionProvider
     }
 
     // Adicionando um método de verificação de permissões por nome
-    public bool UserHasPermission(Guid userId, string permission)
+    public async Task<bool> UserHasPermissionAsync(Guid userId, string permission)
     {
         // Verifica se o usuário tem a permissão
-        var userPermissions = GetPermissionsForUserAsync(userId).Result;
+        var userPermissions = await GetPermissionsForUserAsync(userId);
         return userPermissions.Contains(permission);
     }
 }

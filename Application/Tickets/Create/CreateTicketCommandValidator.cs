@@ -1,23 +1,11 @@
 ﻿using FluentValidation;
-using Tickest.Application.Abstractions.Authentication;
 
 namespace Tickest.Application.Tickets.Create;
 
 public class CreateTicketCommandValidator : AbstractValidator<CreateTicketCommand>
 {
-    private readonly IPermissionProvider _permissionProvider;
-    private readonly IAuthService _authService;
-
-    public CreateTicketCommandValidator(IPermissionProvider permissionProvider, IAuthService authService) =>
-        (_permissionProvider, _authService) = (permissionProvider, authService);
-
     public CreateTicketCommandValidator()
     {
-        // Validação das permissões para criação do ticket
-        RuleFor(x => x)
-            .MustAsync(ValidateUserPermissionsAsync)
-            .WithMessage("Usuário não tem permissão para criar um ticket.");
-
         // Validações dos campos do ticket
         RuleFor(x => x.Title)
             .Cascade(CascadeMode.Stop)
@@ -37,21 +25,5 @@ public class CreateTicketCommandValidator : AbstractValidator<CreateTicketComman
 
         RuleFor(x => x.ResponsibleId)
             .NotEmpty().WithMessage("O ID do responsável é obrigatório.");
-    }
-
-    private async Task<bool> ValidateUserPermissionsAsync(CreateTicketCommand command, CancellationToken token)
-    {
-        var currentUser = await _authService.GetCurrentUserAsync(token);
-
-        if (currentUser == null)
-        {
-            return false;
-        }
-
-        var userPermissions = await _permissionProvider.GetPermissionsForUserAsync(currentUser.Id);
-        var requiredPermissions = new HashSet<string> { "CreateTicket" };
-
-        // Verifica se o usuário tem todas as permissões necessárias
-        return requiredPermissions.All(permission => userPermissions.Contains(permission));
     }
 }

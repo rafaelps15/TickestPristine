@@ -3,80 +3,95 @@ using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Enum;
-using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
-
-namespace Tickest.Application.Tickets.Create;
+using Tickest.Domain.Interfaces;
+using Tickest.Domain.Exceptions;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Tickest.Application.Tickets.Create;
 
 public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, Ticket>
 {
+    #region Campos Privados
     private readonly ITicketRepository _ticketRepository;
     private readonly ILogger<CreateTicketCommandHandler> _logger;
     private readonly IAuthService _authService;
     private readonly IPermissionProvider _permissionProvider;
+    private readonly IUnitOfWork _unitOfWork;
+    #endregion
 
+    #region Construtor
     public CreateTicketCommandHandler(
         ITicketRepository ticketRepository,
         ILogger<CreateTicketCommandHandler> logger,
         IAuthService authService,
-        IPermissionProvider permissionProvider) =>
-        (_ticketRepository, _logger, _authService, _permissionProvider) = (ticketRepository, logger, authService, permissionProvider);
+        IPermissionProvider permissionProvider,
+        IUnitOfWork unitOfWork) =>
+        (_ticketRepository, _logger, _authService, _permissionProvider, _unitOfWork) =
+        (ticketRepository, logger, authService, permissionProvider, unitOfWork);
+    #endregion
 
-    public async Task<Ticket> Handle(CreateTicketCommand request, CancellationToken cancellationToken)
+    #region Manipulação do Comando
+    public async Task<Ticket> Handle(CreateTicketCommand command, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Iniciando a criação de um novo ticket.");
 
-        // Validação de prioridade
-        ValidateCommand(request);
-
-        // Verificar se o usuário tem permissão para criar um ticket
+        #region Validação de Permissões
         var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
+
         if (currentUser == null)
         {
-            throw new UnauthorizedAccessException("Usuário não autenticado.");
+            _logger.LogError("Usuário não autenticado.");
+            throw new TickestException("Usuário não autenticado.");
         }
 
-        var userPermissions = await _permissionProvider.GetPermissionsForUserAsync(currentUser.Id);
-        var requiredPermissions = new HashSet<string> { "CreateTicket", "ManageTickets" };
-
-        // Verifica se o usuário tem todas as permissões necessárias
-        if (!requiredPermissions.All(permission => userPermissions.Contains(permission)))
+        // Verificar se o usuário tem permissão para criar ticket
+        var hasPermission =  _permissionProvider.UserHasPermissionAsync(currentUser.Id, "CreateTicket");
+        if (!hasPermission)
         {
-            throw new UnauthorizedAccessException("Usuário não tem permissão para criar um ticket.");
+            _logger.LogError("Usuário não tem permissão para criar tickets.");
+            throw new TickestException("Usuário não tem permissão para criar tickets.");
         }
+        #endregion
 
-        // Criação do ticket
+        #region Criação do Ticket
+        var requesterId = command.RequesterId ?? currentUser.Id;
+
         var ticket = new Ticket
         {
-            Title = request.Title,
-            Description = request.Description,
-            Priority = request.Priority,
+            Title = command.Title,
+            Description = command.Description,
+            Priority = command.Priority,
             Status = TicketStatus.Open,
-            CreatedDate = DateTime.Now,
-            RequesterId = request.RequesterId,
-            ResponsibleId = request.ResponsibleId,
-            UserId = currentUser.Id,
+            CreatedAt = DateTime.UtcNow,
+            RequesterId = requesterId,
+            ResponsibleId = command.ResponsibleId,
             IsActive = true,
-            IsDeleted = false,
-            Messages = new List<Message>(),
-            CreatedAt = DateTime.Now
         };
 
-        // Persistência no banco de dados
-        await _ticketRepository.AddAsync(ticket, cancellationToken);
+        // Adicionando permissões para as roles relevantes
+        ticket.RolePermissions = new List<TicketRolePermission>
+        {
+            new TicketRolePermission { Role = "TicketManager", CanSendMessage = true, CanViewMessage = true },
+            new TicketRolePermission { Role = "Collaborator", CanSendMessage = true, CanViewMessage = true },
+            new TicketRolePermission { Role = "SupportAnalyst", CanSendMessage = true, CanViewMessage = true },
+            new TicketRolePermission { Role = "AdminMaster", CanSendMessage = true, CanViewMessage = true },
+            new TicketRolePermission { Role = "GeneralAdmin", CanSendMessage = true, CanViewMessage = true },
+            new TicketRolePermission { Role = "SectorAdmin", CanSendMessage = true, CanViewMessage = true },
+            new TicketRolePermission { Role = "DepartmentAdmin", CanSendMessage = true, CanViewMessage = true },
+            new TicketRolePermission { Role = "AreaAdmin", CanSendMessage = true, CanViewMessage = true }
+        };
+        #endregion
 
-        _logger.LogInformation("Ticket criado com sucesso: {Title}", ticket.Title);
+        #region Persistência no Repositório com UnitOfWork
+        await _ticketRepository.AddAsync(ticket, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+        _logger.LogInformation("Ticket criado com sucesso: {TicketId}", ticket.Id);
+        #endregion
 
         return ticket;
     }
-
-    private void ValidateCommand(CreateTicketCommand request)
-    {
-        // Validação da prioridade
-        if (!Enum.IsDefined(typeof(TicketPriority), request.Priority))
-        {
-            _logger.LogWarning("Prioridade inválida fornecida: {Priority}", request.Priority);
-            throw new TickestException("A prioridade selecionada é inválida.");
-        }
-    }
+    #endregion
 }

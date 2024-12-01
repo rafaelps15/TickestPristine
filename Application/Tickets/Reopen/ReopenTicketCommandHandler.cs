@@ -15,6 +15,7 @@ public class ReopenTicketCommandHandler : ICommandHandler<ReopenTicketCommand, G
     private readonly IValidator<ReopenTicketCommand> _validator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuthService _authService;
+    private readonly IPermissionProvider _permissionProvider;
     private readonly ILogger<ReopenTicketCommandHandler> _logger;
 
     public ReopenTicketCommandHandler(
@@ -22,52 +23,59 @@ public class ReopenTicketCommandHandler : ICommandHandler<ReopenTicketCommand, G
         IUnitOfWork unitOfWork,
         IValidator<ReopenTicketCommand> validator,
         IAuthService authService,
+        IPermissionProvider permissionProvider,
         ILogger<ReopenTicketCommandHandler> logger) =>
-        (_ticketRepository, _unitOfWork, _validator, _authService, _logger) = (ticketRepository, unitOfWork, validator, authService, logger);
+        (_ticketRepository, _unitOfWork, _validator, _authService, _permissionProvider, _logger) =
+        (ticketRepository, unitOfWork, validator, authService, permissionProvider, logger);
 
     public async Task<Guid> Handle(ReopenTicketCommand request, CancellationToken cancellationToken)
     {
-        ValidateCommand(request);
+        _logger.LogInformation("Iniciando a reabertura do ticket.");
 
-        // Obtém o usuário atual para verificar permissões ou outras informações
+        #region Validação de Permissões
         var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
 
         if (currentUser == null)
         {
-            throw new TickestException("Usuário não encontrado ou não autenticado.");
+            _logger.LogError("Usuário não autenticado.");
+            throw new TickestException("Usuário não autenticado.");
         }
 
+        // Verificar se o usuário tem permissão para reabrir o ticket
+        var hasPermission =  _permissionProvider.UserHasPermissionAsync(currentUser.Id, "ReopenTicket");
+        if (!hasPermission)
+        {
+            _logger.LogError("Usuário não tem permissão para reabrir tickets.");
+            throw new TickestException("Usuário não tem permissão para reabrir tickets.");
+        }
+        #endregion
+
+        #region Obtenção do Ticket
         var ticket = await _ticketRepository.GetByIdAsync(request.TicketId, cancellationToken);
         if (ticket == null)
         {
+            _logger.LogError("Ticket não encontrado.");
             throw new TickestException("Ticket não encontrado.");
         }
 
         if (ticket.IsActive || ticket.IsDeleted)
         {
+            _logger.LogError("O ticket já está ativo ou foi deletado.");
             throw new TickestException("O ticket já está ativo ou foi deletado.");
         }
 
         // Reabre o ticket
         ticket.IsActive = true;
         ticket.Status = TicketStatus.Open;
-        await _ticketRepository.UpdateAsync(ticket, cancellationToken);
+        #endregion
 
-        // Salva as alterações no banco de dados
+        #region Persistência no Repositório com UnitOfWork
+        await _ticketRepository.UpdateAsync(ticket, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        // Retorna o ID do ticket reaberto
+        _logger.LogInformation("Ticket reaberto com sucesso: {TicketId}", ticket.Id);
+        #endregion
+
         return ticket.Id;
-    }
-
-    private void ValidateCommand(ReopenTicketCommand request)
-    {
-        // Valida a prioridade do ticket
-        if (!Enum.IsDefined(typeof(TicketPriority), request.Priority))
-        {
-            _logger.LogWarning("Prioridade inválida fornecida: {Priority}", request.Priority);
-            throw new TickestException("A prioridade selecionada é inválida.");
-        }
-
     }
 }

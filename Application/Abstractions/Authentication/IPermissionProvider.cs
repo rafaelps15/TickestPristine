@@ -26,6 +26,6 @@ namespace Tickest.Application.Abstractions.Authentication
         /// <param name="userId">The user's unique identifier.</param>
         /// <param name="permission">The permission to check.</param>
         /// <returns>A boolean indicating whether the user has the specified permission.</returns>
-        bool UserHasPermission(Guid userId, string permission);
+        bool UserHasPermissionAsync(Guid userId, string permission);
     }
 }

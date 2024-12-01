@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Authentication;
 using System.Security.Claims;
-using System.Threading;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Common;
-using Tickest.Domain.Contracts.Responses;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Infrastructure.Configurations;
-using System;
-using Microsoft.Extensions.Logging;
 
 namespace Tickest.Infrastructure.Authentication;
 
