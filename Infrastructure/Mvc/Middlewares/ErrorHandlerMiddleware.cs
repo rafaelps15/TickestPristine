@@ -5,52 +5,49 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Tickest.Domain.Exceptions;
+using Tickest.Infrastructure.Mvc.Responses;
 
 namespace Tickest.Infrastructure.Mvc.Middlewares;
 
-/// <summary>
-/// Middleware global para interceptação e tratamento de erros durante o pipeline de solicitações HTTP.
-/// Oferece um mecanismo centralizado para captura, registro e resposta de erros.
-/// </summary>
 public sealed class ErrorHandlerMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ErrorHandlerMiddleware> _logger;
 
-    /// <summary>
-    /// Inicializa uma instância de <see cref="ErrorHandlerMiddleware"/>.
-    /// </summary>
-    /// <param name="next">Delegado para o próximo middleware no pipeline.</param>
-    /// <param name="logger">Logger para registrar exceções e informações relevantes.</param>
     public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    /// <summary>
-    /// Processa a solicitação HTTP e intercepta exceções não tratadas.
-    /// </summary>
-    /// <param name="context">Contexto HTTP atual.</param>
-    /// <returns>Uma <see cref="Task"/> representando a operação assíncrona.</returns>
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
             await _next(context);
         }
-        catch (Exception ex) when (LogException(ex)) // Loga e continua o fluxo
+        catch (Exception ex) when (LogException(ex,context))
         {
             await HandleExceptionAsync(context, ex);
         }
     }
 
-    /// <summary>
-    /// Lógica para gerar uma resposta baseada na exceção capturada.
-    /// </summary>
-    /// <param name="context">Contexto HTTP atual.</param>
-    /// <param name="exception">A exceção capturada.</param>
-    /// <returns>Uma <see cref="Task"/> representando a operação assíncrona de resposta.</returns>
+    private bool LogException(Exception exception, HttpContext context)
+    {
+        var request = context.Request;
+        var logMessage = $"Erro capturado no middleware: {exception.Message}, Request Method: {request.Method}, Request Path: {request.Path}, Request Query: {request.QueryString}";
+
+        if (exception is TickestException || exception is ValidationException)
+        {
+            _logger.LogWarning(exception, logMessage);
+        }
+        else
+        {
+            _logger.LogError(exception, logMessage);
+        }
+        return true;
+    }
+
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         if (context == null || exception == null)
@@ -58,26 +55,22 @@ public sealed class ErrorHandlerMiddleware
             throw new ArgumentNullException(context is null ? nameof(context) : nameof(exception));
         }
 
-        // Mapeamento de exceções para códigos e mensagens HTTP
-        var (statusCode, message) = exception switch
+        var correlationId = Guid.NewGuid().ToString();
+
+        var (statusCode, message, detailedMessage) = exception switch
         {
-            ValidationException e => ((int)HttpStatusCode.BadRequest, e.Message),
-            TickestException e => ((int)HttpStatusCode.BadRequest, e.Message),
-            UnauthorizedAccessException => ((int)HttpStatusCode.Unauthorized, "Usuário não autorizado."),
-            _ => ((int)HttpStatusCode.InternalServerError, "Erro interno no servidor.")
+            ValidationException e => ((int)HttpStatusCode.BadRequest, e.Message, e.StackTrace),
+            TickestException e => ((int)HttpStatusCode.BadRequest, e.Message, e.StackTrace),
+            UnauthorizedAccessException => ((int)HttpStatusCode.Unauthorized, "Usuário não autorizado.", null),
+            ArgumentNullException => ((int)HttpStatusCode.BadRequest, "Parâmetro inválido", exception.StackTrace),
+            _ => ((int)HttpStatusCode.InternalServerError, "Erro interno no servidor.", exception.StackTrace)
         };
 
-        // Configura a resposta HTTP
         var response = context.Response;
         response.ContentType = "application/json";
         response.StatusCode = statusCode;
 
-        // Serializa a resposta de erro
-        var errorResponse = new ErrorResponse
-        {
-            Message = message,
-            Timestamp = DateTime.UtcNow
-        };
+        var errorResponse = CreateErrorResponse(message, detailedMessage, correlationId, statusCode);
 
         return response.WriteAsJsonAsync(errorResponse, new JsonSerializerOptions
         {
@@ -86,30 +79,14 @@ public sealed class ErrorHandlerMiddleware
         });
     }
 
-    /// <summary>
-    /// Loga a exceção capturada.
-    /// </summary>
-    /// <param name="exception">Exceção a ser registrada.</param>
-    /// <returns>Sempre retorna <c>true</c> para permitir o fluxo de exceções.</returns>
-    private bool LogException(Exception exception)
+    private static ErrorResponse CreateErrorResponse(string message, string? detailedMessage, string correlationId, int statusCode)
     {
-        _logger.LogError(exception, $"Erro capturado no middleware: {exception.Message}");
-        return true; // Permite que o fluxo continue após o log
+        return new ErrorResponse(
+            Code: "ERR_" + statusCode,
+            Message: message,
+            DetailedMessage: detailedMessage,
+            CorrelationId: correlationId,
+            Timestamp: DateTime.UtcNow
+            );
     }
-}
-
-/// <summary>
-/// Estrutura para representar detalhes do erro na resposta HTTP.
-/// </summary>
-public class ErrorResponse
-{
-    /// <summary>
-    /// Mensagem detalhada sobre o erro ocorrido.
-    /// </summary>
-    public required string Message { get; init; }
-
-    /// <summary>
-    /// Timestamp do momento em que o erro foi gerado.
-    /// </summary>
-    public required DateTime Timestamp { get; init; }
 }
