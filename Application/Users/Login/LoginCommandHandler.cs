@@ -1,51 +1,66 @@
 ﻿using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Contracts.Responses.User;
+using Tickest.Domain.Common;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Helpers;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Users.Login;
-
-public class LoginCommandHandler : ICommandHandler<LoginCommand, LoginResponse>
+namespace Tickest.Application.Users.Login
 {
-    private readonly IAuthService _authenticator;
-    private readonly IUserRepository _userRepository;
-    private readonly ILogger<LoginCommandHandler> _logger;
-
-    public LoginCommandHandler(
-        IAuthService authenticator,
-        IUserRepository userRepository,
-        ILogger<LoginCommandHandler> logger)
-        => (_authenticator, _userRepository, _logger) = (authenticator, userRepository, logger);
-
-    public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
+    internal sealed class LoginCommandHandler : ICommandHandler<LoginCommand, Result<string>>
     {
-        _logger.LogInformation($"Usuário {request.Email} tentando fazer login.");
+        private readonly IAuthService _authService;
+        private readonly IUserRepository _userRepository;
+        private readonly ILogger<LoginCommandHandler> _logger;
+        private readonly ITokenProvider _tokenProvider;
+        private readonly IPasswordHasher _passwordHasher;
 
-        // Obter o usuário a partir do email
-        var user = await _userRepository.GetUserByEmailAsync(request.Email)
-            ?? throw new TickestException("Usuário não encontrado.");
+        // Injeção de dependências
+        public LoginCommandHandler(
+            IAuthService authService,
+            IUserRepository userRepository,
+            ILogger<LoginCommandHandler> logger,
+            ITokenProvider tokenProvider,
+            IPasswordHasher passwordHasher)
+            => (_authService, _userRepository, _logger, _tokenProvider, _passwordHasher) = (authService, userRepository, logger, tokenProvider, passwordHasher);
 
-        // Validar a senha do usuário
-        ValidatePassword(request.Password, user.Salt, user.Password);
+        public async Task<Result<string>> Handle(LoginCommand command, CancellationToken cancellationToken)
+        {
+            // Validar se o usuário existe pelo email
+            var user = await _userRepository.GetUserByEmailAsync(command.Email);
 
-        // Gerar o token de autenticação
-        var token = await _authenticator.AuthenticateAsync(user, cancellationToken);
+            if (user is null)
+            {
+                _logger.LogWarning($"Usuário não encontrado para o email: {command.Email}");
+                return Result.Failure<string>(UserErrors.NotFoundByEmail);
+            }
 
-        // Obter as roles do usuário através de UserRoles
-        var roles = user.UserRoles.Select(userRole => userRole.Role.Name).ToList();
+            // Obter o usuário atual
+            var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
 
-        // Retornar a resposta de login
-        return new LoginResponse(user.Id, user.Email, user.Name, token, roles);
-    }
+            if (currentUser == null)
+            {
+                _logger.LogError("Usuário não autenticado.");
+                throw new TickestException("Usuário não autenticado.");
+            }
 
-    private static void ValidatePassword(string password, string salt, string storedPassword)
-    {
-        var hashedPassword = EncryptionHelper.CreatePasswordHash(password, salt);
+            _logger.LogInformation($"Usuário {command.Email} tentando fazer login.");
 
-        if (!hashedPassword.Equals(storedPassword))
-            throw new TickestException("Senha incorreta.");
+            // Verificar se a senha informada é válida usando o PasswordHasher
+            bool verified = _passwordHasher.Verify(command.Password, user.PasswordHash);
+
+            if (!verified)
+            {
+                _logger.LogWarning($"Falha na tentativa de login para o email: {command.Email}. Senha incorreta.");
+                return Result.Failure<string>("Senha incorreta.");
+            }
+
+            // Gerar o token de autenticação
+            string token = _tokenProvider.Create(user);
+
+            // Retornar o token em caso de sucesso
+            _logger.LogInformation($"Login bem-sucedido para o usuário: {command.Email}");
+            return Result.Success(token);
+        }
     }
 }

@@ -23,7 +23,7 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(t => t.Description)
             .HasMaxLength(500);
 
-        builder.Property(t => t.CreatedDate)
+        builder.Property(t => t.CreatedAt)
             .IsRequired();
 
         builder.Property(t => t.Priority)

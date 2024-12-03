@@ -5,7 +5,6 @@ namespace Tickest.Domain.Interfaces.Repositories;
 
 public interface ITicketRepository : IGenericRepository<Ticket>
 {
-    Task<Ticket> GetByIdAsync(object ticketId, CancellationToken cancellationToken);
     #region Custom Methods
 
     /// <summary>

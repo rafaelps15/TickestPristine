@@ -106,16 +106,14 @@ internal sealed class PermissionProvider : IPermissionProvider
         {
             if (!string.IsNullOrWhiteSpace(role.Role?.Name))
             {
-                var rolePermissions = GetPermissionsForRole(role.Role.Name);
-                if (rolePermissions != null)
-                    permissions.UnionWith(rolePermissions);
+                var rolePermissions = await _permissionRepository.GetPermissionsForRole(role.Role.Name);
+                permissions.UnionWith(rolePermissions.Select(p => p.Name));
             }
         }
 
         // Adiciona permissões atribuídas diretamente ao usuário
         var userPermissions = await GetPermissionsForUserDirectlyAsync(userId);
-        if (userPermissions != null)
-            permissions.UnionWith(userPermissions);
+        permissions.UnionWith(userPermissions);
 
         return permissions;
     }
@@ -126,10 +124,9 @@ internal sealed class PermissionProvider : IPermissionProvider
         var userPermissions = await _permissionRepository.GetPermissionsByUserIdAsync(userId);
 
         // Se não encontrar permissões, retornar um HashSet vazio
-        if (userPermissions == null || !userPermissions.Any())
-        {
-            return new HashSet<string>();
-        }
+        return userPermissions == null || !userPermissions.Any()
+             ? new HashSet<string>()
+             : new HashSet<string>(userPermissions.Select(up => up.Name));
 
         // Retorna um HashSet com os nomes das permissões
         return new HashSet<string>(userPermissions.Select(up => up.Name));

@@ -5,20 +5,20 @@ using System.Security.Claims;
 using System.Text;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Entities;
+using Tickest.Domain.Exceptions;
+using Tickest.Infrastructure.Configurations;
 
 namespace Infrastructure.Authentication;
 
 internal sealed class TokenProvider(IConfiguration configuration) : ITokenProvider
 {
-    /// <summary>
-    /// Gera um token JWT com base no usuário fornecido.
-    /// </summary>
-    /// <param name="user">Usuário para o qual o token será gerado.</param>
-    /// <returns>Um token JWT válido como string.</returns>
+    private readonly JwtConfiguration _jwtConfiguration;
+
+
     public string Create(User user, double expirationInMinutes)
     {
         // Configuração do segredo e chave de segurança
-        string secretKey = configuration["Jwt:Secret"]!;
+        string secretKey = configuration["Jwt:Secret"] ?? throw new TickestException("Jwt:Secret");
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 

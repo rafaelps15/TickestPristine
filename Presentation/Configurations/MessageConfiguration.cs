@@ -16,7 +16,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
             .IsRequired() // Campo obrigatório
             .HasMaxLength(1000); // Limite de 1000 caracteres para o conteúdo da mensagem
 
-        builder.Property(m => m.SentDate)
+        builder.Property(m => m.CreatedAt)
             .IsRequired(); // Data de envio obrigatória
 
         // Relacionamentos

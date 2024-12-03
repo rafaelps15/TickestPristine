@@ -104,7 +104,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Creat
             Id = Guid.NewGuid(),
             Email = request.Email.Trim(),
             Name = request.Name.Trim(),
-            Password = passwordHash,
+            PasswordHas = passwordHash,
             Salt = salt,
             IsActive = true,
             CreatedDate = DateTime.UtcNow

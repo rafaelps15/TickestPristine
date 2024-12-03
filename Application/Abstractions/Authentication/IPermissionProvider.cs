@@ -1,31 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿namespace Tickest.Application.Abstractions.Authentication;
 
-namespace Tickest.Application.Abstractions.Authentication
+/// <summary>
+/// Interface responsável por fornecer permissões para usuários e papéis.
+/// </summary>
+public interface IPermissionProvider
 {
-    public interface IPermissionProvider
-    {
-        /// <summary>
-        /// Gets the set of permissions assigned to a user, either from their roles or directly assigned.
-        /// </summary>
-        /// <param name="userId">The user's unique identifier.</param>
-        /// <returns>A set of permissions assigned to the user.</returns>
-        Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId);
+    /// <summary>
+    /// Obtém as permissões atribuídas a um usuário específico.
+    /// Isso pode incluir permissões diretamente atribuídas ou permissões herdadas de papéis.
+    /// </summary>
+    /// <param name="userId">Identificador único do usuário.</param>
+    /// <returns>Conjunto de permissões atribuídas ao usuário.</returns>
+    /// <exception cref="ArgumentException">Lançada se o <paramref name="userId"/> for inválido.</exception>
+    Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId);
 
-        /// <summary>
-        /// Gets the set of permissions associated with a specific role.
-        /// </summary>
-        /// <param name="roleName">The name of the role.</param>
-        /// <returns>A set of permissions assigned to the role.</returns>
-        HashSet<string> GetPermissionsForRole(string roleName);
+    /// <summary>
+    /// Obtém as permissões associadas a um papel específico.
+    /// </summary>
+    /// <param name="roleName">Nome do papel para o qual as permissões são recuperadas.</param>
+    /// <returns>Conjunto de permissões associadas ao papel.</returns>
+    /// <exception cref="ArgumentException">Lançada se o <paramref name="roleName"/> for inválido.</exception>
+    HashSet<string> GetPermissionsForRole(string roleName);
 
-        /// <summary>
-        /// Checks if a user has a specific permission.
-        /// </summary>
-        /// <param name="userId">The user's unique identifier.</param>
-        /// <param name="permission">The permission to check.</param>
-        /// <returns>A boolean indicating whether the user has the specified permission.</returns>
-        bool UserHasPermissionAsync(Guid userId, string permission);
-    }
+    /// <summary>
+    /// Verifica se um usuário possui uma permissão específica.
+    /// </summary>
+    /// <param name="userId">Identificador único do usuário.</param>
+    /// <param name="permission">A permissão a ser verificada.</param>
+    /// <returns>Retorna true se o usuário tiver a permissão; caso contrário, false.</returns>
+    /// <exception cref="ArgumentException">Lançada se o <paramref name="userId"/> ou <paramref name="permission"/> for inválido.</exception>
+    Task<bool> UserHasPermissionAsync(Guid userId, string permission);
 }

@@ -13,6 +13,7 @@ internal class TicketRepository : GenericRepository<Ticket>, ITicketRepository
     public TicketRepository(TickestContext context) : base(context) =>
         _context = context;
 
+  
     #region Métodos de Consulta
 
     public async Task<Tuple<IEnumerable<Ticket>, int>> GetTicketsByStatusAsync(TicketStatus status)

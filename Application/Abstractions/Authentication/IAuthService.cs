@@ -8,7 +8,7 @@ public interface IAuthService
     /// <summary>
     /// Autentica o usuário e retorna um token JWT.
     /// </summary>
-    Task<TokenResponse> AuthenticateAsync(User user, CancellationToken cancellationToken);
+    //Task<TokenResponse> AuthenticateAsync(User user, CancellationToken cancellationToken);
 
     /// <summary>
     /// Obtém o usuário atual a partir do contexto HTTP autenticado.

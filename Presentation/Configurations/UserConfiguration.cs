@@ -23,7 +23,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired() // Campo obrigatório
             .HasMaxLength(150); // Limite de 150 caracteres
 
-        builder.Property(u => u.Password)
+        builder.Property(u => u.PasswordHas)
             .IsRequired() // Campo obrigatório
             .HasMaxLength(200); // Limite de 200 caracteres
 
