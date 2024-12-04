@@ -48,7 +48,7 @@ public class TokenProvider : ITokenProvider
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
-            new(ClaimTypes.Role, string.Join(",", user.UserRoles))
+            //new(ClaimTypes.Role, string.Join(",", user.UserRoles))
         };
     }
 

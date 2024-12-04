@@ -13,5 +13,6 @@ public class Specialty : EntityBase
 
     // Relacionamento N:N com áreas e usuários
     public ICollection<AreaUserSpecialty> AreaUserSpecialties { get; set; }
+    public ICollection<UserSpecialty> UserSpecialties { get; set; }
 }
 #endregion

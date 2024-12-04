@@ -8,6 +8,7 @@ using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 
+
 namespace Tickest.Infrastructure.Authentication;
 
 public class AuthService : IAuthService
@@ -45,7 +46,7 @@ public class AuthService : IAuthService
     {
         var user = await ValidateUserCredentialsAsync(email, password, cancellationToken);
 
-        if (_passwordHasher.NeedsRehash(password, user.PasswordHash))
+        if (_passwordHasher.Verify(password, user.PasswordHash))
         {
             await RehashPasswordAsync(user, password, cancellationToken);
         }
@@ -111,7 +112,7 @@ public class AuthService : IAuthService
 
     private async Task<User> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        var refreshTokenEntity = await _unitOfWork.RefreshTokens.GetByTokenAsync(refreshToken, cancellationToken);
+        var refreshTokenEntity = await _unitOfWork.RefreshTokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
         if (refreshTokenEntity == null || refreshTokenEntity.ExpiresAt < DateTime.UtcNow)
             throw new TickestException("Refresh token inválido ou expirado.");
 

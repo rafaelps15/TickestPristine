@@ -31,7 +31,7 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository Users => _userRepository;
     public IRoleRepository Roles => _roleRepository;
     public IUserRoleRepository UserRoles => _userRoleRepository;
-    public IRefreshTokenRepository RefreshTokens => _refreshTokenRepository;
+    public IRefreshTokenRepository RefreshTokenRepository => _refreshTokenRepository;
     public ITicketRepository TicketRepository => _ticketRepository;
 
 

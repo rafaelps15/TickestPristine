@@ -14,7 +14,7 @@ public interface IRefreshTokenRepository : IGenericRepository<RefreshToken>
     /// </summary>
     /// <param name="token">O token de refresh a ser procurado.</param>
     /// <returns>O RefreshToken correspondente, se encontrado.</returns>
-    Task<RefreshToken> GetByTokenAsync(string token);
+    Task<RefreshToken> GetByTokenAsync(string token, CancellationToken cancellationToken);
 
     /// <summary>
     /// Obtém o usuário associado ao refresh token fornecido.

@@ -29,7 +29,7 @@ public interface IUnitOfWork : IDisposable
     /// Obtém o repositório de tokens de atualização.
     /// </summary>
     /// <value>O repositório de tokens de atualização.</value>
-    IRefreshTokenRepository RefreshTokens { get; }
+    IRefreshTokenRepository RefreshTokenRepository { get; }
 
     ITicketRepository ticketRepository { get; }
 

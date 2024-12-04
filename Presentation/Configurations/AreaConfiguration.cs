@@ -2,36 +2,36 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Departments;
 
-namespace Tickest.Infrastructure.Data.Configurations;
+namespace Tickest.Infrastructure.Persistence.Configurations;
 
 public class AreaConfiguration : IEntityTypeConfiguration<Area>
 {
     public void Configure(EntityTypeBuilder<Area> builder)
     {
-        builder.ToTable("Areas");
-
+        // Configuração da chave primária
         builder.HasKey(a => a.Id);
 
+        // Configuração das propriedades
         builder.Property(a => a.Name)
             .IsRequired()
             .HasMaxLength(100);
 
         builder.Property(a => a.Description)
-            .HasMaxLength(255);
+            .HasMaxLength(500);
 
-        builder.HasOne(a => a.Sector)
-            .WithMany(s => s.Areas)
-            .HasForeignKey(a => a.SectorId)
-            .OnDelete(DeleteBehavior.Restrict);
-
+        // Relacionamento com o responsável pela área
         builder.HasOne(a => a.ResponsibleUser)
-            .WithMany()
+            .WithMany() // Um usuário pode ser responsável por várias áreas
             .HasForeignKey(a => a.ResponsibleUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict); // Comportamento de exclusão
 
+        // Relação N:N com usuários e especialidades
         builder.HasMany(a => a.AreaUserSpecialties)
-            .WithOne()
+            .WithOne() // Relacionamento sem a necessidade de um lado explícito em AreaUserSpecialty
             .HasForeignKey(aus => aus.AreaId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade); // Exclusão em cascata
+
+        // Configuração de tabela
+        builder.ToTable("Areas");
     }
 }

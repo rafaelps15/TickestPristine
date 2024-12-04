@@ -24,11 +24,11 @@ public static class DependencyInjection
         //services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IMessageRepository, MessageRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
+        //services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ISectorRepository, SectorRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
-        services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+        //services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
 
         return services;
