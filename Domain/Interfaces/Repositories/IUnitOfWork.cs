@@ -10,17 +10,28 @@ public interface IUnitOfWork : IDisposable
     /// <summary>
     /// Obtém o repositório de usuários.
     /// </summary>
+    /// <value>O repositório de usuários.</value>
     IUserRepository Users { get; }
 
     /// <summary>
-    /// Obtém o repositório de roles.
+    /// Obtém o repositório de roles (funções).
     /// </summary>
+    /// <value>O repositório de roles.</value>
     IRoleRepository Roles { get; }
 
     /// <summary>
-    /// Obtém o repositório de user roles.
+    /// Obtém o repositório de user roles (relação entre usuários e roles).
     /// </summary>
+    /// <value>O repositório de user roles.</value>
     IUserRoleRepository UserRoles { get; }
+
+    /// <summary>
+    /// Obtém o repositório de tokens de atualização.
+    /// </summary>
+    /// <value>O repositório de tokens de atualização.</value>
+    IRefreshTokenRepository RefreshTokens { get; }
+
+    ITicketRepository ticketRepository { get; }
 
     /// <summary>
     /// Obtém o repositório genérico para a entidade especificada.

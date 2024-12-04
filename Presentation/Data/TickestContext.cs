@@ -1,5 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Auths;
+using Tickest.Domain.Entities.Departments;
+using Tickest.Domain.Entities.Permissions;
+using Tickest.Domain.Entities.Roles;
+using Tickest.Domain.Entities.Sectors;
+using Tickest.Domain.Entities.Tickets;
+using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Persistence.Data;
 
@@ -20,7 +26,7 @@ public class TickestContext : DbContext
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<TicketUser> TicketUsers { get; set; }
-    //public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<UserPermission> UserPermissions { get; set; }
 

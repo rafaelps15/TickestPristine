@@ -4,61 +4,40 @@ using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
-namespace Tickest.Persistence.Repositories;
-
-/// <summary>
-/// Implementação da unidade de trabalho, fornecendo acesso aos repositórios e garantindo o controle de transações com o banco de dados.
-/// </summary>
 public class UnitOfWork : IUnitOfWork
 {
-    #region - Campos Privados
-
     private readonly TickestContext _context;
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IUserRoleRepository _userRoleRepository;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IGenericRepository<TickestContext> _genericRepository;
+    private readonly ITicketRepository _ticketRepository;
     private bool _disposed;
 
-    #endregion
-
-    #region - Construtor
-
-    /// <summary>
-    /// Inicializa uma nova instância da classe <see cref="UnitOfWork"/>.
-    /// </summary>
-    /// <param name="context">Contexto do banco de dados.</param>
-    /// <param name="userRepository">Repositório de usuários.</param>
-    /// <param name="roleRepository">Repositório de roles.</param>
-    /// <param name="userRoleRepository">Repositório de user roles.</param>
-    /// <param name="genericRepository">Repositório genérico.</param>
     public UnitOfWork(
         TickestContext context,
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         IUserRoleRepository userRoleRepository,
+        IRefreshTokenRepository refreshTokenRepository,
+        ITicketRepository ticketRepository,
         IGenericRepository<TickestContext> genericRepository) =>
-        (_context, _userRepository, _roleRepository, _userRoleRepository, _genericRepository) =
-        (context, userRepository, roleRepository, userRoleRepository, genericRepository);
-
-    #endregion
+        (_context, _userRepository, _roleRepository, _userRoleRepository, _refreshTokenRepository, _ticketRepository, _genericRepository) =
+        (context, userRepository, roleRepository, userRoleRepository, refreshTokenRepository, ticketRepository, genericRepository);
 
     #region - Métodos Públicos
 
-    /// <summary>
-    /// Obtém o repositório genérico para a entidade especificada.
-    /// </summary>
-    /// <typeparam name="TEntity">O tipo da entidade.</typeparam>
-    /// <returns>Repositório genérico para a entidade especificada.</returns>
+    public IUserRepository Users => _userRepository;
+    public IRoleRepository Roles => _roleRepository;
+    public IUserRoleRepository UserRoles => _userRoleRepository;
+    public IRefreshTokenRepository RefreshTokens => _refreshTokenRepository;
+    public ITicketRepository TicketRepository => _ticketRepository;
+
+
     public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class =>
         (IGenericRepository<TEntity>)_genericRepository;
 
-    /// <summary>
-    /// Salva as alterações no banco de dados de forma assíncrona.
-    /// </summary>
-    /// <param name="cancellationToken">Token de cancelamento para a operação assíncrona.</param>
-    /// <returns>O número de registros afetados.</returns>
-    /// <exception cref="TickestException">Lançado em caso de erro durante o commit da transação.</exception>
     public async Task<int> CommitAsync(CancellationToken cancellationToken)
     {
         try
@@ -81,49 +60,36 @@ public class UnitOfWork : IUnitOfWork
     /// <typeparam name="TEntity">O tipo da entidade.</typeparam>
     /// <param name="query">A consulta que será filtrada.</param>
     /// <returns>A consulta filtrada para retornar apenas entidades ativas.</returns>
-    public IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class =>
-        query.Where(e => EF.Property<bool>(e, "IsActive"));
-
-    #endregion
-
-    #region - Métodos Privados
+    public IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class
+    {
+        // Exemplo de filtro que pode ser aplicado
+        return query.Where(entity => EF.Property<bool>(entity, "IsActive"));
+    }
 
     /// <summary>
-    /// Libera os recursos não gerenciados.
+    /// Libera os recursos utilizados pela unidade de trabalho.
     /// </summary>
     public void Dispose()
     {
-        if (!_disposed)
-        {
-            _context?.Dispose();
-            _disposed = true;
-        }
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    #endregion
-
-    #region - Propriedades de Repositórios
-
     /// <summary>
-    /// Obtém o repositório de usuários.
+    /// Libera os recursos utilizados pela unidade de trabalho.
     /// </summary>
-    public IUserRepository Users => _userRepository;
-
-    /// <summary>
-    /// Obtém o repositório de roles.
-    /// </summary>
-    public IRoleRepository Roles => _roleRepository;
-
-    /// <summary>
-    /// Obtém o repositório de user roles.
-    /// </summary>
-    public IUserRoleRepository UserRoles => _userRoleRepository;
-
-    /// <summary>
-    /// Obtém o repositório genérico para o contexto Tickest.
-    /// </summary>
-    public IGenericRepository<TickestContext> GenericRepository => _genericRepository;
+    /// <param name="disposing">Indica se o método foi chamado pelo Dispose() ou pelo finalizador.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+            _disposed = true;
+        }
+    }
 
     #endregion
 }

@@ -1,23 +1,22 @@
-﻿namespace Tickest.Domain.Entities;
+﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Users;
+
+namespace Tickest.Domain.Entities.Departments;
 
 #region Department
 /// <summary>
-/// Departamento: Representa um departamento dentro da organização, como TI, Marketing, etc.
+/// Departamento: Representa um departamento dentro da organização (ex: TI, Marketing).
 /// </summary>
 public class Department : EntityBase
 {
-    public string Name { get; set; }  // Nome do departamento (ex: TI, RH, Marketing)
-    public string Description { get; set; }  // Descrição do departamento
+    public string Name { get; set; }
+    public string Description { get; set; }
 
-    // Chave estrangeira para Sector
-    public Guid SectorId { get; set; }
-    public Sector Sector { get; set; }
+    // Relacionamento com setores
+    public ICollection<Sector> Sectors { get; set; }
 
-    // Coleção de Áreas dentro do Departamento
-    public ICollection<Area> Areas { get; set; } = new List<Area>();
-
-    // Relacionamento 1:N com User
-    public ICollection<User> Users { get; set; } = new HashSet<User>();
-
+    // Responsável pelo departamento
+    public Guid? ResponsibleUserId { get; set; }
+    public User ResponsibleUser { get; set; }
 }
 #endregion

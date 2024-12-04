@@ -1,14 +1,17 @@
-﻿using Tickest.Domain.Entities.Base;
+﻿using Tickest.Domain.Entities.Departments;
 using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Entities.Specialties;
 
-#region UserSpecialty
+#region AreaUserSpecialty
 /// <summary>
-/// UserSpecialty: Representa a relação entre um usuário e uma especialidade.
+/// AreaUserSpecialty: Representa a relação entre um usuário e uma especialidade dentro de uma área.
 /// </summary>
-public class UserSpecialty : EntityBase
+public class AreaUserSpecialty
 {
+    public Guid AreaId { get; set; }
+    public Area Area { get; set; }
+
     public Guid UserId { get; set; }
     public User User { get; set; }
 

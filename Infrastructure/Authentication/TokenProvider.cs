@@ -1,49 +1,61 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Tickest.Application.Abstractions.Authentication;
-using Tickest.Domain.Entities;
+using Tickest.Application.DTOs;
+using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Infrastructure.Configurations;
 
-namespace Infrastructure.Authentication;
+namespace Tickest.Infrastructure.Authentication;
 
-internal sealed class TokenProvider(IConfiguration configuration) : ITokenProvider
+public class TokenProvider : ITokenProvider
 {
     private readonly JwtConfiguration _jwtConfiguration;
 
+    public TokenProvider(JwtConfiguration jwtConfiguration) =>
+        _jwtConfiguration = jwtConfiguration ?? throw new TickestException("Configuração JWT inválida.");
 
-    public string Create(User user, double expirationInMinutes)
+    public TokenResponse GenerateToken(User user)
     {
-        // Configuração do segredo e chave de segurança
-        string secretKey = configuration["Jwt:Secret"] ?? throw new TickestException("Jwt:Secret");
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var claims = BuildClaims(user);
+        var credentials = GetSigningCredentials();
 
-        // Criação das claims do usuário
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.UserRoles.ToString()) // Role do usuário
-        };
-
-        // Configuração do token
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes")),
-            Issuer = configuration["Jwt:Issuer"],
-            Audience = configuration["Jwt:Audience"],
+            Expires = DateTime.UtcNow.AddMinutes(_jwtConfiguration.ExpirationMinutes),
+            Issuer = _jwtConfiguration.Issuer,
+            Audience = _jwtConfiguration.Audience,
             SigningCredentials = credentials
         };
 
-        // Criação do token usando JsonWebTokenHandler
-        var handler = new JsonWebTokenHandler();
-        return handler.CreateToken(tokenDescriptor);
+        var token = new JwtSecurityTokenHandler().CreateToken(tokenDescriptor);
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return new TokenResponse
+        {
+            AccessToken = tokenString,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtConfiguration.ExpirationMinutes),
+            TokenType = "Bearer"
+        };
+    }
+
+    private List<Claim> BuildClaims(User user)
+    {
+        return new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(ClaimTypes.Role, string.Join(",", user.UserRoles))
+        };
+    }
+
+    private SigningCredentials GetSigningCredentials()
+    {
+        var key = Encoding.UTF8.GetBytes(_jwtConfiguration.Secret);
+        var signingKey = new SymmetricSecurityKey(key);
+        return new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
     }
 }
-
-

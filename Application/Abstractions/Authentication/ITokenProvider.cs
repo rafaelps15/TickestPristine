@@ -1,14 +1,17 @@
-﻿using Tickest.Domain.Entities;
+﻿using Tickest.Application.DTOs;
+using Tickest.Domain.Entities.Users;
 
-namespace Tickest.Application.Abstractions.Authentication
+namespace Tickest.Application.Abstractions.Authentication;
+
+/// <summary>
+/// Interface responsável pela geração de tokens JWT.
+/// </summary>
+public interface ITokenProvider
 {
-    public interface ITokenProvider
-    {
-        /// <summary>
-        /// Cria um token JWT para o usuário.
-        /// </summary>
-        /// <param name="user">Usuário para quem o token será gerado.</param>
-        /// <returns>Token JWT gerado.</returns>
-        string Create(User user, double expirationInMinutes);
-    }
+    /// <summary>
+    /// Gera um token JWT para um usuário autenticado.
+    /// </summary>
+    /// <param name="user">O usuário para o qual o token será gerado.</param>
+    /// <returns>Um objeto <see cref="TokenResponse"/> contendo o token gerado e a data de expiração.</returns>
+    TokenResponse GenerateToken(User user);
 }

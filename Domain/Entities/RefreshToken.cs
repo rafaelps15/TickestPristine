@@ -1,21 +1,14 @@
-﻿//namespace Tickest.Domain.Entities
-//{
-//    public class RefreshToken : EntityBase
-//    {
-//        public Guid UserId { get; set; }
-//        public string Token { get; set; }
-//        public int ExpirationInMinutes { get; set; } // Define a expiração do token
-//        public User User { get; set; }
+﻿using Tickest.Domain.Entities.Base;
 
-//        public RefreshToken() { }
+namespace Tickest.Domain.Entities.Auths;
 
-//        public RefreshToken(Guid userId, string token, DateTime createdDate, DateTime? deactivatedDate = null, int expirationInMinutes = 60)
-//        {
-//            UserId = userId;
-//            Token = token;
-//            CreatedDate = createdDate;
-//            DeactivatedDate = deactivatedDate;
-//            ExpirationInMinutes = expirationInMinutes;
-//        }
-//    }
-//}
+#region RefreshToken
+/// <summary>
+/// RefreshToken: Representa um token de atualização usado para obter novos tokens de acesso.
+/// </summary>
+public class RefreshToken : EntityBase
+{
+    public Guid UserId { get; set; }
+    public string Token { get; set; }
+}
+#endregion

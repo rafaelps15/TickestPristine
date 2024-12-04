@@ -1,19 +1,25 @@
-﻿using Tickest.Domain.Common;
-using Tickest.Domain.Entities;
+﻿using Tickest.Application.DTOs;
+using Tickest.Domain.Common;
+using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Application.Abstractions.Authentication;
 
 public interface IAuthService
 {
     /// <summary>
-    /// Autentica o usuário e retorna um token JWT.
+    /// Autentica o usuário com base no e-mail e na senha fornecidos, retornando um token de acesso.
     /// </summary>
-    //Task<TokenResponse> AuthenticateAsync(User user, CancellationToken cancellationToken);
+    /// <param name="email">O e-mail do usuário.</param>
+    /// <param name="password">A senha do usuário.</param>
+    /// <returns>Um <see cref="TokenResponse"/> contendo o token de acesso e informações sobre a expiração.</returns>
+    Task<TokenResponse> AuthenticateAsync(string email, string password);
 
     /// <summary>
-    /// Obtém o usuário atual a partir do contexto HTTP autenticado.
+    /// Obtém o usuário atualmente autenticado.
     /// </summary>
-    Task<User> GetCurrentUserAsync(CancellationToken cancellationToken);
+    /// <returns>O <see cref="User"/> atual.</returns>
+    /// <exception cref="TickestException">Lançado se o usuário não for encontrado ou não estiver autenticado.</exception>
+    Task<User> GetCurrentUserAsync();
 
     /// <summary>
     /// Renova o token JWT utilizando o refresh token fornecido.

@@ -1,0 +1,190 @@
+[33mcommit 376baee52f608746a9a48aab172ef669a5d84de3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Tue Dec 3 11:02:09 2024 -0300
+
+    #25 - Corrigido o tratamento de exceções específicas, incluindo melhorias no middleware para TickestException
+
+[33mcommit da1eb7fc05336034da024dafd498694621243bd3[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Mon Dec 2 22:07:33 2024 -0300
+
+    #24 - Corrige a verificação de senha utilizando IPasswordHasher no LoginCommandHandler
+
+[33mcommit 418ad328800bad62db1545385923276bcdb67b8f[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Sun Dec 1 00:51:35 2024 -0300
+
+    # 23 - Ajustar manipuladores CreateTicketCommandHandler e ReopenTicketCommandHandler para seguir padrão e boas práticas
+
+[33mcommit 0ca4b547c0e4f435fa552082cd74f3f2ef2edd7b[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Fri Nov 29 21:51:34 2024 -0300
+
+    # 22 - Finalizar implementação dos manipuladores CreateTicketCommandHandler e ReopenTicketCommandHandler
+
+[33mcommit b7271e00a4a0833010c2f3629dde08fd52aa6836[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Thu Nov 28 21:12:58 2024 -0300
+
+    #21 - Criação do handler GetByIdUserTicketQueryHandler para buscar tickets por usuário
+
+[33mcommit 0d052524701d21f021f15324828af964a21adfcd[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Thu Nov 28 18:20:17 2024 -0300
+
+    #20 - Remover valores padrão e ajustar propriedades em EntityBase
+
+[33mcommit ba0caa433f4d1b1d853bc3c20cad749d826e3d7e[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Tue Nov 26 03:40:13 2024 -0300
+
+    #19 - Implementação do IUnitOfWork e configuração do UnitOfWork
+
+[33mcommit ff8a1ccc314e93bfa537a6eb422890bb9e821593[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Tue Nov 19 22:19:52 2024 -0300
+
+    #18 - feat: create RefreshToken entity for JWT token management
+
+[33mcommit 64ee2a503068e145579b303bdcd370eebbe4ec92[m
+Author: Rafael de Paula <rafaelps15@hotmail.com>
+Date:   Tue Nov 19 03:04:34 2024 -0300
+
+    #17 - Adiciona migração inicial
+
+[33mcommit f39247b57e025fb601b6485df673eca756284994[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Sat Nov 16 23:37:39 2024 -0300
+
+    Corrigindo bugs
+
+[33mcommit fe80ec0c67fd4c5f20b47e92e6afff25b37ff43e[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Tue Nov 5 02:07:04 2024 -0300
+
+    #15 - feat: iniciar a construção da entidade Role
+
+[33mcommit 2f9fac3eb596e3fdb881cff7f0c4ca22d2ceafae[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Mon Nov 4 16:00:48 2024 -0300
+
+    #14 - finish: Implementação finalizada do cadastro de usuários
+
+[33mcommit 35efe816f4b649a0b0e4637f760e7425df62484b[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Tue Oct 15 00:21:03 2024 -0300
+
+    #13 - Implementação do AtualizarUsuarioCommand e seu CommandHandler
+
+[33mcommit 1c0430b7638c0561e26980c6837aadb448bd0bf6[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Thu Oct 10 00:05:39 2024 -0300
+
+    #12 - Aprimorar Funcionalidade do Command e Validator para AtualizarUsuario
+
+[33mcommit 2ada480cfd07810c07c3b1143f11628150c587c6[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Thu Oct 3 22:54:51 2024 -0300
+
+    #11 - Implementação no CriarUsuarioCommand do método ' ValidateAtualizacao '
+
+[33mcommit f71222a1a0596da6b2465a86b8871cb14ea41614[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Wed Oct 2 00:13:50 2024 -0300
+
+    #10 - Refatoração da estrutura de repositórios, implementação da injeção de dependência e ajustes nas interfaces de serviços
+
+[33mcommit ffa890486ed4372274ac1ac0aa027016ae6ef005[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Sun Sep 29 00:54:25 2024 -0300
+
+    #09 - Refatoração e correção na configuração de autenticação e injeção de dependências
+
+[33mcommit 6f3f40851cf77c3538cca64b7e114f07647919d9[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Sat Sep 28 21:48:57 2024 -0300
+
+    #08 - Finalizado Authentication AuthService
+
+[33mcommit ee1f8f7d9318f97755cd8d2aa72dce16ba56b6c5[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Sat Sep 28 17:24:11 2024 -0300
+
+    #07 - Implementação do validador de usuário
+
+[33mcommit ba526057a771ac0171fe6120c81a27bca17730ff[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Sat Sep 28 15:02:21 2024 -0300
+
+    #06 - Refatoração da validação de usuários: melhorias na verificação de nulidade, separação de lógica e aprimoramento no hashing de senhas
+
+[33mcommit 3ecd4a6342abc7d78e34f6f7d0eeb9c3336b6008[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Fri Sep 20 22:16:29 2024 -0300
+
+    #05 - Implementado autenticação JWT, endpoints de geração e renovação de tokens, e configuração de validação de middleware
+
+[33mcommit 9cc39dd7390af8dbb58dc6123970eb77c34e1fe7[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Fri Sep 20 21:56:47 2024 -0300
+
+    #04 - Refactor: Move Repositórios do Domain para a camada de Persistence
+
+[33mcommit 22186e571f200090201add77a8a46f4a873e2e63[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Wed Sep 18 21:30:08 2024 -0300
+
+    #03 - Implementação do Token.
+
+[33mcommit 9da89b8b677945caf8ecf0be39967579bf3405f8[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Mon Sep 16 08:27:01 2024 -0300
+
+    #02 - implementar EnumDisplayNameExtensions e ajustar controle de tickets
+
+[33mcommit 38e5c053f17250d0d286096a99285dfbaa00934d[m
+Merge: 3be6003 1900862
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Sun Aug 25 11:48:07 2024 -0300
+
+    Merge branch 'main' of https://github.com/rafaelps15/TickestPristine
+
+[33mcommit 3be6003d7f2e3d7f9b8230e0a97c941d454ea7e8[m
+Author: RafaelSantos-02 <rafael.santos@annimar.com.br>
+Date:   Sun Aug 25 11:47:41 2024 -0300
+
+    #01 - feat: Criados Repositories e Middleware, iniciada a implementação das Controllers.
+
+[33mcommit 2c7db59eeff5a86b7e19596d475693b994b5deff[m
+Author: Rafael <rafaelps15@hotmail.com>
+Date:   Sun Aug 4 19:36:45 2024 -0300
+
+    Criação da ChamadoConfiguration
+    Criação da migration inicial
+
+[33mcommit 19008622e714c18e6b47b4e6e2bd5fab4d70922e[m
+Author: Rafael <75229214+rafaelps15@users.noreply.github.com>
+Date:   Sun Jul 28 18:29:32 2024 -0300
+
+    Inicializa o projeto backend com .NET 8.0 e Clean Architecture
+    
+    ## Extended Description
+    
+    Este commit inicializa o projeto backend utilizando **.NET 8.0** e a **Clean Architecture**. A configuração inclui:
+    
+    - Estruturação do projeto com Clean Architecture para garantir uma organização modular e escalável.
+    - Configuração inicial de APIs RESTful para gerenciamento de tickets.
+    - Implementação básica de autenticação e autorização com ASP.NET Core Identity.
+    - Configuração do Entity Framework Core para gerenciamento de dados.
+
+[33mcommit 74b83d1ca607c357735af0fe14ab743873155cc6[m
+Author: rafae <rafae@RAFAEL>
+Date:   Fri Jul 26 20:27:30 2024 -0300
+
+    Adicionar arquivos de projeto.
+
+[33mcommit 2c7c52c636c869ff75b1521047517b528b9ce14c[m
+Author: rafae <rafae@RAFAEL>
+Date:   Fri Jul 26 20:27:28 2024 -0300
+
+    Adicione .gitattributes e .gitignore.

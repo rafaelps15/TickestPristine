@@ -1,39 +1,45 @@
-﻿using Tickest.Domain.Enum;
+﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Departments;
+using Tickest.Domain.Entities.Users;
+using Tickest.Domain.Enum;
 
-namespace Tickest.Domain.Entities;
+namespace Tickest.Domain.Entities.Tickets;
 
+#region Ticket
 /// <summary>
-/// Representa um ticket de solicitação ou suporte no sistema.
-/// Cada ticket contém informações sobre sua criação, status, prioridade, e os usuários envolvidos.
+/// Ticket: Representa um ticket dentro do sistema, com informações sobre o problema ou solicitação.
 /// </summary>
 public class Ticket : EntityBase
 {
-
     public string Title { get; set; }
     public string Description { get; set; }
- 
-    // Relacionamentos
-    public Guid? AssignedUserId { get; set; } // IdUsuárioResponsável
-    public User AssignedUser { get; set; } // UsuárioResponsável 
-
     public TicketPriority Priority { get; set; }
     public TicketStatus Status { get; set; }
 
-    public Guid RequesterId { get; set; }
-    public User Requester { get; set; }
 
-    public Guid ResponsibleId { get; set; }
-    public User Responsible { get; set; }
+    // Relacionamento com o usuário que abriu o ticket
+    public Guid OpenedByUserId { get; set; }
+    public User OpenedByUser { get; set; } // Usuário que abriu o ticket (ex: Cliente ou Colaborador)
 
-    // Lista de usuários que têm permissão para interagir com o ticket
-    public ICollection<User> Users { get; set; }  // Relacionamento N:N com User
-    public ICollection<TicketUser> TicketUsers { get; set; } // Relacionamento com a tabela de junção
 
-    // Mensagens associadas ao ticket
-    public ICollection<Message> Messages { get; set; }  // Relacionamento com mensagens
+    // Relacionamento opcional com o usuário a quem o ticket foi atribuído
+    public Guid? AssignedToUserId { get; set; }
+    public User AssignedToUser { get; set; } // Usuário atribuído ao ticket (ex: Analista ou Responsável TI)
 
-    // Controla quais roles podem visualizar as mensagens
-    public ICollection<TicketRolePermission> RolePermissions { get; set; } // Definindo roles com acesso
+
+    // Relacionamento com o departamento ao qual o ticket está associado
+    public Guid DepartmentId { get; set; }
+    public Department Department { get; set; } // Departamento (ex: TI, Suporte, etc.)
+
+
+    // Relacionamento com o setor ao qual o ticket pertence
+    public Guid SectorId { get; set; }
+    public Sector Sector { get; set; } // Setor (ex: Desenvolvimento, Infraestrutura, etc.)
+
+
+    // Relacionamento com a área do setor onde o ticket está alocado
+    public Guid AreaId { get; set; }
+    public Area Area { get; set; } // Área (ex: Frontend, Backend, etc.)
 }
-
-
+}
+#endregion

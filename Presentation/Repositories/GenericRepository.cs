@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Tickest.Domain.Entities;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
@@ -17,7 +16,8 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
     #region CRUD Operations
 
     public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken) =>
-        await _context.Set<TEntity>().AsNoTracking().ToListAsync(cancellationToken);
+        await _context.Set<TEntity>().Where(e => EF.Property<bool>(e, "IsActive")) // Filtro para garantir que apenas entidades ativas sejam retornadas
+            .ToListAsync(cancellationToken);
 
     public async Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         await _context.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);

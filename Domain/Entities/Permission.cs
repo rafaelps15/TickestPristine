@@ -1,15 +1,14 @@
-﻿
-namespace Tickest.Domain.Entities
+﻿using Tickest.Domain.Entities.Base;
+
+namespace Tickest.Domain.Entities.Security;
+
+#region Permission
+/// <summary>
+/// Permission: Representa uma permissão associada a um usuário, como "Criar Ticket", "Editar Ticket", etc.
+/// </summary>
+public class Permission : EntityBase
 {
-    #region Permission
-
-    public class Permission : EntityBase
-    {
-        public string Name { get; set; } //Nome da permissão, ex: "ManageUsers".
-        public string Description { get; set; }// Descrição da permissão, ex: "Gerenciar usuários".
-
-        //public ICollection<Permission> Permissions { get; private set; }
-        public ICollection<UserPermission> UserPermissions { get; private set; }
-    }
-    #endregion
+    public string Name { get; set; }
+    public string Description { get; set; }
 }
+#endregion

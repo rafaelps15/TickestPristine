@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
@@ -11,7 +11,7 @@ internal class UserRepository : GenericRepository<User>, IUserRepository
 
     #region Métodos de Consulta
 
-    public async Task<User> GetUserByEmailAsync(string userEmail) =>
+    public async Task<User?> GetUserByEmailAsync(string userEmail, CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()
                       .FirstOrDefaultAsync(u => u.Email == userEmail);
@@ -21,16 +21,12 @@ internal class UserRepository : GenericRepository<User>, IUserRepository
                       .AsNoTracking()
                       .FirstOrDefaultAsync(user => user.Name == userName);
 
-    public async Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId)
-    {
-        var userRoles = await _context.UserRoles
-                                      .AsNoTracking()
-                                      .Include(ur => ur.Role)
-                                      .Where(ur => ur.UserId == userId)
-                                      .ToListAsync();
-
-        return userRoles ?? new List<UserRole>();
-    }
+    public async Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId) =>
+        await _context.UserRoles
+                      .AsNoTracking()
+                      .Include(ur => ur.Role)
+                      .Where(ur => ur.UserId == userId)
+                      .ToListAsync();
 
     #endregion
 
@@ -39,14 +35,12 @@ internal class UserRepository : GenericRepository<User>, IUserRepository
     public async Task<bool> DoesEmailExistAsync(string userEmail, CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()
-                      .AnyAsync(u => u.Email == userEmail);
+                      .AnyAsync(u => u.Email == userEmail, cancellationToken);
 
     public async Task<bool> AnyUsersExistAsync(CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()
                       .AnyAsync(cancellationToken);
-
-
 
     #endregion
 }

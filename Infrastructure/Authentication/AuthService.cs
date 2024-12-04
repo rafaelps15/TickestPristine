@@ -1,129 +1,143 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Authentication;
-using System.Security.Claims;
 using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.DTOs;
 using Tickest.Domain.Common;
-using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Users;
+using Tickest.Domain.Exceptions;
+using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
-using Tickest.Infrastructure.Configurations;
 
 namespace Tickest.Infrastructure.Authentication;
 
-internal class AuthService : IAuthService
+public class AuthService : IAuthService
 {
+    #region Fields
+
     private readonly IUserRepository _userRepository;
-    private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ITokenProvider _tokenProvider;
-    private readonly JwtConfiguration _jwtConfiguration;
+    private readonly IPasswordHasher _passwordHasher;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<AuthService> _logger;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    #endregion
+
+    #region Constructor
 
     public AuthService(
         IUserRepository userRepository,
-        IRefreshTokenRepository refreshTokenRepository,
         ITokenProvider tokenProvider,
+        IPasswordHasher passwordHasher,
         IHttpContextAccessor httpContextAccessor,
-        JwtConfiguration jwtConfiguration,
-        ILogger<AuthService> logger) =>
-        (_userRepository, _refreshTokenRepository, _tokenProvider, _httpContextAccessor, _jwtConfiguration, _logger) =
-            (userRepository, refreshTokenRepository, tokenProvider, httpContextAccessor, jwtConfiguration, logger);
+        ILogger<AuthService> logger,
+        IRefreshTokenRepository refreshTokenRepository,
+        IUnitOfWork unitOfWork) =>
+        (_userRepository, _tokenProvider, _passwordHasher, _httpContextAccessor, _logger, _refreshTokenRepository, _unitOfWork) =
+        (userRepository, tokenProvider, passwordHasher, httpContextAccessor, logger, refreshTokenRepository, unitOfWork);
 
-    public async Task<TokenResponse> AuthenticateAsync(User user, CancellationToken cancellationToken)
+    #endregion
+
+    #region Public Methods
+
+    public async Task<TokenResponse> AuthenticateAsync(string email, string password, CancellationToken cancellationToken)
     {
-        if (user == null) throw new ArgumentNullException(nameof(user));
+        var user = await ValidateUserCredentialsAsync(email, password, cancellationToken);
 
-        try
+        if (_passwordHasher.NeedsRehash(password, user.PasswordHash))
         {
-            var expirationInMinutes = _jwtConfiguration.ExpirationInMinutes;
-            var token = _tokenProvider.Create(user, expirationInMinutes);
-            var refreshToken = CreateRefreshToken(user);
-
-            await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-
-            var expiresAt = DateTime.UtcNow.AddMinutes(expirationInMinutes);
-
-            return new TokenResponse(token, refreshToken.Token, expiresAt);
+            await RehashPasswordAsync(user, password, cancellationToken);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Erro ao autenticar usuário e gerar tokens.");
-            throw new AuthenticationException("Erro ao autenticar o usuário.", ex);
-        }
+
+        var token = _tokenProvider.GenerateToken(user);
+
+        _logger.LogInformation($"Usuário {email} autenticado com sucesso.");
+
+        return token;
     }
 
     public async Task<User> GetCurrentUserAsync(CancellationToken cancellationToken)
     {
-        var principal = await GetPrincipalFromContextAsync();
-        if (principal == null) return null;
+        var email = GetEmailFromContext();
+        var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken);
 
-        var userId = ExtractUserIdFromClaims(principal.Claims);
-        if (userId == Guid.Empty) return null;
-
-        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
-        EnsureUserIsActive(user);
+        if (user == null)
+            throw new TickestException("Usuário não encontrado.");
 
         return user;
     }
 
     public async Task<Result<string>> RenewTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(refreshToken))
-        {
-            return Result<string>.Failure("O token de atualização é inválido.");
-        }
+        var user = await GetUserByRefreshTokenAsync(refreshToken, cancellationToken);
 
-        var user = await _refreshTokenRepository.GetByRefreshTokenAsync(refreshToken);
-        if (user == null || !user.IsActive)
-        {
-            return Result<string>.Failure("Token inválido ou usuário inativo.");
-        }
+        if (user == null)
+            throw new TickestException("Refresh token inválido ou expirado.");
 
-        var newJwtToken = _tokenProvider.Create(user, _jwtConfiguration.ExpirationInMinutes);
-        var newRefreshToken = GenerateNewRefreshToken();
+        var token = _tokenProvider.GenerateToken(user);
 
-        var refreshTokenEntity = new RefreshToken(user.Id, newRefreshToken, DateTime.UtcNow.AddMinutes(_jwtConfiguration.ExpirationInMinutes));
-        user.RefreshTokens.Add(refreshTokenEntity);
+        return new Result<string> { Success = true, Data = token.AccessToken };
+    }
 
+    #endregion
+
+    #region Private Methods
+
+    private async Task<User> ValidateUserCredentialsAsync(string email, string password, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken);
+        if (user == null || !_passwordHasher.Verify(user.PasswordHash, password))
+            throw new TickestException("Credenciais inválidas.");
+
+        return user;
+    }
+
+    private async Task RehashPasswordAsync(User user, string password, CancellationToken cancellationToken)
+    {
+        var updatedHash = _passwordHasher.Hash(password);
+        user.PasswordHash = updatedHash;
         await _userRepository.UpdateAsync(user, cancellationToken);
-
-        return Result<string>.Success(newJwtToken);
     }
 
-    private async Task<ClaimsPrincipal?> GetPrincipalFromContextAsync()
+    private string GetEmailFromContext()
     {
-        var authenticationResult = await _httpContextAccessor.HttpContext.AuthenticateAsync("Bearer");
-        return authenticationResult.Succeeded ? authenticationResult.Principal : null;
+        var email = _httpContextAccessor.HttpContext?.User?.FindFirst("email")?.Value;
+        if (string.IsNullOrEmpty(email))
+            throw new TickestException("Usuário não autenticado.");
+
+        return email;
     }
 
-    private static Guid ExtractUserIdFromClaims(IEnumerable<Claim> claims)
+    private async Task<User> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        var userIdClaim = claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
-        return Guid.TryParse(userIdClaim?.Value, out var userId) ? userId : Guid.Empty;
+        var refreshTokenEntity = await _unitOfWork.RefreshTokens.GetByTokenAsync(refreshToken, cancellationToken);
+        if (refreshTokenEntity == null || refreshTokenEntity.ExpiresAt < DateTime.UtcNow)
+            throw new TickestException("Refresh token inválido ou expirado.");
+
+        var user = await _userRepository.GetByIdAsync(refreshTokenEntity.UserId, cancellationToken);
+        if (user == null)
+            throw new TickestException("Usuário associado ao refresh token não encontrado.");
+
+        return user;
     }
 
-    private static void EnsureUserIsActive(User? user)
+    #endregion
+
+    #region Rehashing
+
+    public string? RehashIfNeeded(string password, string passwordHash)
     {
-        if (user == null || !user.IsActive)
-        {
-            throw new InvalidOperationException("Usuário inativo ou não encontrado.");
-        }
+        var parts = passwordHash.Split('-');
+        if (parts.Length != 3)
+            throw new TickestException("Formato do hash inválido.");
+
+        var version = int.Parse(parts[0]);
+        var storedHash = Convert.FromHexString(parts[1]);
+        var salt = Convert.FromHexString(parts[2]);
+
+        return version < Version ? _passwordHasher.Hash(password) : null;
     }
 
-    private static string GenerateNewRefreshToken() =>
-        Guid.NewGuid().ToString("N");
-
-    private static RefreshToken CreateRefreshToken(User user)
-    {
-        var expirationInMinutes = DateTime.UtcNow.AddDays(30);
-        var token = Guid.NewGuid().ToString("N");
-        return new RefreshToken(user.Id, token, expirationInMinutes);
-    }
-
-    public async Task<User> GetUserByRefreshTokenAsync(string refreshToken)
-    {
-        return await _refreshTokenRepository.GetByRefreshTokenAsync(refreshToken);
-    }
+    #endregion
 }

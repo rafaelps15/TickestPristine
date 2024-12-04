@@ -1,4 +1,8 @@
-﻿namespace Tickest.Domain.Entities;
+﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Specialties;
+using Tickest.Domain.Entities.Users;
+
+namespace Tickest.Domain.Entities.Departments;
 
 #region Area
 /// <summary>
@@ -6,15 +10,19 @@
 /// </summary>
 public class Area : EntityBase
 {
-    public string Name { get; set; }  // Nome da área (ex: Suporte, Desenvolvimento, etc.)
-    public string Description { get; set; }  // Descrição da área
-    public Guid DepartmentId { get; set; }  // O Departamento ao qual essa Área pertence
-    public Department Department { get; set; }  // Relacionamento com o Departamento
+    public string Name { get; set; }
+    public string Description { get; set; }
 
-    // Relacionamento: Uma Área pode ter várias Especialidades.
-    public ICollection<Specialty> Specialties { get; set; } 
+    // Relacionamento com setor
+    public Guid SectorId { get; set; }
+    public Sector Sector { get; set; }
 
-    // Relacionamento 1:N com User
-    public ICollection<User> Users { get; set; } 
+    // Responsável pela área
+    public Guid ResponsibleUserId { get; set; }
+    public User ResponsibleUser { get; set; }
+
+
+    // Relação N:N com usuários e especialidades
+    public ICollection<AreaUserSpecialty> AreaUserSpecialties { get; set; }
 }
 #endregion
