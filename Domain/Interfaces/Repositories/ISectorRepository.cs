@@ -1,4 +1,4 @@
-﻿using Tickest.Domain.Entities;
+﻿using Tickest.Domain.Entities.Departments;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 

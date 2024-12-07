@@ -1,5 +1,5 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Security;
 
 namespace Tickest.Application.Permissions.GetById;
 

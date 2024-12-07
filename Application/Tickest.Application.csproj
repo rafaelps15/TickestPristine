@@ -20,4 +20,8 @@
     <ProjectReference Include="..\Presentation\Tickest.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Users\Get\" />
+  </ItemGroup>
+
 </Project>

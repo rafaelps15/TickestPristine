@@ -4,24 +4,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Contracts.Responses.User;
-using Tickest.Domain.Entities;
+using Tickest.Domain.Common;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Helpers;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
-using Tickest.Persistence.Repositories;
 
 namespace Tickest.Application.Users.Create;
 
-public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, CreateUserResponse>
+public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Guid>
 {
     #region Dependencies
 
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
     private readonly EncryptionHelper _encryptionHelper;
-    private readonly IRoleRepository _roleRepository;
+    //private readonly IRoleRepository _roleRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ILogger<CreateUserCommandHandler> _logger;
     private readonly IValidator<CreateUserCommand> _validator;
@@ -33,7 +31,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Creat
     public CreateUserCommandHandler(
         IUserRepository userRepository,
         IConfiguration configuration,
-        IRoleRepository roleRepository,
+        //IRoleRepository roleRepository,
         IPasswordHasher passwordHasher,
         IPermissionRepository permissionRepository,
         ILogger<CreateUserCommandHandler> logger,
@@ -41,14 +39,14 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Creat
         TickestContext context,
         IPermissionProvider permissionProvider,
         ISpecialtyRepository specialtyRepository)
-        => (_userRepository, _roleRepository, _passwordHasher, _permissionRepository, _logger, _validator, _context, _permissionProvider, _specialtyRepository) =
-            (userRepository, roleRepository, passwordHasher, permissionRepository, logger, validator, context, permissionProvider, specialtyRepository);
+        => (_userRepository, /*_roleRepository,*/ _passwordHasher, _permissionRepository, _logger, _validator, _context, _permissionProvider, _specialtyRepository) =
+            (userRepository, /*roleRepository,*/ passwordHasher, permissionRepository, logger, validator, context, permissionProvider, specialtyRepository);
 
     #endregion
 
     #region Handle
 
-    public async Task<CreateUserResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         // Validar dados de entrada
         await ValidateRequestAsync(request, cancellationToken);

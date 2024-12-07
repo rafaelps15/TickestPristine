@@ -1,4 +1,5 @@
 ﻿using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Security;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
@@ -12,7 +13,7 @@ public interface IPermissionRepository : IGenericRepository<Permission>
     /// </summary>
     /// <param name="userId">ID do usuário cujas permissões serão recuperadas.</param>
     /// <returns>Uma lista de permissões associadas ao usuário.</returns>
-    Task<IEnumerable<Permission>> GetPermissionsByUserIdAsync(Guid userId);
+    //Task<IEnumerable<Permission>> GetPermissionsByUserIdAsync(Guid userId);
 
     /// <summary>
     /// Obtém todas as permissões disponíveis no sistema.

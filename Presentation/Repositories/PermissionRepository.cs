@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Security;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
@@ -17,12 +18,12 @@ public class PermissionRepository : GenericRepository<Permission>, IPermissionRe
 
     #region Métodos de Consulta
 
-    public async Task<IEnumerable<Permission>> GetPermissionsByUserIdAsync(Guid userId) =>
-             await _context.UserPermissions
-            .Where(userPermission => userPermission.UserId == userId)
-            .Select(userPermission => userPermission.Permission)
-            .AsNoTracking()
-            .ToListAsync();
+    //public async Task<IEnumerable<Permission>> GetPermissionsByUserIdAsync(Guid userId) =>
+    //         await _context.UserPermissions
+    //        .Where(userPermission => userPermission.UserId == userId)
+    //        .Select(userPermission => userPermission.Permission)
+    //        .AsNoTracking()
+    //        .ToListAsync();
 
     public async Task<IEnumerable<Permission>> GetAllPermissionsAsync() =>
              await _context.Permissions

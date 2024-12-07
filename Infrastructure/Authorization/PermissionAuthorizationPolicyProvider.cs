@@ -19,19 +19,16 @@ internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizati
     public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         var existingPolicy = await base.GetPolicyAsync(policyName);
-
-        // Se a política já existir, retorna a existente
         if (existingPolicy != null) return existingPolicy;
 
-        // Cria uma nova política de autorização com base na permissão
         var permissionPolicy = new AuthorizationPolicyBuilder()
             .AddRequirements(new PermissionRequirement(policyName))
             .Build();
 
         _authorizationOptions.AddPolicy(policyName, permissionPolicy);
-
         return permissionPolicy;
     }
+
 }
 
 #endregion

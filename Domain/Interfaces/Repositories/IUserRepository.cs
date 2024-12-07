@@ -26,7 +26,7 @@ public interface IUserRepository : IGenericRepository<User>
     /// </summary>
     /// <param name="userId">O identificador do usuário.</param>
     /// <returns>Uma lista das funções associadas ao usuário.</returns>
-    Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId);
+    //Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId);
 
     /// <summary>
     /// Verifica se já existe um usuário com o e-mail fornecido.

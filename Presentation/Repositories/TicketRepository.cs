@@ -25,27 +25,22 @@ internal class TicketRepository : GenericRepository<Ticket>, ITicketRepository
         return new Tuple<IEnumerable<Ticket>, int>(tickets, tickets.Count);
     }
 
-    public async Task<IEnumerable<Ticket>> GetTicketsByUserAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        // Usando a tabela intermediária TicketUser para buscar tickets do usuário
-        var tickets = await _context.Set<TicketUser>()
-            .Where(tu => tu.UserId == userId && tu.Ticket.IsActive) // Filtro de usuário e tickets ativos
-            .Select(tu => tu.Ticket)  // Selecionando o Ticket relacionado ao User
+    public async Task<IEnumerable<Ticket>> GetTicketsByUserAsync(Guid userId, CancellationToken cancellationToken) =>
+        await _context.Tickets
+            .Where(t => t.OpenedByUserId == userId && t.IsActive) // busca pelo usuario e verifica se está ativo
             .ToListAsync(cancellationToken);
+        
 
-        return tickets;
-    }
+    //public async Task<IEnumerable<Ticket>> GetTicketsByUserAndStatusAsync(Guid userId, TicketStatus status, CancellationToken cancellationToken)
+    //{
+    //    // Usando a tabela intermediária TicketUser para buscar tickets do usuário com status específico
+    //    var tickets = await _context.Set<TicketUser>()
+    //        .Where(tu => tu.UserId == userId && tu.Ticket.Status == status && tu.Ticket.IsActive)  // Filtra usuário, status e tickets ativos
+    //        .Select(tu => tu.Ticket)  // Selecionando o Ticket relacionado ao User
+    //        .ToListAsync(cancellationToken);
 
-    public async Task<IEnumerable<Ticket>> GetTicketsByUserAndStatusAsync(Guid userId, TicketStatus status, CancellationToken cancellationToken)
-    {
-        // Usando a tabela intermediária TicketUser para buscar tickets do usuário com status específico
-        var tickets = await _context.Set<TicketUser>()
-            .Where(tu => tu.UserId == userId && tu.Ticket.Status == status && tu.Ticket.IsActive)  // Filtra usuário, status e tickets ativos
-            .Select(tu => tu.Ticket)  // Selecionando o Ticket relacionado ao User
-            .ToListAsync(cancellationToken);
-
-        return tickets;
-    }
+    //    return tickets;
+    //}
 
     #endregion
 
@@ -55,12 +50,12 @@ internal class TicketRepository : GenericRepository<Ticket>, ITicketRepository
          await _context.Tickets
             .AnyAsync(t => t.Id == ticketId);
 
-    public async Task<bool> TicketUserExistsAsync(Guid ticketId, Guid userId)
-    {
-        // Verificando se o Ticket está associado ao User na tabela intermediária TicketUser
-        return await _context.Set<TicketUser>()
-            .AnyAsync(tu => tu.TicketId == ticketId && tu.UserId == userId);
-    }
+    //public async Task<bool> TicketUserExistsAsync(Guid ticketId, Guid userId)
+    //{
+    //    // Verificando se o Ticket está associado ao User na tabela intermediária TicketUser
+    //    return await _context.Set<TicketUser>()
+    //        .AnyAsync(tu => tu.TicketId == ticketId && tu.UserId == userId);
+    //}
 
     #endregion
 }

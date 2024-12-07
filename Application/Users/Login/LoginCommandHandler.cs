@@ -2,61 +2,59 @@
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
+using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
+using Tickest.Domain.Interfaces;
 
 namespace Tickest.Application.Users.Login;
 
 internal sealed class LoginCommandHandler : ICommandHandler<LoginCommand, Result<string>>
 {
-    #region Dependencies
+    #region Dependências
     private readonly IAuthService _authService;
-    private readonly IUserRepository _userRepository;
-    private readonly ITokenProvider _tokenProvider;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly JwtConfiguration _jwtConfiguration;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<LoginCommandHandler> _logger;
     #endregion
 
-    #region Constructor
+    #region Construtor
     public LoginCommandHandler(
         IAuthService authService,
-        IUserRepository userRepository,
-        ITokenProvider tokenProvider,
-        IPasswordHasher passwordHasher,
-        JwtConfiguration jwtConfiguration)
-        => (_authService, _userRepository, _tokenProvider, _passwordHasher, _jwtConfiguration) =
-           (authService, userRepository, tokenProvider, passwordHasher, jwtConfiguration);
+        IUnitOfWork unitOfWork,
+        ILogger<LoginCommandHandler> logger)
+        => (_authService, _unitOfWork, _logger) =
+           (authService, unitOfWork, logger);
     #endregion
 
-    #region Handle Method
+    #region Método Handle
     public async Task<Result<string>> Handle(LoginCommand command, CancellationToken cancellationToken)
     {
-        // Validar se o usuário existe pelo email
-        var user = await _userRepository.GetUserByEmailAsync(command.Email);
+        // Validar se o usuário existe e se as credenciais estão corretas
+        var user = await _authService.ValidateUserCredentialsAsync(command.Email, command.Password, cancellationToken);
 
-        if (user is null)
-        {
-            throw new TickestException($"Usuário não encontrado para o email: {command.Email}");
-        }
-
-        // Obter o usuário atual
+        // Obter o usuário atual autenticado
         var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
 
+        // Se o usuário atual não estiver autenticado, lançar uma exceção
         if (currentUser == null)
         {
             throw new TickestException("Usuário não autenticado.");
         }
 
-        // Validar a senha
-        if (!_passwordHasher.Verify(command.Password, user.PasswordHash))
+        // Recalcular a senha se necessário (verificar se precisa rehash)
+        if (_authService.RehashIfNeeded(command.Password, user.PasswordHash) != null)
         {
-            throw new TickestException("Senha incorreta.");
+            await _authService.RehashPasswordAsync(user, command.Password, cancellationToken);
         }
 
-        // Gerar o token de autenticação
-        string token = _tokenProvider.Create(user, _jwtConfiguration.ExpirationInMinutes);
+        // Gerar o token de autenticação para o usuário
+        var token = _authService._tokenProvider.GenerateToken(user);
 
-        return Result.Success(token);
+        // Logar a autenticação bem-sucedida
+        _logger.LogInformation($"Usuário {command.Email} autenticado com sucesso.");
+
+        // Retornar o token gerado
+        return Result.Success(token.AccessToken);
     }
     #endregion
 }

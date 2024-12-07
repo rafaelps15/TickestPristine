@@ -8,8 +8,8 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly TickestContext _context;
     private readonly IUserRepository _userRepository;
-    private readonly IRoleRepository _roleRepository;
-    private readonly IUserRoleRepository _userRoleRepository;
+    //private readonly IRoleRepository _roleRepository;
+    //private readonly IUserRoleRepository _userRoleRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IGenericRepository<TickestContext> _genericRepository;
     private readonly ITicketRepository _ticketRepository;
@@ -18,19 +18,19 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(
         TickestContext context,
         IUserRepository userRepository,
-        IRoleRepository roleRepository,
-        IUserRoleRepository userRoleRepository,
+        //IRoleRepository roleRepository,
+        //IUserRoleRepository userRoleRepository,
         IRefreshTokenRepository refreshTokenRepository,
         ITicketRepository ticketRepository,
         IGenericRepository<TickestContext> genericRepository) =>
-        (_context, _userRepository, _roleRepository, _userRoleRepository, _refreshTokenRepository, _ticketRepository, _genericRepository) =
-        (context, userRepository, roleRepository, userRoleRepository, refreshTokenRepository, ticketRepository, genericRepository);
+        (_context, _userRepository,/* _roleRepository, _userRoleRepository,*/ _refreshTokenRepository, _ticketRepository, _genericRepository) =
+        (context, userRepository, /*roleRepository, userRoleRepository,*/ refreshTokenRepository, ticketRepository, genericRepository);
 
     #region - Métodos Públicos
 
     public IUserRepository Users => _userRepository;
-    public IRoleRepository Roles => _roleRepository;
-    public IUserRoleRepository UserRoles => _userRoleRepository;
+    //public IRoleRepository Roles => _roleRepository;
+    //public IUserRoleRepository UserRoles => _userRoleRepository;
     public IRefreshTokenRepository RefreshTokenRepository => _refreshTokenRepository;
     public ITicketRepository TicketRepository => _ticketRepository;
 

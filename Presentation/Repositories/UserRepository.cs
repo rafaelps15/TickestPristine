@@ -21,12 +21,12 @@ internal class UserRepository : GenericRepository<User>, IUserRepository
                       .AsNoTracking()
                       .FirstOrDefaultAsync(user => user.Name == userName);
 
-    public async Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId) =>
-        await _context.UserRoles
-                      .AsNoTracking()
-                      .Include(ur => ur.Role)
-                      .Where(ur => ur.UserId == userId)
-                      .ToListAsync();
+    //public async Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId) =>
+    //    await _context.UserRoles
+    //                  .AsNoTracking()
+    //                  .Include(ur => ur.Role)
+    //                  .Where(ur => ur.UserId == userId)
+    //                  .ToListAsync();
 
     #endregion
 

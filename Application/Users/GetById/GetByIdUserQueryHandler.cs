@@ -1,44 +1,44 @@
-﻿using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Contracts.Responses.User;
-using Tickest.Domain.Interfaces.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.Abstractions.Messaging;
+using Tickest.Domain.Common;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces;
-using Tickest.Domain.Entities.Users;
+using Tickest.Persistence.Data;
 
 namespace Tickest.Application.Users.GetById;
 
-public class GetByIdUserQueryHandler : IQueryHandler<GetByIdUserQuery, UserResponse>
+internal sealed class GetByIdUserQueryHandler(
+    IAuthService _authService,
+    TickestContext _context,
+    IPermissionProvider _permissionProvider 
+
+) : IQueryHandler<GetByIdUserQuery, Result<UserResponse>>
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public GetByIdUserQueryHandler(IUserRepository userRepository, IUnitOfWork unitOfWork)
+    public async Task<Result<UserResponse>> Handle(GetByIdUserQuery query, CancellationToken cancellationToken)
     {
-        _userRepository = userRepository;
-        _unitOfWork = unitOfWork;
-    }
+        var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
 
-    public async Task<UserResponse> Handle(GetByIdUserQuery request, CancellationToken cancellationToken)
-    {
-        // Obtém o usuário através do repositório
-        var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
-
-        // Verifica se o usuário existe e está ativo
-        if (user == null)
+        //Exemplo para permissão caso seja necessário limitar essa busca . 
+        // Verificando se o usuário tem permissão para visualizar outros usuários (por exemplo, "ViewUserDetails")
+        //var hasPermission = await _permissionProvider.UserHasPermissionAsync(currentUser.Id, "ViewUserDetails");
+        if (query.UserId != currentUser.Id)
         {
-            throw new TickestException("Usuário não encontrado.");
+            throw new TickestException("Você não tem permissão para acessar esses dados.");
         }
 
-        // Aplica o filtro de "Ativo" se necessário (caso o repositório retorne usuários filtrados)
-        var query = _unitOfWork.Repository<User>().GetAll(); // Ou outro método de consulta relevante
-        query = _unitOfWork.ApplyFilters(query);
+        var user = await _context.Users
+            .Where(u => u.Id == query.UserId)
+            .Select(u => new UserResponse(
+                u.Id,
+                u.Name,
+                u.Email,
+                u.UserSpecialties.Select(us => us.Specialty.Name).ToList(),
+                u.Permissions.Select(p => p.Name).ToList()
+            ))
+            .SingleOrDefaultAsync(cancellationToken);
 
-        // Verifica se o usuário está ativo
-        if (!query.Any(u => u.Id == user.Id))
-        {
-            throw new TickestException("Usuário encontrado, mas não está ativo.");
-        }
-
-        return new UserResponse(user.Id, user.Name);
+        return user is null
+            ? throw new TickestException($"Usuário com ID {query.UserId} não encontrado.")
+            : Result.Success(user);
     }
 }

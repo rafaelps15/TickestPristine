@@ -31,7 +31,7 @@ public interface ITicketRepository : IGenericRepository<Ticket>
     /// <param name="status">O status do ticket a ser filtrado.</param>
     /// <param name="cancellationToken">O token de cancelamento para a operação assíncrona.</param>
     /// <returns>Uma lista de tickets associados ao usuário com o status informado.</returns>
-    Task<IEnumerable<Ticket>> GetTicketsByUserAndStatusAsync(Guid userId, TicketStatus status, CancellationToken cancellationToken);
+    //Task<IEnumerable<Ticket>> GetTicketsByUserAndStatusAsync(Guid userId, TicketStatus status, CancellationToken cancellationToken);
 
     /// <summary>
     /// Verifica se o ticket existe no banco de dados.
@@ -46,5 +46,5 @@ public interface ITicketRepository : IGenericRepository<Ticket>
     /// <param name="ticketId">O ID do ticket a ser verificado.</param>
     /// <param name="userId">O ID do usuário a ser verificado.</param>
     /// <returns>True se o ticket estiver associado ao usuário, caso contrário, false.</returns>
-    Task<bool> TicketUserExistsAsync(Guid ticketId, Guid userId);
+    //Task<bool> TicketUserExistsAsync(Guid ticketId, Guid userId);
 }

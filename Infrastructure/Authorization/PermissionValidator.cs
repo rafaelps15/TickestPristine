@@ -9,38 +9,41 @@ public class PermissionValidator
     private readonly IPermissionProvider _permissionProvider;
     private readonly ILogger<PermissionValidator> _logger;
 
+    #region Construtor
+
     public PermissionValidator(
         IAuthService authService,
         IPermissionProvider permissionProvider,
-        ILogger<PermissionValidator> logger) =>
-        (_authService, _permissionProvider, _logger) = (authService, permissionProvider, logger);
+        ILogger<PermissionValidator> logger)
+        => (_authService, _permissionProvider, _logger) = (authService, permissionProvider, logger);
+
+    #endregion
 
     public async Task<bool> HasRequiredPermissionsAsync(Guid userId, HashSet<string> requiredPermissions, CancellationToken cancellationToken)
     {
+        // Tenta obter o usuário atual de maneira simplificada
+        var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
+
+        // Se não encontrar o usuário ou o ID não corresponder, retorna false e loga
+        if (currentUser?.Id != userId)
+        {
+            _logger.LogWarning("Usuário não encontrado ou não autorizado.");
+            return false;
+        }
+
         try
         {
-            var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
-
-            if (currentUser == null || currentUser.Id != userId)
-            {
-                LogUnauthorizedUser();
-                return false;
-            }
-
+            // Obtém as permissões do usuário
             var userPermissions = await _permissionProvider.GetPermissionsForUserAsync(userId);
-            return userPermissions?.Any() == true && requiredPermissions.All(permission => userPermissions.Contains(permission));
+
+            // Verifica se o usuário possui todas as permissões requeridas
+            return requiredPermissions.IsSubsetOf(userPermissions);
         }
         catch (Exception ex)
         {
+            // Loga qualquer erro ocorrido
             _logger.LogError(ex, "Erro ao validar permissões do usuário.");
             return false;
         }
     }
-
-    private void LogUnauthorizedUser()
-    {
-        _logger.LogError("Usuário não encontrado ou não autorizado.");
-    }
 }
-
-

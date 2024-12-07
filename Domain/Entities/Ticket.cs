@@ -40,6 +40,7 @@ public class Ticket : EntityBase
     // Relacionamento com a área do setor onde o ticket está alocado
     public Guid AreaId { get; set; }
     public Area Area { get; set; } // Área (ex: Frontend, Backend, etc.)
+    public Ticket Tickets { get; set; }
 }
-}
+
 #endregion

@@ -1,4 +1,4 @@
-﻿using Tickest.Domain.Entities;
+﻿using Tickest.Domain.Entities.Tickets;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 

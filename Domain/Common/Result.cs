@@ -12,69 +12,74 @@
 
 //}
 
+using System;
 using System.Diagnostics.CodeAnalysis;
+using Tickest.Domain.Exceptions;
 
-namespace Tickest.Domain.Common;
-
-public class Result
+namespace Tickest.Domain.Common
 {
-    public bool IsSuccess { get; }
-    public bool IsFailure => !IsSuccess;
-    public Error Error { get; }
-
-    protected Result(bool isSuccess, Error error)
+    public class Result
     {
-        if (isSuccess && error != Error.None || !isSuccess && error == Error.None)
+        public bool IsSuccess { get; }
+        public bool IsFailure => !IsSuccess;
+        public Error Error { get; }
+
+        protected Result(bool isSuccess, Error error)
         {
-            throw new ArgumentException("Estado de erro inválido.", nameof(error));
+            if (isSuccess && error != Error.None || !isSuccess && error == Error.None)
+            {
+                throw new TickestException("Estado de erro inválido.", nameof(error));
+            }
+
+            IsSuccess = isSuccess;
+            Error = error;
         }
 
-        IsSuccess = isSuccess;
-        Error = error;
+        public static Result Success() => new Result(true, Error.None);
+
+        public static Result Failure(Error error) => new Result(false, error);
+
+        public static Result<TValue> Success<TValue>(TValue value) =>
+            new Result<TValue>(value, true, Error.None);
+
+        public static Result<TValue> Failure<TValue>(Error error) =>
+            new Result<TValue>(default, false, error);
     }
 
-    public static Result Success() => new Result(true, Error.None);
-
-    public static Result Failure(Error error) => new Result(false, error);
-
-    public static Result<T> Success<T>(T value) => new Result<T>(value, true, Error.None);
-
-    public static Result<T> Failure<T>(Error error) => new Result<T>(default, false, error);
-}
-
-public class Result<T> : Result
-{
-    private readonly T? _value;
-
-    internal Result(T? value, bool isSuccess, Error error)
-        : base(isSuccess, error)
+    public class Result<TValue> : Result
     {
-        _value = value;
+        private readonly TValue? _value;
+
+        internal Result(TValue? value, bool isSuccess, Error error)
+            : base(isSuccess, error)
+        {
+            _value = value;
+        }
+
+        [NotNull]
+        public TValue Value => IsSuccess
+            ? _value!
+            : throw new TickestException("O valor de um resultado com falha não pode ser acessado.");
+
+        public static implicit operator Result<TValue>(TValue? value) =>
+            value != null ? Success(value) : Failure<TValue>(Error.NullValue);
+
+        public static Result<TValue> ValidationFailure(Error error) =>
+            new Result<TValue>(default, false, error);
     }
 
-    [NotNull]
-    public T Value => IsSuccess
-        ? _value!
-        : throw new InvalidOperationException("O valor de um resultado com falha não pode ser acessado.");
-
-    public static implicit operator Result<T>(T value) =>
-        value is not null ? Success(value) : Failure<T>(Error.NullValue);
-
-    public static Result<T> ValidationFailure(Error error) =>
-        new Result<T>(default, false, error);
-}
-
-public class Error
-{
-    public static readonly Error None = new Error(string.Empty);
-    public static readonly Error NullValue = new Error("O valor não pode ser nulo.");
-
-    public string Message { get; }
-
-    private Error(string message)
+    public class Error
     {
-        Message = message;
-    }
+        public static readonly Error None = new(string.Empty);
+        public static readonly Error NullValue = new("O valor não pode ser nulo.");
 
-    public override string ToString() => Message;
+        public string Message { get; }
+
+        private Error(string message)
+        {
+            Message = message;
+        }
+
+        public override string ToString() => Message;
+    }
 }

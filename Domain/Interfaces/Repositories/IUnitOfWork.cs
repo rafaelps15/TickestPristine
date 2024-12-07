@@ -3,56 +3,55 @@
 namespace Tickest.Domain.Interfaces;
 
 /// <summary>
-/// Representa a unidade de trabalho, fornecendo acesso a repositórios e métodos para salvar alterações no banco de dados.
+/// Interface que define os métodos de uma unidade de trabalho (UnitOfWork).
+/// A unidade de trabalho é responsável por gerenciar as transações e repositórios.
 /// </summary>
 public interface IUnitOfWork : IDisposable
 {
     /// <summary>
-    /// Obtém o repositório de usuários.
+    /// Repositório de usuários.
     /// </summary>
-    /// <value>O repositório de usuários.</value>
     IUserRepository Users { get; }
 
     /// <summary>
-    /// Obtém o repositório de roles (funções).
+    /// Repositório de papéis (roles).
     /// </summary>
-    /// <value>O repositório de roles.</value>
-    IRoleRepository Roles { get; }
+    //IRoleRepository Roles { get; }
 
     /// <summary>
-    /// Obtém o repositório de user roles (relação entre usuários e roles).
+    /// Repositório de relacionamentos entre usuários e papéis.
     /// </summary>
-    /// <value>O repositório de user roles.</value>
-    IUserRoleRepository UserRoles { get; }
+    //IUserRoleRepository UserRoles { get; }
 
     /// <summary>
-    /// Obtém o repositório de tokens de atualização.
+    /// Repositório de tokens de atualização.
     /// </summary>
-    /// <value>O repositório de tokens de atualização.</value>
     IRefreshTokenRepository RefreshTokenRepository { get; }
 
-    ITicketRepository ticketRepository { get; }
+    /// <summary>
+    /// Repositório de tickets.
+    /// </summary>
+    ITicketRepository TicketRepository { get; }
 
     /// <summary>
-    /// Obtém o repositório genérico para a entidade especificada.
+    /// Retorna um repositório genérico para qualquer tipo de entidade.
     /// </summary>
     /// <typeparam name="TEntity">O tipo da entidade.</typeparam>
-    /// <returns>Repositório genérico para a entidade especificada.</returns>
+    /// <returns>O repositório genérico para o tipo da entidade.</returns>
     IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class;
 
     /// <summary>
-    /// Salva as alterações no banco de dados de forma assíncrona.
+    /// Salva as alterações feitas no contexto de dados.
     /// </summary>
-    /// <param name="cancellationToken">Token de cancelamento para a operação assíncrona.</param>
+    /// <param name="cancellationToken">Token de cancelamento.</param>
     /// <returns>O número de registros afetados.</returns>
-    /// <exception cref="TickestException">Lançado em caso de erro durante o commit da transação.</exception>
     Task<int> CommitAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Aplica o filtro para considerar apenas entidades ativas.
+    /// Aplica filtros nas consultas, como considerar apenas entidades ativas.
     /// </summary>
-    /// <typeparam name="TEntity">O tipo da entidade.</typeparam>
-    /// <param name="query">A consulta que será filtrada.</param>
-    /// <returns>A consulta filtrada para retornar apenas entidades ativas.</returns>
+    /// <typeparam name="TEntity">Tipo da entidade.</typeparam>
+    /// <param name="query">Consulta que será filtrada.</param>
+    /// <returns>A consulta filtrada.</returns>
     IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class;
 }

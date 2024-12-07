@@ -9,7 +9,6 @@ internal sealed class PermissionProvider : IPermissionProvider
     #region Campos Privados
 
     private readonly IUserRepository _userRepository;
-    private readonly IRoleRepository _roleRepository;
     private readonly IPermissionRepository _permissionRepository;
     private readonly ILogger<PermissionProvider> _logger;
     private readonly Dictionary<string, Func<HashSet<string>>> _rolePermissions;
@@ -20,11 +19,10 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     public PermissionProvider(
         IUserRepository userRepository,
-        IRoleRepository roleRepository,
         IPermissionRepository permissionRepository,
         ILogger<PermissionProvider> logger)
-        => (_userRepository, _roleRepository, _permissionRepository, _logger, _rolePermissions)
-            = (userRepository, roleRepository, permissionRepository, logger, InitializeRolePermissions());
+        => (_userRepository,  _permissionRepository, _logger, _rolePermissions)
+            = (userRepository,  permissionRepository, logger, InitializeRolePermissions());
 
     #endregion
 
@@ -89,47 +87,25 @@ internal sealed class PermissionProvider : IPermissionProvider
             ["SupportAnalyst"] = GetSupportAnalystPermissions
         };
     }
+
     public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException("O ID do usuário não pode ser vazio.", nameof(userId));
 
-        // Obtém as funções associadas ao usuário
-        var roles = await _userRepository.GetUserRolesAsync(userId);
-        if (roles == null || !roles.Any())
-            return new HashSet<string>(); // Nenhuma permissão encontrada para o usuário
-
+        // Adiciona permissões atribuídas diretamente ao usuário
         var permissions = new HashSet<string>();
 
-        // Adiciona permissões baseadas nos papéis do usuário
-        foreach (var role in roles)
-        {
-            if (!string.IsNullOrWhiteSpace(role.Role?.Name))
-            {
-                var rolePermissions = await _permissionRepository.GetPermissionsForRole(role.Role.Name);
-                permissions.UnionWith(rolePermissions.Select(p => p.Name));
-            }
-        }
-
-        // Adiciona permissões atribuídas diretamente ao usuário
         var userPermissions = await GetPermissionsForUserDirectlyAsync(userId);
         permissions.UnionWith(userPermissions);
 
         return permissions;
     }
 
-    private async Task<HashSet<string>> GetPermissionsForUserDirectlyAsync(Guid userId)
+    private async Task<IEnumerable<string>> GetPermissionsForUserDirectlyAsync(Guid userId)
     {
-        // Obtém as permissões do usuário via repositório
-        var userPermissions = await _permissionRepository.GetPermissionsByUserIdAsync(userId);
-
-        // Se não encontrar permissões, retornar um HashSet vazio
-        return userPermissions == null || !userPermissions.Any()
-             ? new HashSet<string>()
-             : new HashSet<string>(userPermissions.Select(up => up.Name));
-
-        // Retorna um HashSet com os nomes das permissões
-        return new HashSet<string>(userPermissions.Select(up => up.Name));
+        // A implementação do repositório de permissões do usuário seria chamada aqui.
+        throw new NotImplementedException();
     }
 
     public HashSet<string> GetPermissionsForRole(string roleName)

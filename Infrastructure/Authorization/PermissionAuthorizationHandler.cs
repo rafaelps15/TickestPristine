@@ -24,22 +24,23 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
     /// <summary>
     /// Verifica se o usuário possui a permissão necessária.
     /// </summary>
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement )
+    /// <summary>
+    /// Verifica se o usuário possui a permissão necessária.
+    /// </summary>
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
+        var currentUser = await _authService.GetCurrentUserAsync(CancellationToken.None);
 
-        var currentUser = await _authService.GetCurrentUserAsync(CancellationToken.None); 
-
-        // Verificação do usuário
-        if (currentUser is null)
+        if (currentUser == null)
         {
             _logger.LogWarning("Não autorizado: Usuário não autenticado.");
             context.Fail();
             return;
         }
 
-        // Verifica se o usuário possui a permissão necessária
-        var permissions = await GetPermissionsAsync(currentUser.Id);
-        if (permissions.Contains(requirement.Permission))
+        // Verificação direta da permissão do usuário
+        var hasPermission = await _permissionProvider.UserHasPermissionAsync(currentUser.Id, requirement.Permission);
+        if (hasPermission)
         {
             _logger.LogInformation($"Permissão '{requirement.Permission}' concedida ao usuário {currentUser.Id}.");
             context.Succeed(requirement);
@@ -49,23 +50,5 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
             _logger.LogWarning($"Permissão '{requirement.Permission}' negada ao usuário {currentUser.Id}.");
             context.Fail();
         }
-    }
-
-    private async Task<HashSet<string>> GetPermissionsAsync(Guid userId)
-    {
-        if (_userPermissionsCache.TryGetValue(userId, out var cachedPermissions))
-        {
-            return cachedPermissions;
-        }
-        // Carrega as permissões e as armazena no cache
-        var permissions = await CachePermissions(userId);
-        return permissions;
-    }
-
-    private async Task<HashSet<string>> CachePermissions(Guid userId)
-    {
-        var permissions = await _permissionProvider.GetPermissionsForUserAsync(userId);
-        _userPermissionsCache[userId] = permissions;
-        return permissions;
     }
 }

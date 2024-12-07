@@ -1,5 +1,4 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Contracts.Responses.User;
 
 namespace Tickest.Application.Users.Create;
 
@@ -12,4 +11,4 @@ public record CreateUserCommand(
     Guid? SectorId,
     Guid? DepartmentId,
     Guid? AreaId
-) : ICommand<CreateUserResponse>; 
+) : ICommand<Guid>; 
