@@ -2,10 +2,12 @@
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Tickets.Delete;
 
+//verificar esse nome para deixar adequado.
 public class SoftDeleteTicketCommandHandler : ICommandHandler<SoftDeleteTicketCommand, Ticket>
 {
     private readonly IGenericRepository<Ticket> _genericRepository;

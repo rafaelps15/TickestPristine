@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Enum;
-using Tickest.Domain.Interfaces.Repositories;
-using Tickest.Domain.Interfaces;
 using Tickest.Domain.Exceptions;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Tickest.Application.Tickets.Create;
+using Tickest.Domain.Interfaces;
+using Tickest.Domain.Interfaces.Repositories;
+
+namespace Tickest.Application.Tickets.Create;
 
 public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, Ticket>
 {
@@ -47,7 +45,7 @@ public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, T
         }
 
         // Verificar se o usuário tem permissão para criar ticket
-        var hasPermission =  _permissionProvider.UserHasPermissionAsync(currentUser.Id, "CreateTicket");
+        var hasPermission =  await _permissionProvider.UserHasPermissionAsync(currentUser.Id, "CreateTicket");
         if (!hasPermission)
         {
             _logger.LogError("Usuário não tem permissão para criar tickets.");
@@ -65,23 +63,11 @@ public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, T
             Priority = command.Priority,
             Status = TicketStatus.Open,
             CreatedAt = DateTime.UtcNow,
-            RequesterId = requesterId,
-            ResponsibleId = command.ResponsibleId,
+            OpenedByUserId = requesterId,
+            AssignedToUserId = command.ResponsibleId,
             IsActive = true,
         };
 
-        // Adicionando permissões para as roles relevantes
-        ticket.RolePermissions = new List<TicketRolePermission>
-        {
-            new TicketRolePermission { Role = "TicketManager", CanSendMessage = true, CanViewMessage = true },
-            new TicketRolePermission { Role = "Collaborator", CanSendMessage = true, CanViewMessage = true },
-            new TicketRolePermission { Role = "SupportAnalyst", CanSendMessage = true, CanViewMessage = true },
-            new TicketRolePermission { Role = "AdminMaster", CanSendMessage = true, CanViewMessage = true },
-            new TicketRolePermission { Role = "GeneralAdmin", CanSendMessage = true, CanViewMessage = true },
-            new TicketRolePermission { Role = "SectorAdmin", CanSendMessage = true, CanViewMessage = true },
-            new TicketRolePermission { Role = "DepartmentAdmin", CanSendMessage = true, CanViewMessage = true },
-            new TicketRolePermission { Role = "AreaAdmin", CanSendMessage = true, CanViewMessage = true }
-        };
         #endregion
 
         #region Persistência no Repositório com UnitOfWork

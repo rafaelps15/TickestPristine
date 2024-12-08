@@ -17,7 +17,7 @@ public class RefreshTokenRepository : GenericRepository<RefreshToken>, IRefreshT
     #region Métodos de Consulta
 
     // Método para buscar o refresh token usando um token específico
-    public async Task<RefreshToken> GetByTokenAsync(string token) =>
+    public async Task<RefreshToken> GetByTokenAsync(string token,CancellationToken cancellationToken) =>
         await _context.RefreshTokens
             .FirstOrDefaultAsync(rt => rt.Token == token && rt.IsActive);
 
@@ -42,6 +42,7 @@ public class RefreshTokenRepository : GenericRepository<RefreshToken>, IRefreshT
 
         return user;
     }
+
 
     #endregion
 }

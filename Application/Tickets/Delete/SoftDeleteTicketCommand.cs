@@ -1,5 +1,6 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Tickets;
 
 namespace Tickest.Application.Tickets.Delete;
 
