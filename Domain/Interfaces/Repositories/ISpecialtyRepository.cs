@@ -16,4 +16,5 @@ public interface ISpecialtyRepository : IGenericRepository<Specialty>
     /// <returns>Uma coleção de objetos <see cref="Specialty"/> que correspondem aos nomes fornecidos.</returns>
     /// <exception cref="TickestException">Lança uma exceção se nenhuma especialidade for encontrada.</exception>
     Task<ICollection<Specialty>> GetSpecialtiesByNamesAsync(IEnumerable<string> specialtyNames, CancellationToken cancellationToken);
+    Task<IEnumerable<object>> GetSpecialtiesByNamesAsync(IReadOnlyList<Guid> specialtyNames, CancellationToken cancellationToken);
 }

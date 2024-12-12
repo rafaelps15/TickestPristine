@@ -18,11 +18,12 @@ public static class DependencyInjection
         // Registra serviços de autenticação e autorização
         services.AddScoped<IPermissionProvider, PermissionProvider>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+        // Configura o provider de política de autorização
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
 
         // Adicionar serviços de autenticação e outros
-        //services.AddScoped<IAuthService, Authenticator>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();

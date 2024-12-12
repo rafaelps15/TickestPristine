@@ -31,24 +31,14 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
     {
         var currentUser = await _authService.GetCurrentUserAsync(CancellationToken.None);
 
-        if (currentUser == null)
+        if (currentUser == null || !await _permissionProvider.UserHasPermissionAsync(currentUser.Id, requirement.Permission))
         {
-            _logger.LogWarning("Não autorizado: Usuário não autenticado.");
+            _logger.LogWarning($"Permissão '{requirement.Permission}' negada ao usuário {currentUser?.Id}.");
             context.Fail();
             return;
         }
 
-        // Verificação direta da permissão do usuário
-        var hasPermission = await _permissionProvider.UserHasPermissionAsync(currentUser.Id, requirement.Permission);
-        if (hasPermission)
-        {
-            _logger.LogInformation($"Permissão '{requirement.Permission}' concedida ao usuário {currentUser.Id}.");
-            context.Succeed(requirement);
-        }
-        else
-        {
-            _logger.LogWarning($"Permissão '{requirement.Permission}' negada ao usuário {currentUser.Id}.");
-            context.Fail();
-        }
+        _logger.LogInformation($"Permissão '{requirement.Permission}' concedida ao usuário {currentUser?.Id}.");
+        context.Succeed(requirement);
     }
 }

@@ -4,36 +4,36 @@ using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
+namespace Tickest.Persistence.Repositories;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly TickestContext _context;
     private readonly IUserRepository _userRepository;
-    //private readonly IRoleRepository _roleRepository;
-    //private readonly IUserRoleRepository _userRoleRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IGenericRepository<TickestContext> _genericRepository;
     private readonly ITicketRepository _ticketRepository;
+    private readonly ISpecialtyRepository _specialtyRepository;
+    private readonly IAreaRepository _areaRepository;
     private bool _disposed;
 
     public UnitOfWork(
         TickestContext context,
         IUserRepository userRepository,
-        //IRoleRepository roleRepository,
-        //IUserRoleRepository userRoleRepository,
         IRefreshTokenRepository refreshTokenRepository,
         ITicketRepository ticketRepository,
+        ISpecialtyRepository specialtyRepository,
+        IAreaRepository areaRepository,
         IGenericRepository<TickestContext> genericRepository) =>
-        (_context, _userRepository,/* _roleRepository, _userRoleRepository,*/ _refreshTokenRepository, _ticketRepository, _genericRepository) =
-        (context, userRepository, /*roleRepository, userRoleRepository,*/ refreshTokenRepository, ticketRepository, genericRepository);
+        (_context, _userRepository, _refreshTokenRepository, _ticketRepository, _specialtyRepository, _areaRepository, _genericRepository) =
+        (context, userRepository, refreshTokenRepository, ticketRepository, specialtyRepository, areaRepository, genericRepository);
 
     #region - Métodos Públicos
 
     public IUserRepository Users => _userRepository;
-    //public IRoleRepository Roles => _roleRepository;
-    //public IUserRoleRepository UserRoles => _userRoleRepository;
     public IRefreshTokenRepository RefreshTokenRepository => _refreshTokenRepository;
     public ITicketRepository TicketRepository => _ticketRepository;
-
+    public IAreaRepository AreaRepository => _areaRepository;
+    public ISpecialtyRepository SpecialtyRepository => _specialtyRepository;
 
     public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class =>
         (IGenericRepository<TEntity>)_genericRepository;

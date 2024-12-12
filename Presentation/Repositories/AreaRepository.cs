@@ -10,4 +10,6 @@ internal class AreaRepository : GenericRepository<Area>, IAreaRepository
 
     public AreaRepository(TickestContext context) : base(context) =>
         _context = context;
+
+    public async Task<ICollection<Area>> GetAcyn
 }

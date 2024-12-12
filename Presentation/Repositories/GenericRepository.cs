@@ -26,19 +26,18 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
     public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
         await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
-        await SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken)
+    public Task UpdateAsync(TEntity entity, CancellationToken cancellationToken)
     {
         _context.Set<TEntity>().Update(entity);
-        await SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask; // Apenas marca para atualização
     }
 
-    public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
+    public Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
     {
         _context.Set<TEntity>().Remove(entity);
-        await SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask; // Apenas marca para exclusão
     }
 
     public async Task DeleteByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -47,7 +46,6 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         if (entity != null)
         {
             _context.Set<TEntity>().Remove(entity);
-            await SaveChangesAsync(cancellationToken);
         }
     }
 
@@ -68,22 +66,6 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
                              .AsNoTracking()
                              .Where(entity => EF.Property<string>(entity, "Description").Contains(description))
                              .ToListAsync(cancellationToken);
-    }
-
-    #endregion
-
-    #region Helper Methods
-
-    private async Task SaveChangesAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            throw new TickestException("Erro ao salvar as alterações no banco de dados.", ex);
-        }
     }
 
     #endregion

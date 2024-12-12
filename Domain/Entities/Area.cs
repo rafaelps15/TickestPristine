@@ -24,5 +24,9 @@ public class Area : EntityBase
 
     // Relação N:N com usuários e especialidades
     public ICollection<AreaUserSpecialty> AreaUserSpecialties { get; set; }
+
+    // Relacionamento com Specialty
+    public Guid SpecialtyId { get; set; }
+    public Specialty Specialty { get; set; }
 }
 #endregion

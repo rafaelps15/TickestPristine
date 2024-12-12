@@ -5,7 +5,7 @@ public class EncryptionHelper
     /// <summary>
     /// Cria uma chave de sal (salt) com o comprimento especificado.
     /// </summary>
-    public static string CreateSaltaKey(int length)
+    public static string CreateSaltKey(int length)
     {
         using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
         {
@@ -18,7 +18,7 @@ public class EncryptionHelper
     /// <summary>
     /// Cria um hash de senha utilizando o valor da senha e o salt fornecido.
     /// </summary>
-    public static string CreatePasswordHash(string password, string salt)
+    public static string CreatePasswordHashWithSalt(string password, string salt)
     {
         using (var sha256 = System.Security.Cryptography.SHA256.Create())
         {

@@ -1,239 +1,129 @@
-﻿using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
+using Tickest.Domain.Entities.Departments;
+using Tickest.Domain.Entities.Specialties;
+using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Helpers;
-using Tickest.Domain.Interfaces.Repositories;
-using Tickest.Persistence.Data;
+using Tickest.Domain.Interfaces;
 
 namespace Tickest.Application.Users.Create;
 
-public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Guid>
+internal sealed class CreateUserCommandHandler(
+    IUnitOfWork unitOfWork,
+    IPermissionProvider permissionProvider,
+    IAuthService authService,
+    ILogger<CreateUserCommandHandler> logger)
+    : ICommandHandler<CreateUserCommand, Guid>
 {
-    #region Dependencies
-
-    private readonly IUserRepository _userRepository;
-    private readonly IConfiguration _configuration;
-    private readonly EncryptionHelper _encryptionHelper;
-    //private readonly IRoleRepository _roleRepository;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly ILogger<CreateUserCommandHandler> _logger;
-    private readonly IValidator<CreateUserCommand> _validator;
-    private readonly TickestContext _context;
-    private readonly IPermissionProvider _permissionProvider;
-    private readonly ISpecialtyRepository _specialtyRepository;
-    private readonly IPermissionRepository _permissionRepository;
-
-    public CreateUserCommandHandler(
-        IUserRepository userRepository,
-        IConfiguration configuration,
-        //IRoleRepository roleRepository,
-        IPasswordHasher passwordHasher,
-        IPermissionRepository permissionRepository,
-        ILogger<CreateUserCommandHandler> logger,
-        IValidator<CreateUserCommand> validator,
-        TickestContext context,
-        IPermissionProvider permissionProvider,
-        ISpecialtyRepository specialtyRepository)
-        => (_userRepository, /*_roleRepository,*/ _passwordHasher, _permissionRepository, _logger, _validator, _context, _permissionProvider, _specialtyRepository) =
-            (userRepository, /*roleRepository,*/ passwordHasher, permissionRepository, logger, validator, context, permissionProvider, specialtyRepository);
-
-    #endregion
-
-    #region Handle
-
-    public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
-        // Validar dados de entrada
-        await ValidateRequestAsync(request, cancellationToken);
+        // Início da criação de um novo usuário
+        logger.LogInformation("Iniciando a criação de um novo usuário.");
 
-        // Criar o usuário
-        var user = await CreateUserAsync(request, cancellationToken);
+        #region Validação de Permissões
+        // Recupera o usuário atual para verificar permissões
+        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
 
-        // Atribuir roles, especialidades, setor, departamento e área
-        await AssignRolesAndSpecialtiesAsync(user, request, cancellationToken);
-        await AssignSectorDepartmentAndAreaAsync(user, request, cancellationToken);
-
-        // Salvar as alterações no banco de dados
-        await _context.SaveChangesAsync(cancellationToken);
-
-        _logger.LogInformation("Usuário {Email} criado com sucesso.", request.Email);
-        return MapResponse(user);
-    }
-
-    #endregion
-
-    #region Validation
-
-    private async Task ValidateRequestAsync(CreateUserCommand request, CancellationToken cancellationToken)
-    {
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
+        // Se o usuário não estiver autenticado, lança uma exceção
+        if (currentUser == null)
         {
-            _logger.LogWarning("Validação falhou para o e-mail: {Email}", request.Email);
-            throw new ValidationException(validationResult.Errors);
+            logger.LogError("Usuário não autenticado.");
+            throw new TickestException("Usuário não autenticado.");
         }
 
-        var emailExists = await _userRepository.DoesEmailExistAsync(request.Email, cancellationToken);
+        // Verifica se o usuário atual tem permissão para criar um novo usuário
+        var currentUserId = currentUser.Id;
+        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUserId, "CreateUser");
+        if (!hasPermission)
+        {
+            logger.LogError("Usuário {UserId} não tem permissão para criar um novo usuário.", currentUserId);
+            throw new TickestException("Você não tem permissão para criar um novo usuário.");
+        }
+
+        #endregion
+
+        #region Validação de Email
+        // Verifica se o email informado já está registrado
+        var emailExists = await unitOfWork.Users.DoesEmailExistAsync(command.Email, cancellationToken);
         if (emailExists)
         {
-            _logger.LogWarning("Tentativa de cadastro com e-mail já existente: {Email}", request.Email);
-            throw new TickestException("O e-mail informado já está cadastrado.");
+            logger.LogError("Email {Email} já registrado.", command.Email); // Melhora a rastreabilidade
+            throw new TickestException("Email já registrado.");
         }
-    }
+        #endregion
 
-    #endregion
+        #region Criação do Novo Usuário
+        // Gera um salt e um hash de senha para o novo usuário
+        var salt = EncryptionHelper.CreateSaltKey(32);
+        var passwordHash = EncryptionHelper.CreatePasswordHashWithSalt(command.Password, salt);
 
-    #region User Creation
-
-    private async Task<User> CreateUserAsync(CreateUserCommand request, CancellationToken cancellationToken)
-    {
-        var salt = EncryptionHelper.CreateSaltaKey(32);
-        var passwordHash = EncryptionHelper.CreatePasswordHash(request.Password, salt);
-
-        var isFirstUser = !(await _userRepository.AnyUsersExistAsync(cancellationToken));
-
+        // Cria o objeto User com os dados do comando
         var user = new User
         {
-            Id = Guid.NewGuid(),
-            Email = request.Email.Trim(),
-            Name = request.Name.Trim(),
-            PasswordHas = passwordHash,
+            Name = command.Name,
+            Email = command.Email,
+            PasswordHash = passwordHash,
             Salt = salt,
-            IsActive = true,
-            CreatedDate = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
+        #endregion
 
-        // Atribuindo role "AdminMaster" ao primeiro usuário, se necessário
-        if (isFirstUser)
+        #region Adicionando Especialidades e Áreas
+        // Se foram fornecidos nomes de especialidades, associa-as ao usuário
+        if (command.SpecialtyNames != null && command.SpecialtyNames.Any())
         {
-            await AssignFirstUserRoleAsync(user, cancellationToken);
-        }
+            // Validação de especialidades duplicadas ou inválidas poderia ser inserida aqui
+            var specialties = await unitOfWork.SpecialtyRepository
+                .GetSpecialtiesByNamesAsync(command.SpecialtyNames, cancellationToken);
 
-        await _userRepository.AddAsync(user, cancellationToken);
-        return user;
-    }
-
-    private async Task AssignFirstUserRoleAsync(User user, CancellationToken cancellationToken)
-    {
-        var role = await _roleRepository.GetFirstRoleByNamesAsync(new[] { "AdminMaster" }, cancellationToken);
-        if (role != null)
-        {
-            user.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = role.Id });
-        }
-    }
-
-    #endregion
-
-    #region Roles and Specialties
-
-    private async Task AssignRolesAndSpecialtiesAsync(User user, CreateUserCommand request, CancellationToken cancellationToken)
-    {
-        // Atribuindo roles ao usuário
-        var roles = await _roleRepository.GetAllRolesByNamesAsync(request.RoleNames, cancellationToken);
-        if (roles == null || !roles.Any())
-        {
-            throw new TickestException("Nenhuma role válida encontrada.");
-        }
-
-        foreach (var role in roles)
-        {
-            if (!user.UserRoles.Any(ur => ur.RoleId == role.Id))
-            {
-                user.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = role.Id });
-                await AssignPermissionsToUserAsync(user, role, cancellationToken);
-            }
-        }
-
-        // Atribuindo especialidades ao usuário
-        if (request.SpecialtyNames != null && request.SpecialtyNames.Any())
-        {
-            var specialties = await _specialtyRepository.GetSpecialtiesByNamesAsync(request.SpecialtyNames, cancellationToken);
-            if (specialties == null || !specialties.Any())
-            {
-                throw new TickestException("Nenhuma especialidade válida encontrada.");
-            }
-
-            foreach (var specialty in specialties)
-            {
-                if (!user.UserSpecialties.Any(us => us.SpecialtyId == specialty.Id))
-                {
-                    user.UserSpecialties.Add(new UserSpecialty { UserId = user.Id, SpecialtyId = specialty.Id });
-                }
-            }
-        }
-    }
-
-    private async Task AssignPermissionsToUserAsync(User user, Role role, CancellationToken cancellationToken)
-    {
-        // Obtendo os nomes das permissões para o papel
-        var permissionNames = _permissionProvider.GetPermissionsForRole(role.Name);
-
-        // Buscar as instâncias de Permission usando os nomes
-        var permissions = await _permissionRepository.GetPermissionsByNamesAsync(permissionNames, cancellationToken);
-
-        // Adicionar as permissões ao usuário
-        foreach (var permission in permissions)
-        {
-            user.UserPermissions.Add(new UserPermission
+            user.UserSpecialties = specialties.Select(s => new UserSpecialty
             {
                 UserId = user.Id,
-                Permission = permission
-            });
+                SpecialtyId = s.Id
+            }).ToList();
         }
-    }
 
-
-    #endregion
-
-    #region Sector, Department, and Area Assignment
-
-    private async Task AssignSectorDepartmentAndAreaAsync(User user, CreateUserCommand request, CancellationToken cancellationToken)
-    {
-        await AssignEntityAsync(request.SectorId, _context.Sectors, sector => user.UserSector = sector, "Setor inválido.", cancellationToken);
-        await AssignEntityAsync(request.DepartmentId, _context.Departments, department => user.UserDepartment = department, "Departamento inválido.", cancellationToken);
-        await AssignEntityAsync(request.AreaId, _context.Areas, area => user.UserArea = area, "Área inválida.", cancellationToken);
-
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    private async Task AssignEntityAsync<T>(
-      Guid? entityId,
-      DbSet<T> dbSet,
-      Action<T> setValueAction,
-      string errorMessage,
-      CancellationToken cancellationToken) where T : class
-    {
-        if (entityId.HasValue)
+        // Se foram fornecidos IDs de áreas, associa-as ao usuário
+        if (command.AreaIds != null && command.AreaIds.Any())
         {
-            // Buscar a entidade com base no ID
-            var entity = await dbSet.FindAsync(new object[] { entityId.Value }, cancellationToken);
+            // Validação de áreas duplicadas ou inválidas poderia ser inserida aqui
+            var areas = await unitOfWork.Repository<Area>()
+                .FindAsync(a => command.AreaIds.Contains(a.Id), cancellationToken);
 
-            if (entity != null)
+            user.AreaUserSpecialties = areas.Select(a => new AreaUserSpecialty
             {
-                // Se a entidade for encontrada, atribui ao campo do usuário
-                setValueAction(entity);
-            }
-            else
-            {
-                // Caso a entidade não seja encontrada, lança uma exceção ou retorna um erro
-                throw new InvalidOperationException(errorMessage);
-            }
+                UserId = user.Id,
+                AreaId = a.Id,
+                SpecialtyId = a.SpecialtyId
+            }).ToList();
         }
-        else
-        {
-            // Se o ID não for fornecido (nulo), você pode lançar uma exceção ou tratar da maneira que achar melhor
-            throw new ArgumentNullException(nameof(entityId), "O ID da entidade não pode ser nulo.");
-        }
+        #endregion
+
+        #region Persistência no Banco de Dados
+        // Adiciona o usuário ao repositório e persiste as alterações no banco
+        unitOfWork.Users.AddAsync(user, cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
+
+        // Loga a criação do usuário com sucesso
+        logger.LogInformation("Novo usuário criado com ID {UserId}.", user.Id);
+
+        // Melhorar a performance com transações em massa, se possível, caso haja inserções complexas
+        #endregion
+
+        // Retorna o ID do novo usuário
+        return Result.Success(user.Id);
     }
 
-    private CreateUserResponse MapResponse(User user) =>
-           new CreateUserResponse(user.Id, user.Email, user.Name);
-
-  
+    #region Melhorias Sugeridas
+    // - Adicionar uma validação de formato de email usando uma expressão regular ou um serviço de validação de emails
+    // - Incluir um mecanismo para verificar se as especialidades e áreas fornecidas são válidas e não duplicadas
+    // - Criar um método para criptografar senhas de forma mais segura com um algoritmo mais robusto (ex: Argon2 ou PBKDF2)
+    // - Criar logs de auditoria para rastrear alterações e atividades dos usuários (quem criou o usuário, quando, etc.)
+    // - Incluir um mecanismo de notificação para o usuário após a criação (email, mensagem na tela, etc.)
+    // - Usar um mecanismo de verificação de conflitos entre áreas e especialidades de forma mais flexível
+    // - Testar e garantir que a lógica de permissões seja adequada para diferentes cenários de usuários
     #endregion
 }

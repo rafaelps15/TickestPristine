@@ -7,13 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Contracts\**" />
     <Compile Remove="Entities\Models\**" />
+    <EmbeddedResource Remove="Contracts\**" />
     <EmbeddedResource Remove="Entities\Models\**" />
+    <None Remove="Contracts\**" />
     <None Remove="Entities\Models\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Contracts\" />
   </ItemGroup>
 
 </Project>

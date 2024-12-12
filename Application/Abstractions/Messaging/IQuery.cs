@@ -1,7 +1,7 @@
 ﻿using MediatR;
+using Tickest.Domain.Common;
 
 namespace Tickest.Application.Abstractions.Messaging;
 
-public interface IQuery<out TResponse> : IRequest<TResponse>
-{
-}
+public interface IQuery<TResponse> : IRequest<Result<TResponse>>;
+
