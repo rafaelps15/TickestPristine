@@ -1,12 +1,11 @@
-﻿using Tickest.Domain.Entities;
-using Tickest.Domain.Entities.Security;
+﻿using Tickest.Domain.Entities.Permissions;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
 /// <summary>
 /// Interface para o repositório de permissões. Herda de IGenericRepository para métodos básicos de CRUD.
 /// </summary>
-public interface IPermissionRepository : IGenericRepository<Permission>
+public interface IPermissionRepository : IBaseRepository<Permission>
 {
     /// <summary>
     /// Obtém uma lista de permissões associadas a um usuário com base no seu ID.

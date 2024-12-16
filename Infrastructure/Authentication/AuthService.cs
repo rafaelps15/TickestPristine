@@ -5,7 +5,6 @@ using Tickest.Application.DTOs;
 using Tickest.Domain.Common;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 
 

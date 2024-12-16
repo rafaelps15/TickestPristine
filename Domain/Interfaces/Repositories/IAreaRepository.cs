@@ -3,7 +3,7 @@
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-public interface IAreaRepository : IGenericRepository<Area>
+public interface IAreaRepository : IBaseRepository<Area>
 {
    
 }

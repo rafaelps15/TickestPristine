@@ -1,5 +1,5 @@
 ﻿using Tickest.Domain.Entities.Base;
-using Tickest.Domain.Entities.Security;
+using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Specialties;
 
 namespace Tickest.Domain.Entities.Users;
@@ -23,5 +23,8 @@ public class User : EntityBase
 
     // Permissões associadas ao usuário
     public ICollection<Permission> Permissions { get; set; }
+
+    // Relação N:N com papéis
+    public ICollection<UserRole> UserRoles { get; set; }
 }
 #endregion

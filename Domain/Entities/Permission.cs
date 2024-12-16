@@ -1,6 +1,6 @@
 ﻿using Tickest.Domain.Entities.Base;
 
-namespace Tickest.Domain.Entities.Security;
+namespace Tickest.Domain.Entities.Permissions;
 
 #region Permission
 /// <summary>
@@ -8,7 +8,6 @@ namespace Tickest.Domain.Entities.Security;
 /// </summary>
 public class Permission : EntityBase
 {
-    public string Name { get; set; }
     public string Description { get; set; }
 }
 #endregion

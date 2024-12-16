@@ -1,20 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Tickest.Application.Abstractions.Data;
+using Tickest.Application.Abstractions.Services;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
+
 public class UnitOfWork : IUnitOfWork
 {
     private readonly TickestContext _context;
+    private readonly IQueryFilterService _queryFilterService;
     private readonly IUserRepository _userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly IGenericRepository<TickestContext> _genericRepository;
+    private readonly IBaseRepository<TickestContext> _genericRepository;
     private readonly ITicketRepository _ticketRepository;
     private readonly ISpecialtyRepository _specialtyRepository;
     private readonly IAreaRepository _areaRepository;
+    private readonly ISectorRepository _sectorRepository;
     private bool _disposed;
+    private IDbContextTransaction _currentTransaction;
 
     public UnitOfWork(
         TickestContext context,
@@ -23,62 +29,93 @@ public class UnitOfWork : IUnitOfWork
         ITicketRepository ticketRepository,
         ISpecialtyRepository specialtyRepository,
         IAreaRepository areaRepository,
-        IGenericRepository<TickestContext> genericRepository) =>
-        (_context, _userRepository, _refreshTokenRepository, _ticketRepository, _specialtyRepository, _areaRepository, _genericRepository) =
-        (context, userRepository, refreshTokenRepository, ticketRepository, specialtyRepository, areaRepository, genericRepository);
-
-    #region - Métodos Públicos
+        IBaseRepository<TickestContext> genericRepository,
+        IQueryFilterService queryFilterService)
+        => (_context, _queryFilterService, _userRepository, _refreshTokenRepository, _ticketRepository, _specialtyRepository, _areaRepository, _sectorRepository, _genericRepository) =
+        (context, queryFilterService, userRepository, refreshTokenRepository, ticketRepository, specialtyRepository, areaRepository, sectorRepository, genericRepository);
 
     public IUserRepository Users => _userRepository;
     public IRefreshTokenRepository RefreshTokenRepository => _refreshTokenRepository;
     public ITicketRepository TicketRepository => _ticketRepository;
     public IAreaRepository AreaRepository => _areaRepository;
     public ISpecialtyRepository SpecialtyRepository => _specialtyRepository;
+    public ISectorRepository sectorRepository => _sectorRepository;
 
-    public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class =>
-        (IGenericRepository<TEntity>)_genericRepository;
+    public IBaseRepository<TEntity> Repository<TEntity>() where TEntity : class =>
+        (IBaseRepository<TEntity>)_genericRepository;
+
+    public IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class =>
+        _queryFilterService.ApplyFilters(query);
 
     public async Task<int> CommitAsync(CancellationToken cancellationToken)
     {
         try
         {
-            return await _context.SaveChangesAsync(cancellationToken);
+            if (_currentTransaction == null)
+            {
+                return await _context.SaveChangesAsync(cancellationToken);
+            }
+            else
+            {
+                await _currentTransaction.CommitAsync(cancellationToken);
+                return 1;
+            }
         }
         catch (DbUpdateException dbEx)
         {
+            await RollbackCurrentTransaction(cancellationToken);
             throw new TickestException("Erro ao tentar salvar as alterações no banco de dados.", dbEx);
         }
         catch (Exception ex)
         {
+            await RollbackCurrentTransaction(cancellationToken);
             throw new TickestException("Ocorreu um erro ao processar a transação.", ex);
         }
     }
 
-    /// <summary>
-    /// Aplica o filtro para considerar apenas entidades ativas.
-    /// </summary>
-    /// <typeparam name="TEntity">O tipo da entidade.</typeparam>
-    /// <param name="query">A consulta que será filtrada.</param>
-    /// <returns>A consulta filtrada para retornar apenas entidades ativas.</returns>
-    public IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class
+    private async Task RollbackCurrentTransaction(CancellationToken cancellationToken)
     {
-        // Exemplo de filtro que pode ser aplicado
-        return query.Where(entity => EF.Property<bool>(entity, "IsActive"));
+        if (_currentTransaction != null)
+        {
+            await _currentTransaction.RollbackAsync(cancellationToken);
+        }
     }
 
-    /// <summary>
-    /// Libera os recursos utilizados pela unidade de trabalho.
-    /// </summary>
+    public async Task<int> CommitBatchAsync(CancellationToken cancellationToken, IEnumerable<Task> batchTasks)
+    {
+        try
+        {
+            await Task.WhenAll(batchTasks);
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new TickestException("Erro ao realizar commit em lote.", ex);
+        }
+    }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
+    {
+        _currentTransaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        return _currentTransaction;
+    }
+
+    public void CommitTransaction()
+    {
+        _currentTransaction?.Commit();
+    }
+
+    public void RollbackTransaction()
+    {
+        _currentTransaction?.Rollback();
+    }
+
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    /// Libera os recursos utilizados pela unidade de trabalho.
-    /// </summary>
-    /// <param name="disposing">Indica se o método foi chamado pelo Dispose() ou pelo finalizador.</param>
     protected virtual void Dispose(bool disposing)
     {
         if (!_disposed)
@@ -90,6 +127,4 @@ public class UnitOfWork : IUnitOfWork
             _disposed = true;
         }
     }
-
-    #endregion
 }

@@ -10,10 +10,10 @@ namespace Tickest.Application.Tickets.Delete;
 //verificar esse nome para deixar adequado.
 public class SoftDeleteTicketCommandHandler : ICommandHandler<SoftDeleteTicketCommand, Ticket>
 {
-    private readonly IGenericRepository<Ticket> _genericRepository;
+    private readonly IBaseRepository<Ticket> _genericRepository;
     private readonly ILogger<SoftDeleteTicketCommandHandler> _logger;
 
-    public SoftDeleteTicketCommandHandler(IGenericRepository<Ticket> genericRepository, ILogger<SoftDeleteTicketCommandHandler> logger) =>
+    public SoftDeleteTicketCommandHandler(IBaseRepository<Ticket> genericRepository, ILogger<SoftDeleteTicketCommandHandler> logger) =>
         (_genericRepository, _logger) = (genericRepository, logger);
 
     public async Task<Ticket> Handle(SoftDeleteTicketCommand request, CancellationToken cancellationToken)

@@ -5,7 +5,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class SpecialtyRepository : GenericRepository<Specialty>, ISpecialtyRepository
+public class SpecialtyRepository : BaseRepository<Specialty>, ISpecialtyRepository
 {
     private readonly TickestContext _context;
 

@@ -9,12 +9,12 @@ namespace Tickest.Application.Users.Delete;
 
 public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Guid>
 {
-    private readonly IGenericRepository<User> _genericRepository;
+    private readonly IBaseRepository<User> _genericRepository;
     private readonly ILogger<DeleteUserCommandHandler> _logger;
     private readonly IAuthService _authService;
 
     public DeleteUserCommandHandler(
-        IGenericRepository<User> genericRepository,
+        IBaseRepository<User> genericRepository,
         ILogger<DeleteUserCommandHandler> logger,
         IAuthService authService) =>
         (_genericRepository, _logger, _authService) = (genericRepository, logger, authService);

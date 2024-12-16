@@ -4,9 +4,9 @@ namespace Tickest.Domain.Interfaces.Repositories;
 
 /// <summary>
 /// Interface que define as operações específicas para a entidade <see cref="Specialty"/>
-/// e herda operações genéricas do repositório <see cref="IGenericRepository{T}"/>.
+/// e herda operações genéricas do repositório <see cref="IBaseRepository{T}"/>.
 /// </summary>
-public interface ISpecialtyRepository : IGenericRepository<Specialty>
+public interface ISpecialtyRepository : IBaseRepository<Specialty>
 {
     /// <summary>
     /// Método assíncrono para buscar especialidades com base em uma lista de nomes.

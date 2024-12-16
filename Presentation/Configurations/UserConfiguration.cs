@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tickest.Domain.Entities.Security;
+using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Infrastructure.Persistence.Configurations;

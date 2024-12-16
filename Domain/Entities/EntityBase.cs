@@ -8,5 +8,7 @@
         public DateTime CreatedAt { get; set; }  // Data de criação da entidade
         public DateTime? DeactivatedAt { get; private set; }  // Data de desativação da entidade
         public DateTime ExpiresAt { get; set; }  // A data e hora de expiração
+        public DateTime? UpdateAt { get; set; }  // Data de atualização (opcional)
+
     }
 }

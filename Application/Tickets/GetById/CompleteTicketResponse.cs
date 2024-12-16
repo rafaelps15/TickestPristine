@@ -2,6 +2,11 @@
 
 namespace Tickest.Application.Tickets.GetById;
 
-public record CompleteTicketResponse(Guid Id, string Title, TicketStatus Status, string Description);
-
+public sealed class CompleteTicketResponse
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public TicketStatus Status { get; set; }
+    public string Description { get; set; }
+}
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tickest.Application.Abstractions.Data;
 using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
@@ -21,15 +22,12 @@ public static class DependencyInjection
         services.AddScoped<IAreaRepository, AreaRepository>();
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
         services.AddScoped<ITicketRepository, TicketRepository>();
-        //services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddScoped<IMessageRepository, MessageRepository>();
-        //services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ISectorRepository, SectorRepository>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
-        //services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
+        services.AddScoped<IApplicationDbContext, TickestContext>();
 
         return services;
     }

@@ -5,7 +5,7 @@ namespace Tickest.Domain.Interfaces.Repositories;
 /// <summary>
 /// Interface que define os métodos de acesso aos dados dos usuários, estendendo os métodos genéricos para manipulação da entidade User.
 /// </summary>
-public interface IUserRepository : IGenericRepository<User>
+public interface IUserRepository : IBaseRepository<User>
 {
     /// <summary>
     /// Obtém um usuário pelo seu e-mail.
@@ -34,7 +34,7 @@ public interface IUserRepository : IGenericRepository<User>
     /// <param name="userEmail">O e-mail a ser verificado.</param>
     /// <param name="cancellationToken">O token de cancelamento para operações assíncronas.</param>
     /// <returns>Retorna verdadeiro se o e-mail já estiver em uso, falso caso contrário.</returns>
-    Task<bool> DoesEmailExistAsync(string userEmail, CancellationToken cancellationToken);
+    //Task<bool> DoesEmailExistAsync(string userEmail, CancellationToken cancellationToken);
 
     /// <summary>
     /// Verifica se existem usuários cadastrados.

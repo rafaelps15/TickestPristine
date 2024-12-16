@@ -7,7 +7,7 @@ using Tickest.Persistence.Data;
 namespace Tickest.Persistence.Repositories;
 
 
-public class PermissionRepository : GenericRepository<Permission>, IPermissionRepository
+public class PermissionRepository : BaseRepository<Permission>, IPermissionRepository
 {
     private readonly TickestContext _context;
 

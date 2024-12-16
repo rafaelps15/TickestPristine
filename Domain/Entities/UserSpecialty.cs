@@ -1,5 +1,4 @@
-﻿using Tickest.Domain.Entities.Base;
-using Tickest.Domain.Entities.Users;
+﻿using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Entities.Specialties;
 
@@ -7,7 +6,7 @@ namespace Tickest.Domain.Entities.Specialties;
 /// <summary>
 /// UserSpecialty: Representa a relação entre um usuário e uma especialidade.
 /// </summary>
-public class UserSpecialty : EntityBase
+public class UserSpecialty 
 {
     public Guid UserId { get; set; }
     public User User { get; set; }

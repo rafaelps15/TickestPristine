@@ -5,7 +5,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class UserRepository : GenericRepository<User>, IUserRepository
+internal class UserRepository : BaseRepository<User>, IUserRepository
 {
     public UserRepository(TickestContext context) : base(context) { }
 
@@ -21,21 +21,14 @@ internal class UserRepository : GenericRepository<User>, IUserRepository
                       .AsNoTracking()
                       .FirstOrDefaultAsync(user => user.Name == userName);
 
-    //public async Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId) =>
-    //    await _context.UserRoles
-    //                  .AsNoTracking()
-    //                  .Include(ur => ur.Role)
-    //                  .Where(ur => ur.UserId == userId)
-    //                  .ToListAsync();
-
     #endregion
 
     #region Métodos de Verificação
 
     public async Task<bool> DoesEmailExistAsync(string userEmail, CancellationToken cancellationToken) =>
         await _context.Users
-                      .AsNoTracking()
-                      .AnyAsync(u => u.Email == userEmail, cancellationToken);
+                     .AsNoTracking()
+                     .AnyAsync(u => u.Email == userEmail, cancellationToken);
 
     public async Task<bool> AnyUsersExistAsync(CancellationToken cancellationToken) =>
         await _context.Users

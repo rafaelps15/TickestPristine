@@ -8,9 +8,9 @@ namespace Tickest.Infrastructure.Authentication;
 public class RefreshTokenService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IGenericRepository<RefreshToken> _refreshTokenRepository; 
+    private readonly IBaseRepository<RefreshToken> _refreshTokenRepository; 
 
-    public RefreshTokenService(IUnitOfWork unitOfWork, IGenericRepository<RefreshToken> refreshTokenRepository) =>
+    public RefreshTokenService(IUnitOfWork unitOfWork, IBaseRepository<RefreshToken> refreshTokenRepository) =>
         (_unitOfWork, _refreshTokenRepository) = (unitOfWork ?? throw new TickestException(nameof(unitOfWork)), refreshTokenRepository);
 
     public async Task<RefreshToken> GenerateRefreshToken(Guid userId, CancellationToken cancellationToken)

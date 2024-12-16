@@ -1,60 +1,86 @@
-﻿using Tickest.Domain.Interfaces.Repositories;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Tickest.Domain.Interfaces;
+namespace Tickest.Domain.Interfaces.Repositories;
 
 /// <summary>
-/// Interface que define os métodos de uma unidade de trabalho (UnitOfWork).
-/// A unidade de trabalho é responsável por gerenciar as transações e repositórios, garantindo que as operações no banco de dados sejam executadas de forma consistente.
+/// Interface para o padrão Unit of Work, gerenciando repositórios e transações.
 /// </summary>
 public interface IUnitOfWork : IDisposable
 {
     /// <summary>
-    /// Repositório de usuários. Permite realizar operações relacionadas à entidade de usuários.
+    /// Obtém o repositório de usuários.
     /// </summary>
     IUserRepository Users { get; }
 
     /// <summary>
-    /// Repositório de tokens de atualização. Permite gerenciar os tokens de atualização utilizados na autenticação.
+    /// Obtém o repositório de tokens de atualização.
     /// </summary>
     IRefreshTokenRepository RefreshTokenRepository { get; }
 
     /// <summary>
-    /// Repositório de tickets. Permite gerenciar as operações relacionadas aos tickets.
+    /// Obtém o repositório de tickets.
     /// </summary>
     ITicketRepository TicketRepository { get; }
 
     /// <summary>
-    /// Repositório de especialidades. Permite gerenciar as operações relacionadas às especialidades.
-    /// </summary>
-    ISpecialtyRepository SpecialtyRepository { get; }
-
-    /// <summary>
-    /// Repositório de áreas. Permite gerenciar as operações relacionadas às áreas.
+    /// Obtém o repositório de áreas.
     /// </summary>
     IAreaRepository AreaRepository { get; }
 
     /// <summary>
-    /// Retorna um repositório genérico para qualquer tipo de entidade.
-    /// Esse método permite acessar repositórios para entidades que não têm um repositório específico já definido.
+    /// Obtém o repositório de especialidades.
     /// </summary>
-    /// <typeparam name="TEntity">O tipo da entidade para o qual o repositório será retornado.</typeparam>
-    /// <returns>Um repositório genérico para o tipo da entidade especificada.</returns>
-    IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class;
+    ISpecialtyRepository SpecialtyRepository { get; }
 
     /// <summary>
-    /// Salva as alterações feitas no contexto de dados.
-    /// Este método persiste todas as modificações realizadas nas entidades do contexto, garantindo a consistência dos dados.
+    /// Obtém o repositório de setores.
     /// </summary>
-    /// <param name="cancellationToken">Token de cancelamento, que pode ser utilizado para interromper a operação.</param>
-    /// <returns>O número de registros afetados pela operação de persistência.</returns>
+    ISectorRepository sectorRepository { get; }
+
+    /// <summary>
+    /// Obtém um repositório genérico para uma entidade específica.
+    /// </summary>
+    /// <typeparam name="TEntity">O tipo da entidade.</typeparam>
+    /// <returns>O repositório genérico para a entidade.</returns>
+    //IBaseRepository<TEntity> Repository<TEntity>() where TEntity : class;
+
+    /// <summary>
+    /// Salva as alterações realizadas no contexto de banco de dados.
+    /// </summary>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>O número de registros afetados.</returns>
     Task<int> CommitAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Aplica filtros nas consultas, como considerar apenas entidades ativas ou outras condições.
-    /// Esse método pode ser utilizado para garantir que apenas dados válidos ou relevantes sejam consultados.
+    /// Executa um commit em lote para um conjunto de tarefas.
     /// </summary>
-    /// <typeparam name="TEntity">O tipo da entidade que será filtrada.</typeparam>
-    /// <param name="query">A consulta que será filtrada.</param>
-    /// <returns>A consulta filtrada com base nas condições especificadas.</returns>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <param name="batchTasks">As tarefas a serem executadas.</param>
+    /// <returns>O número de registros afetados.</returns>
+    Task<int> CommitBatchAsync(CancellationToken cancellationToken, IEnumerable<Task> batchTasks);
+
+    /// <summary>
+    /// Inicia uma nova transação no contexto do banco de dados.
+    /// </summary>
+    /// <param name="cancellationToken">Token de cancelamento da operação.</param>
+    /// <returns>A transação iniciada.</returns>
+    Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Confirma a transação atual.
+    /// </summary>
+    void CommitTransaction();
+
+    /// <summary>
+    /// Reverte a transação atual.
+    /// </summary>
+    void RollbackTransaction();
+
+    /// <summary>
+    /// Aplica filtros de consulta em uma entidade.
+    /// </summary>
+    /// <typeparam name="TEntity">O tipo da entidade.</typeparam>
+    /// <param name="query">A consulta a ser filtrada.</param>
+    /// <returns>A consulta filtrada.</returns>
     IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class;
 }
