@@ -1,6 +1,4 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Entities;
-using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Enum;
 
 namespace Tickest.Application.Tickets.Create;

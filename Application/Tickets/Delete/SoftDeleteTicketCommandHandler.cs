@@ -1,41 +1,65 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Entities;
+using Tickest.Domain.Common;
 using Tickest.Domain.Entities.Tickets;
+using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Tickets.Delete;
-
-//verificar esse nome para deixar adequado.
-public class SoftDeleteTicketCommandHandler : ICommandHandler<SoftDeleteTicketCommand, Ticket>
+namespace Tickest.Application.Tickets.Delete
 {
-    private readonly IBaseRepository<Ticket> _genericRepository;
-    private readonly ILogger<SoftDeleteTicketCommandHandler> _logger;
-
-    public SoftDeleteTicketCommandHandler(IBaseRepository<Ticket> genericRepository, ILogger<SoftDeleteTicketCommandHandler> logger) =>
-        (_genericRepository, _logger) = (genericRepository, logger);
-
-    public async Task<Ticket> Handle(SoftDeleteTicketCommand request, CancellationToken cancellationToken)
+    internal sealed class SoftDeleteTicketCommandHandler(
+        ITicketRepository ticketRepository,
+        ILogger<SoftDeleteTicketCommandHandler> logger,
+        IAuthService authService,
+        IPermissionProvider permissionProvider)
+        : ICommandHandler<SoftDeleteTicketCommand, Guid>
     {
-        _logger.LogInformation("Iniciando exclusão lógica do ticket: {TicketId}", request.TicketId);
-
-        // Busca o ticket no repositório
-        var ticket = await _genericRepository.GetByIdAsync(request.TicketId, cancellationToken);
-        if (ticket == null)
+        public async Task<Result<Guid>> Handle(SoftDeleteTicketCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogWarning("Ticket não encontrado: {TicketId}", request.TicketId);
-            throw new KeyNotFoundException("Ticket não encontrado.");
+            logger.LogInformation("Iniciando exclusão lógica do ticket: {TicketId}", request.TicketId);
+
+            #region Validação de Permissões
+
+            var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+            if (currentUser == null)
+            {
+                logger.LogError("Usuário não autenticado.");
+                throw new TickestException("Usuário não encontrado.");
+            }
+
+            await permissionProvider.ValidatePermissionAsync(currentUser.Id, "DeleteTicket");
+
+            #endregion
+
+            #region Validação e manipulação do Ticket
+
+            // Busca o ticket no repositório após verificar permissões
+            var ticket = await ticketRepository.GetByIdAsync(request.TicketId);
+            if (ticket == null)
+            {
+                logger.LogWarning("Ticket não encontrado: {TicketId}", request.TicketId);
+                throw new TickestException($"Ticket com ID {request.TicketId} não encontrado.");
+            }
+
+            // Verifica se o ticket já está inativo
+            if (!ticket.IsActive)
+            {
+                logger.LogWarning("Ticket já está inativo: {TicketId}", request.TicketId);
+                throw new TickestException("O ticket já está inativo.");
+            }
+
+            // Executa a exclusão lógica
+            ticket.SoftDelete();
+
+            // Atualiza o ticket no repositório
+            await ticketRepository.UpdateAsync(ticket, cancellationToken);
+
+            #endregion
+
+            logger.LogInformation("Ticket excluído logicamente com sucesso: {TicketId}", request.TicketId);
+
+            return ticket.Id;
         }
-
-        // Atualiza os campos necessários para o soft delete
-        ticket.IsDeleted = true;
-        ticket.IsActive = false;
-        ticket.DeactivatedDate = DateTime.UtcNow;
-
-        await _genericRepository.UpdateAsync(ticket, cancellationToken);
-
-        _logger.LogInformation("Ticket excluído logicamente com sucesso: {TicketId}", request.TicketId);
-        return ticket;
     }
 }

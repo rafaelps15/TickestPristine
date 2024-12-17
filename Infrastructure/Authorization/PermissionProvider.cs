@@ -146,8 +146,9 @@ internal sealed class PermissionProvider : IPermissionProvider
             _logger.LogError("Usuário {UserId} não tem permissão para {Permission}.", userId, permission);
             throw new TickestException($"Usuário não tem permissão para {permission}.");
         }
-    }
 
+        _logger.LogInformation("Usuário {UserId} tem permissão para a ação {Permission}.", userId, permission);
+    }
 
     #endregion
 }

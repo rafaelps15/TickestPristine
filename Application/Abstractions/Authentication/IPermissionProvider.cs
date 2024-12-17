@@ -30,4 +30,13 @@ public interface IPermissionProvider
     /// <returns>Retorna true se o usuário tiver a permissão; caso contrário, false.</returns>
     /// <exception cref="ArgumentException">Lançada se o <paramref name="userId"/> ou <paramref name="permission"/> for inválido.</exception>
     Task<bool> UserHasPermissionAsync(Guid userId, string permission);
+
+    /// <summary>
+    /// Valida se um usuário possui uma permissão específica.
+    /// Lança uma exceção caso o usuário não tenha a permissão necessária.
+    /// </summary>
+    /// <param name="userId">Identificador único do usuário.</param>
+    /// <param name="permission">A permissão a ser verificada.</param>
+    /// <exception cref="TickestException">Lançada se o usuário não tiver a permissão.</exception>
+    Task ValidatePermissionAsync(Guid userId, string permission);
 }

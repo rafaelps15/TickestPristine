@@ -1,4 +1,6 @@
-﻿namespace Tickest.Domain.Entities.Base
+﻿using Tickest.Domain.Exceptions;
+
+namespace Tickest.Domain.Entities.Base
 {
     public abstract class EntityBase
     {
@@ -10,5 +12,17 @@
         public DateTime ExpiresAt { get; set; }  // A data e hora de expiração
         public DateTime? UpdateAt { get; set; }  // Data de atualização (opcional)
 
+        public void SoftDelete()
+        {
+            IsDeleted = true;
+            IsActive = false;
+            DeactivatedAt = DateTime.UtcNow;
+
+            if (IsDeleted)
+            {
+                throw new TickestException("A entidade já foi deletada.");
+            }
+        }
+            
     }
 }
