@@ -10,7 +10,7 @@ public record CreateTicketCommand(
      string Description,
      TicketPriority Priority,
      Guid? RequesterId,
-     Guid ResponsibleId) : ICommand<Ticket>;
+     Guid ResponsibleId) : ICommand<Guid>;
 
 // RequesterId -> Opcional, se um admin criar para outro usuário
 

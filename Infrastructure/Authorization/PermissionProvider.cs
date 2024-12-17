@@ -137,5 +137,17 @@ internal sealed class PermissionProvider : IPermissionProvider
         }
     }
 
+    public async Task ValidatePermissionAsync(Guid userId, string permission)
+    {
+        var hasPermission = await UserHasPermissionAsync(userId, permission);
+
+        if (!hasPermission)
+        {
+            _logger.LogError("Usuário {UserId} não tem permissão para {Permission}.", userId, permission);
+            throw new TickestException($"Usuário não tem permissão para {permission}.");
+        }
+    }
+
+
     #endregion
 }

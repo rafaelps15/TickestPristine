@@ -1,54 +1,40 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
+using Tickest.Domain.Common;
 using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Enum;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Tickets.Create;
 
-public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, Ticket>
+internal sealed class CreateTicketCommandHandler(
+    ITicketRepository ticketRepository,
+    ILogger<CreateTicketCommandHandler> logger,
+    IAuthService authService,
+    IPermissionProvider permissionProvider)
+    : ICommandHandler<CreateTicketCommand, Guid>
 {
-    #region Campos Privados
-    private readonly ITicketRepository _ticketRepository;
-    private readonly ILogger<CreateTicketCommandHandler> _logger;
-    private readonly IAuthService _authService;
-    private readonly IPermissionProvider _permissionProvider;
-    private readonly IUnitOfWork _unitOfWork;
-    #endregion
-
-    #region Construtor
-    public CreateTicketCommandHandler(
-        ITicketRepository ticketRepository,
-        ILogger<CreateTicketCommandHandler> logger,
-        IAuthService authService,
-        IPermissionProvider permissionProvider,
-        IUnitOfWork unitOfWork) =>
-        (_ticketRepository, _logger, _authService, _permissionProvider, _unitOfWork) =
-        (ticketRepository, logger, authService, permissionProvider, unitOfWork);
-    #endregion
-
-    #region Manipulação do Comando
-    public async Task<Ticket> Handle(CreateTicketCommand command, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateTicketCommand command, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Iniciando a criação de um novo ticket.");
+        logger.LogInformation("Iniciando a criação de um novo ticket.");
 
         #region Validação de Permissões
-        var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
+        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
 
         if (currentUser == null)
         {
-            _logger.LogError("Usuário não autenticado.");
+            logger.LogError("Usuário não autenticado.");
             throw new TickestException("Usuário não autenticado.");
         }
 
         // Verificar se o usuário tem permissão para criar ticket
-        var hasPermission =  await _permissionProvider.UserHasPermissionAsync(currentUser.Id, "CreateTicket");
+        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser.Id, "CreateTicket");
         if (!hasPermission)
         {
-            _logger.LogError("Usuário não tem permissão para criar tickets.");
+            logger.LogError("Usuário não tem permissão para criar tickets.");
             throw new TickestException("Usuário não tem permissão para criar tickets.");
         }
         #endregion
@@ -58,6 +44,7 @@ public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, T
 
         var ticket = new Ticket
         {
+            Id = Guid.NewGuid(),  // Gerando o GUID para o ticket
             Title = command.Title,
             Description = command.Description,
             Priority = command.Priority,
@@ -68,16 +55,16 @@ public class CreateTicketCommandHandler : ICommandHandler<CreateTicketCommand, T
             IsActive = true,
         };
 
+        // Implementação futura do evento de criação de ticket:
+        // ticket.Raise(new TicketCreatedDomainEvent(ticket.Id));
+
         #endregion
 
-        #region Persistência no Repositório com UnitOfWork
-        await _ticketRepository.AddAsync(ticket, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
-
-        _logger.LogInformation("Ticket criado com sucesso: {TicketId}", ticket.Id);
+        #region Persistência no Repositório
+        await ticketRepository.AddAsync(ticket, cancellationToken);
+        logger.LogInformation("Ticket criado com sucesso: {TicketId}", ticket.Id);
         #endregion
 
-        return ticket;
+        return ticket.Id;  
     }
-    #endregion
 }
