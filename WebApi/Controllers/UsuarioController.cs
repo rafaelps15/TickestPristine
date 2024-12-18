@@ -19,7 +19,7 @@ namespace WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command) =>
+        public async Task<IActionResult> CreateUser([FromBody] RegisterUserCommand command) =>
             Ok(await _mediator.Send(command));
     }
 }

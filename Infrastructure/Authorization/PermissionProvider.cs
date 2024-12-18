@@ -32,43 +32,43 @@ internal sealed class PermissionProvider : IPermissionProvider
     private static HashSet<string> GetMasterAdminPermissions() => new()
     {
         "FullSystemControl", "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments",
-        "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings"
+        "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings","AccessSystem"
     };
 
     private static HashSet<string> GetGeneralAdminPermissions() => new()
     {
         "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments", "ManageAreas",
-        "ManageTickets", "ViewReports"
+        "ManageTickets", "ViewReports","AccessSystem"
     };
 
     private static HashSet<string> GetSectorAdminPermissions() => new()
     {
-        "ManageSectors", "ManageDepartments", "ManageAreas"
+        "ManageSectors", "ManageDepartments", "ManageAreas","AccessSystem"
     };
 
     private static HashSet<string> GetDepartmentAdminPermissions() => new()
     {
-        "ManageDepartments", "ManageAreas", "AssignDepartmentRoles"
+        "ManageDepartments", "ManageAreas", "AssignDepartmentRoles","AccessSystem"
     };
 
     private static HashSet<string> GetAreaAdminPermissions() => new()
     {
-        "ManageAreas", "ManageTasks", "ManageCollaborators"
+        "ManageAreas", "ManageTasks", "ManageCollaborators","AccessSystem"
     };
 
     private static HashSet<string> GetTicketManagerPermissions() => new()
     {
-        "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance"
+        "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance","AccessSystem"
     };
 
     private static HashSet<string> GetCollaboratorPermissions() => new()
     {
-        "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst"
+        "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst","AccessSystem"
     };
 
     private static HashSet<string> GetSupportAnalystPermissions() => new()
     {
-        "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester"
+        "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester","AccessSystem"
     };
 
     #endregion
@@ -148,6 +148,11 @@ internal sealed class PermissionProvider : IPermissionProvider
         }
 
         _logger.LogInformation("Usuário {UserId} tem permissão para a ação {Permission}.", userId, permission);
+    }
+
+    public async Task<bool> CanUserLoginAsync(Guid userId)
+    {
+        return await UserHasPermissionAsync(userId, "AccessSystem");
     }
 
     #endregion

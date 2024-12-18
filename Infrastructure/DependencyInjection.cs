@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Http;
+
 
 namespace Tickest.Infrastructure;
 
@@ -29,11 +31,11 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         // Configuração de políticas de autorização
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("CreateTicket", policy => policy.Requirements.Add(new PermissionRequirement("CreateTicket")));
-            options.AddPolicy("ManageTickets", policy => policy.Requirements.Add(new PermissionRequirement("ManageTickets")));
-        });
+        //services.AddAuthorization(options =>
+        //{
+        //    options.AddPolicy("CreateTicket", policy => policy.Requirements.Add(new PermissionRequirement("CreateTicket")));
+        //    options.AddPolicy("ManageTickets", policy => policy.Requirements.Add(new PermissionRequirement("ManageTickets")));
+        //});
 
         return services;
     }

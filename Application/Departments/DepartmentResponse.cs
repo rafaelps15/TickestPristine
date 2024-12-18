@@ -12,6 +12,6 @@ namespace Tickest.Application.Departments
         public string Name { get; set; }
         public string Description { get; set; }
         public string ResponsibleUserName { get;  set; }
-        public string SectorNames { get; set; }
+        public List<string> SectorNames { get; set; }
     }
 }

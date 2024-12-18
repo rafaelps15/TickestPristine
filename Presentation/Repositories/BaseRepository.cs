@@ -1,17 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using Tickest.Domain.Entities.Base;
-using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : EntityBase
+public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : EntityBase
 {
     protected readonly TickestContext _context;
 
     public BaseRepository(TickestContext context) => _context = context;
-    
+
     /// <summary>
     /// O método <c>AsNoTracking</c> do Entity Framework Core é utilizado para realizar consultas onde o rastreamento das entidades no contexto não é necessário. 
     /// Isso significa que o Entity Framework não irá acompanhar as mudanças feitas nas entidades recuperadas, o que pode melhorar o desempenho 
@@ -24,6 +24,11 @@ internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity 
     /// Contudo, se você precisar atualizar ou excluir entidades, o Entity Framework não poderá rastrear essas mudanças, 
     /// e será necessário chamar explicitamente <c>Attach</c> ou outros métodos para reanexar a entidade ao contexto.
     /// </remarks>
+
+    public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    {
+        return await _context.Set<TEntity>().FirstOrDefaultAsync(predicate, cancellationToken);
+    }
 
     public async Task<IEnumerable<TEntity>> GetAllAsync(bool asNoTracking = true, CancellationToken cancellationToken = default)
     {
@@ -87,4 +92,5 @@ internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity 
     {
         await _context.SaveChangesAsync(cancellationToken);
     }
+
 }

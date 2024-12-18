@@ -22,7 +22,7 @@ public class Ticket : EntityBase
     public User OpenedByUser { get; set; } // Usuário que abriu o ticket (ex: Cliente ou Colaborador)
 
 
-    // Relacionamento opcional com o usuário a quem o ticket foi atribuído
+    // Relacionamento do usuário a quem o ticket foi atribuído
     public Guid? AssignedToUserId { get; set; }
     public User AssignedToUser { get; set; } // Usuário atribuído ao ticket (ex: Analista ou Responsável TI)
 
@@ -40,7 +40,7 @@ public class Ticket : EntityBase
     // Relacionamento com a área do setor onde o ticket está alocado
     public Guid AreaId { get; set; }
     public Area Area { get; set; } // Área (ex: Frontend, Backend, etc.)
-    public Ticket Tickets { get; set; }
+
 }
 
 #endregion

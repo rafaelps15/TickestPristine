@@ -7,7 +7,6 @@ using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-
 namespace Tickest.Infrastructure.Authentication;
 
 public class AuthService : IAuthService
@@ -21,6 +20,8 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IUnitOfWork _unitOfWork;
+
+    private const int PasswordHashVersion = 2;
 
     #endregion
 
@@ -47,15 +48,26 @@ public class AuthService : IAuthService
 
         if (_passwordHasher.Verify(password, user.PasswordHash))
         {
-            await RehashPasswordAsync(user, password, cancellationToken);
+            // Rehash a senha se necessário
+            var newPasswordHash = RehashIfNeeded(password, user.PasswordHash);
+            if (newPasswordHash != null)
+            {
+                user.PasswordHash = newPasswordHash;
+                await _userRepository.UpdateAsync(user, cancellationToken);
+            }
         }
 
-        var token = _tokenProvider.GenerateToken(user);
+        // Cria o token JWT
+        var token = _tokenProvider.Create(user);
 
         _logger.LogInformation($"Usuário {email} autenticado com sucesso.");
 
-        return token;
+        return new TokenResponse
+        {
+            Token = token
+        };
     }
+
 
     public async Task<User> GetCurrentUserAsync(CancellationToken cancellationToken)
     {
@@ -72,28 +84,25 @@ public class AuthService : IAuthService
     {
         var user = await GetUserByRefreshTokenAsync(refreshToken, cancellationToken);
 
-        if (user == null)
-            throw new TickestException("Refresh token inválido ou expirado.");
+        var token = _tokenProvider.Create(user);
 
-        var token = _tokenProvider.GenerateToken(user);
-
-        return new Result<string> { Success = true, Data = token.AccessToken };
+        return Result.Success(token);
     }
 
     #endregion
 
     #region Private Methods
 
-    private async Task<User> ValidateUserCredentialsAsync(string email, string password, CancellationToken cancellationToken)
+    public async Task<User> ValidateUserCredentialsAsync(string email, string password, CancellationToken cancellationToken) // Tornado público
     {
         var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken);
-        if (user == null || !_passwordHasher.Verify(user.PasswordHash, password))
+        if (user == null || !_passwordHasher.Verify(password, user.PasswordHash))
             throw new TickestException("Credenciais inválidas.");
 
         return user;
     }
 
-    private async Task RehashPasswordAsync(User user, string password, CancellationToken cancellationToken)
+    public async Task RehashPasswordAsync(User user, string password, CancellationToken cancellationToken) // Tornado público
     {
         var updatedHash = _passwordHasher.Hash(password);
         user.PasswordHash = updatedHash;
@@ -115,7 +124,7 @@ public class AuthService : IAuthService
         if (refreshTokenEntity == null || refreshTokenEntity.ExpiresAt < DateTime.UtcNow)
             throw new TickestException("Refresh token inválido ou expirado.");
 
-        var user = await _userRepository.GetByIdAsync(refreshTokenEntity.UserId, cancellationToken);
+        var user = await _userRepository.GetByIdAsync(refreshTokenEntity.UserId);
         if (user == null)
             throw new TickestException("Usuário associado ao refresh token não encontrado.");
 
@@ -128,6 +137,18 @@ public class AuthService : IAuthService
 
     public string? RehashIfNeeded(string password, string passwordHash)
     {
+        var (version, storedHash, salt) = ParseHash(passwordHash);
+
+        if (version < PasswordHashVersion)
+        {
+            return _passwordHasher.Hash(password);
+        }
+
+        return null;
+    }
+
+    private static (int version, byte[] storedHash, byte[] salt) ParseHash(string passwordHash)
+    {
         var parts = passwordHash.Split('-');
         if (parts.Length != 3)
             throw new TickestException("Formato do hash inválido.");
@@ -136,7 +157,7 @@ public class AuthService : IAuthService
         var storedHash = Convert.FromHexString(parts[1]);
         var salt = Convert.FromHexString(parts[2]);
 
-        return version < Version ? _passwordHasher.Hash(password) : null;
+        return (version, storedHash, salt);
     }
 
     #endregion

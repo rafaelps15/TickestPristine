@@ -17,5 +17,5 @@ internal class SectorRepository : BaseRepository<Sector>,ISectorRepository
             .Include(s => s.Department)
             .Include(s => s.ResponsibleUser)
             .Include(s => s.Areas)
-            .FirstOrDefaultAsync(s => s.Id == sectorId,cancellationToken);
+            .FirstOrDefaultAsync(s => s.Id == sectorId);
 }

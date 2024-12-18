@@ -27,7 +27,7 @@ internal sealed class GetDepartmentsQueryHandler(IApplicationDbContext context, 
             Description = department.Description,
             ResponsibleUserName = department.ResponsibleUser?.Name ?? "Nenhum responsável atribúido",
             SectorNames = department.Sectors?.Select(s => s.Name).ToList() ?? new List<string>()
-        });.ToList();
+        }).ToList();
 
         return Result.Success(response);
     }

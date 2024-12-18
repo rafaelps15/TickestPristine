@@ -2,9 +2,9 @@
 
 namespace Tickest.Application.Users.Create;
 
-public class CreateUserValidatorCommand : AbstractValidator<CreateUserCommand>
+public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
-    public CreateUserValidatorCommand()
+    public RegisterUserCommandValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("O nome é obrigatório.")

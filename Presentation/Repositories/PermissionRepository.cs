@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tickest.Domain.Entities;
-using Tickest.Domain.Entities.Security;
+using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
@@ -32,7 +31,7 @@ public class PermissionRepository : BaseRepository<Permission>, IPermissionRepos
 
     public async Task<IEnumerable<Permission>> GetPermissionsByNamesAsync(IEnumerable<string> permissionNames, CancellationToken cancellationToken) =>
              await _context.Permissions
-            .Where(p => permissionNames.Contains(p.Name))
+            .Where(p => permissionNames.Contains(p.Description))
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 

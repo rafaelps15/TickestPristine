@@ -13,5 +13,7 @@ public interface ITokenProvider
     /// </summary>
     /// <param name="user">O usuário para o qual o token será gerado.</param>
     /// <returns>Um objeto <see cref="TokenResponse"/> contendo o token gerado e a data de expiração.</returns>
-    TokenResponse GenerateToken(User user);
+    //TokenResponse GenerateToken(User user);
+
+    string Create(User user);
 }

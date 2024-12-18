@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Tickest.Application.Abstractions.Data;
 using Tickest.Application.Abstractions.Services;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
@@ -14,7 +13,6 @@ public class UnitOfWork : IUnitOfWork
     private readonly IQueryFilterService _queryFilterService;
     private readonly IUserRepository _userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly IBaseRepository<TickestContext> _genericRepository;
     private readonly ITicketRepository _ticketRepository;
     private readonly ISpecialtyRepository _specialtyRepository;
     private readonly IAreaRepository _areaRepository;
@@ -29,10 +27,9 @@ public class UnitOfWork : IUnitOfWork
         ITicketRepository ticketRepository,
         ISpecialtyRepository specialtyRepository,
         IAreaRepository areaRepository,
-        IBaseRepository<TickestContext> genericRepository,
         IQueryFilterService queryFilterService)
-        => (_context, _queryFilterService, _userRepository, _refreshTokenRepository, _ticketRepository, _specialtyRepository, _areaRepository, _sectorRepository, _genericRepository) =
-        (context, queryFilterService, userRepository, refreshTokenRepository, ticketRepository, specialtyRepository, areaRepository, sectorRepository, genericRepository);
+        => (_context, _queryFilterService, _userRepository, _refreshTokenRepository, _ticketRepository, _specialtyRepository, _areaRepository, _sectorRepository ) =
+        (context, queryFilterService, userRepository, refreshTokenRepository, ticketRepository, specialtyRepository, areaRepository, sectorRepository );
 
     public IUserRepository Users => _userRepository;
     public IRefreshTokenRepository RefreshTokenRepository => _refreshTokenRepository;
@@ -40,9 +37,6 @@ public class UnitOfWork : IUnitOfWork
     public IAreaRepository AreaRepository => _areaRepository;
     public ISpecialtyRepository SpecialtyRepository => _specialtyRepository;
     public ISectorRepository sectorRepository => _sectorRepository;
-
-    public IBaseRepository<TEntity> Repository<TEntity>() where TEntity : class =>
-        (IBaseRepository<TEntity>)_genericRepository;
 
     public IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class =>
         _queryFilterService.ApplyFilters(query);

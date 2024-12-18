@@ -2,6 +2,8 @@
 
 namespace Tickest.Application.Tickets.Delete;
 
-public  record SoftDeleteTicketCommand(
-    Guid TicketId) : ICommand<Guid>;
+public record SoftDeleteTicketCommand(
+    Guid TicketId, Guid UserId) : ICommand<Guid>
+{
+}
 

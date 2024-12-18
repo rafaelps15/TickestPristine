@@ -2,4 +2,7 @@
 
 namespace Tickest.Application.Users.Login;
 
-public record LoginCommand(string Email, string Password ): ICommand<String>;
+public record LoginUserCommand(
+    string Email,
+    string Password)
+    : ICommand<String>;

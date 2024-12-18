@@ -1,55 +1,58 @@
 ﻿using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Messaging;
+using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
-using Tickest.Application.Abstractions.Authentication;
+using Tickest.Domain.Common;
+using MediatR;
 
 namespace Tickest.Application.Users.Delete;
 
-public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Guid>
+internal sealed class DeleteUserCommandHandler(
+    IBaseRepository<User> userRepository,
+    IAuthService authService,
+    IPermissionProvider permissionProvider,
+    ILogger<DeleteUserCommandHandler> logger)
+    : ICommandHandler<DeleteUserCommand, Guid>
 {
-    private readonly IBaseRepository<User> _genericRepository;
-    private readonly ILogger<DeleteUserCommandHandler> _logger;
-    private readonly IAuthService _authService;
-
-    public DeleteUserCommandHandler(
-        IBaseRepository<User> genericRepository,
-        ILogger<DeleteUserCommandHandler> logger,
-        IAuthService authService) =>
-        (_genericRepository, _logger, _authService) = (genericRepository, logger, authService);
-
-    public async Task<Guid> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
-        // Validação do comando de exclusão
-        _logger.LogInformation("Iniciando solicitação de exclusão de usuário.");
+        logger.LogInformation("Iniciando solicitação de exclusão de usuário.");
 
-        // Verificar o usuário atual (caso a exclusão dependa de permissões)
-        var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
+        #region Validação de Permissões
 
-        // Validar permissões do usuário atual para excluir o outro usuário
-        // (lógica para verificar se o currentUser tem permissão para deletar o usuário solicitado)
+        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
 
-        // Busca o usuário a ser deletado
-        var userToDelete = await GetUserAsync(request.UserId, cancellationToken);
+        if (currentUser == null)
+        {
+            logger.LogError("Usuário não autenticado. Requisição de exclusão não permitida.");
+            throw new TickestException("Usuário não autenticado. Operação de exclusão falhou.");
+        }
 
-        // Verifique se o currentUser tem permissão para excluir esse usuário
-        // (Adicionar verificações de permissão)
+        await permissionProvider.ValidatePermissionAsync(currentUser.Id, "DeleteUser");
 
-        // Deleta o usuário
-        await _genericRepository.DeleteByIdAsync(userToDelete.Id, cancellationToken);
-        _logger.LogInformation($"Usuário com ID {userToDelete.Id} deletado com sucesso.");
+        #endregion
 
-        // Retorna o ID do usuário deletado
-        return userToDelete.Id;
-    }
+        #region Obtenção de Usuário
 
-    private async Task<User> GetUserAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var user = await _genericRepository.GetByIdAsync(userId, cancellationToken);
-        if (user == null)
-            throw new TickestException($"Usuário com ID {userId} não encontrado.");
+        var userToDelete = await userRepository.GetByIdAsync(request.UserId);
 
-        return user;
+        if (userToDelete == null)
+        {
+            logger.LogError("Usuário não encontrado. ID: {UserId}", request.UserId);
+            throw new TickestException($"Usuário com ID {request.UserId} não encontrado.");
+        }
+
+        #endregion
+
+        #region Exclusão do Usuário
+
+        await userRepository.DeleteByIdAsync(userToDelete.Id, cancellationToken);
+        logger.LogInformation("Usuário com ID {UserId} excluído com sucesso.", userToDelete.Id);
+
+        #endregion
+
+        return Result<Guid>.Success(userToDelete.Id);
     }
 }

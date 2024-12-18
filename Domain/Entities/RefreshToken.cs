@@ -1,23 +1,42 @@
 ﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Exceptions;
 
 namespace Tickest.Domain.Entities.Auths;
 
-#region RefreshToken
-/// <summary>
-/// Token de atualização usado para obter novos tokens de acesso.
-/// </summary>
 public class RefreshToken : EntityBase
 {
-    public Guid UserId { get; set; } 
-    public string Token { get; set; } 
-    public DateTimeOffset ExpiresAt { get; set; } // Data e hora de expiração do token
-    public bool IsRevoked { get; set; } // Indica se o token foi revogado
-    public bool IsUsed { get; set; } // Indica se o token foi usado
+    public Guid UserId { get; set; }
+    public string Token { get; set; }
+    public DateTime ExpiresAt { get; set; }
+    public bool IsRevoked { get; set; }
+    public bool IsUsed { get; set; }
 
-    /// <summary>
-    /// Verifica se o token é válido.
-    /// </summary>
-    /// <returns>Retorna true se o token for válido, caso contrário, false.</returns>
-    public bool IsValid() => !IsUsed && !IsRevoked && DateTimeOffset.UtcNow < ExpiresAt;
+    public bool IsValid() => !IsUsed && !IsRevoked && DateTime.UtcNow < ExpiresAt;
+
+    public void Revoke()
+    {
+        if (IsUsed)
+        {
+            throw new TickestException("O token já foi utilizado e não pode ser revogado.");
+        }
+
+        if (IsRevoked)
+        {
+            throw new TickestException("O token já foi revogado.");
+        }
+
+        IsRevoked = true;
+        UpdateAt = DateTime.UtcNow;
+    }
+
+    public void MarkAsUsed()
+    {
+        if (IsUsed)
+        {
+            throw new TickestException("O token já foi usado.");
+        }
+
+        IsUsed = true;
+        UpdateAt = DateTime.UtcNow;
+    }
 }
-#endregion

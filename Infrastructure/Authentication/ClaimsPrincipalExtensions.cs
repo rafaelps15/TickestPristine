@@ -1,6 +1,7 @@
-﻿using System.Security.Claims;
-using Microsoft.IdentityModel.JsonWebTokens;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Tickest.Domain.Exceptions;
+
 
 namespace Infrastructure.Authentication;
 
@@ -24,4 +25,9 @@ internal static class ClaimsPrincipalExtensions
         principal?.FindFirstValue(ClaimTypes.Role)
         ?? throw new TickestException("Papel do usuário não está disponível.");
     #endregion
+
+    public static string FindFirstValue( this ClaimsPrincipal principal, string claimType)
+    {
+        return principal?.FindFirst(claimType)?.Value;
+    }
 }

@@ -6,6 +6,7 @@ using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Sector.Get;
 
+////Caso necessario utilizar o banco de dados utilizar IApplicationDbContext context
 internal sealed class GetSectorsDetailsQueryHandler(IApplicationDbContext context, ISectorRepository sectorRepository)
     : IQueryHandler<GetSectorsDetailsQuery, List<SectorResponse>>
 {
@@ -35,7 +36,6 @@ internal sealed class GetSectorsDetailsQueryHandler(IApplicationDbContext contex
             AreaNames = sector.Areas?.Select(area => area.Name).ToList() ?? new List<string>()
         }).ToList();
 
-        // Retorna o resultado com sucesso
         return Result.Success(response);
     }
 }

@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Tickest.Domain.Exceptions;
 using Tickest.Infrastructure.Mvc.Responses;
+using System.Net.Http.Json;
 
 namespace Tickest.Infrastructure.Mvc.Middlewares;
 
@@ -52,7 +53,7 @@ public sealed class ErrorHandlerMiddleware
     {
         if (context == null || exception == null)
         {
-            throw new ArgumentNullException(context is null ? nameof(context) : nameof(exception));
+            throw new TickestException(context is null ? nameof(context) : nameof(exception));
         }
 
         var correlationId = Guid.NewGuid().ToString();

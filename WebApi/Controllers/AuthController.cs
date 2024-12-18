@@ -17,7 +17,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginCommand command) =>
+        public async Task<IActionResult> Login([FromBody] LoginUserCommand command) =>
             Ok(await _mediator.Send(command));
 
         [HttpPost("renew")]

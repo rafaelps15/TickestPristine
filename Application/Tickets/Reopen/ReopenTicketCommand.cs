@@ -2,4 +2,4 @@
 
 namespace Tickest.Application.Tickets.Reopen;
 
-public sealed record ReopenTicketCommand(Guid TicketId, string Priority) : ICommand<Guid>;
+public sealed record ReopenTicketCommand(Guid TicketId) : ICommand<Guid>;

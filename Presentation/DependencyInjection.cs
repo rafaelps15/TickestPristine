@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tickest.Application.Abstractions.Data;
-using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 using Tickest.Persistence.Repositories;
@@ -17,18 +16,19 @@ public static class DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         // Registra repositórios
-        //services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+        services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAreaRepository, AreaRepository>();
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
         services.AddScoped<ITicketRepository, TicketRepository>();
-        services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<ISectorRepository, SectorRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
         services.AddScoped<IApplicationDbContext, TickestContext>();
-
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }
 }

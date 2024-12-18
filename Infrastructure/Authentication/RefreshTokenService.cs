@@ -3,63 +3,94 @@ using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Infrastructure.Authentication;
-
-public class RefreshTokenService
+namespace Tickest.Infrastructure.Authentication
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IBaseRepository<RefreshToken> _refreshTokenRepository; 
-
-    public RefreshTokenService(IUnitOfWork unitOfWork, IBaseRepository<RefreshToken> refreshTokenRepository) =>
-        (_unitOfWork, _refreshTokenRepository) = (unitOfWork ?? throw new TickestException(nameof(unitOfWork)), refreshTokenRepository);
-
-    public async Task<RefreshToken> GenerateRefreshToken(Guid userId, CancellationToken cancellationToken)
+    public class RefreshTokenService
     {
-        var refreshToken = new RefreshToken
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBaseRepository<RefreshToken> _refreshTokenRepository;
+
+        public RefreshTokenService(IUnitOfWork unitOfWork, IBaseRepository<RefreshToken> refreshTokenRepository) =>
+            (_unitOfWork, _refreshTokenRepository) = (unitOfWork ?? throw new TickestException(nameof(unitOfWork)), refreshTokenRepository);
+
+        /// <summary>
+        /// Gera um novo RefreshToken para um usuário.
+        /// </summary>
+        /// <param name="userId">ID do usuário para o qual o RefreshToken será gerado.</param>
+        /// <param name="cancellationToken">Token de cancelamento para a operação assíncrona.</param>
+        /// <returns>O RefreshToken gerado.</returns>
+        public async Task<RefreshToken> GenerateRefreshToken(Guid userId, CancellationToken cancellationToken)
         {
-            UserId = userId,
-            Token = Guid.NewGuid().ToString(), // Gerar um novo token
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(7), // Expiração em 7 dias
-            IsRevoked = false,
-            IsUsed = false
-        };
+            var refreshToken = new RefreshToken
+            {
+                UserId = userId,
+                Token = Guid.NewGuid().ToString(),
+                ExpiresAt = DateTime.UtcNow.AddDays(7), // Expira em 7 dias
+                IsRevoked = false,
+                IsUsed = false
+            };
 
-        // Usando o GenericRepository para salvar
-        await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken); // Confirma a transação
+            await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
 
-        return refreshToken;
-    }
+            return refreshToken;
+        }
 
-    public async Task<bool> ValidateRefreshTokenAsync(string token, CancellationToken cancellationToken)
-    {
-        var refreshToken = await _refreshTokenRepository.FindAsync(r => r.Token == token && !r.IsRevoked, cancellationToken);
-        return refreshToken is not null && refreshToken.Any();
-    }
+        /// <summary>
+        /// Valida se o RefreshToken é válido.
+        /// </summary>
+        /// <param name="token">Token a ser validado.</param>
+        /// <param name="cancellationToken">Token de cancelamento para a operação assíncrona.</param>
+        /// <returns>True se o token for válido, caso contrário, false.</returns>
+        public async Task<bool> ValidateRefreshTokenAsync(string token, CancellationToken cancellationToken)
+        {
+            // Tenta encontrar o token no repositório
+            var refreshToken = await _refreshTokenRepository.FindAsync(r => r.Token == token && !r.IsRevoked, cancellationToken);
 
-    public async Task RevokeRefreshTokenAsync(string token, CancellationToken cancellationToken)
-    {
-        // Buscando e revogando o refresh token
-        var refreshToken = await _refreshTokenRepository.FindAsync(r => r.Token == token, cancellationToken);
-        var tokenToRevoke = refreshToken?.FirstOrDefault();
-        if (tokenToRevoke is null)
-            throw new TickestException("Refresh token não encontrado.", nameof(token));
+            if (refreshToken == null)
+                return false;
 
-        tokenToRevoke.IsRevoked = true;
-        await _refreshTokenRepository.UpdateAsync(tokenToRevoke, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken); 
-    }
+            return refreshToken.IsValid();
+        }
 
-    public async Task MarkAsUsedAsync(string token, CancellationToken cancellationToken)
-    {
-        // Buscando o refresh token para marcar como usado
-        var refreshToken = await _refreshTokenRepository.FindAsync(r => r.Token == token, cancellationToken);
-        var tokenToMark = refreshToken?.FirstOrDefault();
-        if (tokenToMark is null)
-            throw new TickestException("Refresh token não encontrado.", nameof(token));
 
-        tokenToMark.IsUsed = true;
-        await _refreshTokenRepository.UpdateAsync(tokenToMark, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken); 
+        /// <summary>
+        /// Revoga um RefreshToken.
+        /// </summary>
+        /// <param name="token">Token a ser revogado.</param>
+        /// <param name="cancellationToken">Token de cancelamento para a operação assíncrona.</param>
+        public async Task RevokeRefreshTokenAsync(string token, CancellationToken cancellationToken)
+        {
+            // Tenta encontrar o token no repositório
+            var refreshToken = await _refreshTokenRepository.FindAsync(r => r.Token == token, cancellationToken);
+
+            if (refreshToken == null)
+                throw new TickestException("Refresh token não encontrado.", nameof(token));
+
+            // Marca o token como revogado
+            refreshToken.IsRevoked = true;
+            await _refreshTokenRepository.UpdateAsync(refreshToken, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
+        }
+
+
+        /// <summary>
+        /// Marca um RefreshToken como usado.
+        /// </summary>
+        /// <param name="token">Token a ser marcado como usado.</param>
+        /// <param name="cancellationToken">Token de cancelamento para a operação assíncrona.</param>
+        public async Task MarkAsUsedAsync(string token, CancellationToken cancellationToken)
+        {
+            var refreshToken = await _refreshTokenRepository.FindAsync(r => r.Token == token, cancellationToken);
+
+            if (refreshToken == null)
+                throw new TickestException("Refresh token não encontrado.", nameof(token));
+
+            // Marca o token como usado
+            refreshToken.IsUsed = true;
+            await _refreshTokenRepository.UpdateAsync(refreshToken, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
+        }
+
     }
 }

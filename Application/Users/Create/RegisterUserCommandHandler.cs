@@ -9,21 +9,22 @@ using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Users.Create;
 
-internal sealed class CreateUserCommandHandler(
-    IUnitOfWork unitOfWork,
+internal sealed class RegisterUserCommandHandler(
+    IPasswordHasher passwordHasher,
     IPermissionProvider permissionProvider,
     IAuthService authService,
     IUserRepository userRepository,
-    ILogger<CreateUserCommandHandler> logger)
-    : ICommandHandler<CreateUserCommand, Guid>
+    ILogger<RegisterUserCommandHandler> logger)
+    : ICommandHandler<RegisterUserCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando a criação de um novo usuário.");
 
         #region Validação do Usuário Existente
 
         var existingUser = await userRepository.GetUserByEmailAsync(command.Email, cancellationToken);
+
         if (existingUser != null)
         {
             logger.LogError("O e-mail {Email} já está em uso.", command.Email);
@@ -35,6 +36,7 @@ internal sealed class CreateUserCommandHandler(
         #region Validação de Permissões
 
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+
         if (currentUser == null)
         {
             logger.LogError("Usuário não autenticado.");
@@ -60,7 +62,7 @@ internal sealed class CreateUserCommandHandler(
         var validRoles = new HashSet<string> { "AdminMaster", "GeneralAdmin", "SectorAdmin", "DepartmentAdmin", "AreaAdmin", "TicketManager", "Collaborator", "SupportAnalyst" };
         if (!validRoles.Contains(command.Role))
         {
-            _logger.LogError("Papel {Role} inválido para o novo usuário.", command.Role);
+            logger.LogError("Papel {Role} inválido para o novo usuário.", command.Role);
             throw new TickestException("Papel inválido.");
         }
 
@@ -68,15 +70,12 @@ internal sealed class CreateUserCommandHandler(
 
         #region Criação do Novo Usuário
 
-        var salt = EncryptionHelper.CreateSaltKey(32);
-        var passwordHash = EncryptionHelper.CreatePasswordHashWithSalt(command.Password, salt);
-
         var user = new User
         {
-            Name = command.Name,
+            Id = Guid.NewGuid(),
             Email = command.Email,
-            PasswordHash = passwordHash,
-            Salt = salt,
+            Name = command.Name,
+            PasswordHash = passwordHasher.Hash(command.Password),
             CreatedAt = DateTime.UtcNow,
             Role = command.Role  // Define o papel do novo usuário
         };

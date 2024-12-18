@@ -21,4 +21,6 @@ public class SpecialtyRepository : BaseRepository<Specialty>, ISpecialtyReposito
 
         return specialties;
     }
+
+   
 }

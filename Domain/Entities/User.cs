@@ -26,5 +26,6 @@ public class User : EntityBase
 
     // Relação N:N com papéis
     public ICollection<UserRole> UserRoles { get; set; }
+    public string Role { get; set; }
 }
 #endregion

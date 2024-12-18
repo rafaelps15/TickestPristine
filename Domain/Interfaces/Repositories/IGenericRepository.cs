@@ -1,4 +1,5 @@
-﻿using Tickest.Domain.Entities.Base;
+﻿using System.Linq.Expressions;
+using Tickest.Domain.Entities.Base;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
@@ -7,6 +8,14 @@ namespace Tickest.Domain.Interfaces.Repositories;
 /// </summary>
 public interface IBaseRepository<TEntity> where TEntity : EntityBase
 {
+    /// <summary>
+    /// Encontra a primeira entidade que corresponde a uma expressão de pesquisa.
+    /// </summary>
+    /// <param name="predicate">Expressão para filtrar as entidades.</param>
+    /// <param name="cancellationToken">Token de cancelamento para controlar a execução da operação.</param>
+    /// <returns>Uma tarefa representando a operação assíncrona, com a entidade encontrada ou <c>null</c> se não houver correspondência.</returns>
+    Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
+
     /// <summary>
     /// Recupera todos os itens da entidade.
     /// </summary>

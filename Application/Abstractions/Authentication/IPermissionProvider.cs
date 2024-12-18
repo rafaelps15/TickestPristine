@@ -6,6 +6,13 @@
 public interface IPermissionProvider
 {
     /// <summary>
+    /// Verifica se o usuário tem permissão para acessar o sistema.
+    /// </summary>
+    /// <param name="userId">O ID do usuário.</param>
+    /// <returns>Retorna true se o usuário tiver permissão para acessar o sistema, caso contrário, false.</returns>
+    Task<bool> CanUserLoginAsync(Guid userId);
+
+    /// <summary>
     /// Obtém as permissões atribuídas a um usuário específico.
     /// Isso pode incluir permissões diretamente atribuídas ou permissões herdadas de papéis.
     /// </summary>

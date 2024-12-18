@@ -22,12 +22,14 @@ namespace Tickest.Application.Tickets.Delete
             #region Validação de Permissões
 
             var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+
             if (currentUser == null)
             {
                 logger.LogError("Usuário não autenticado.");
                 throw new TickestException("Usuário não encontrado.");
             }
 
+            //Permissão crítica para a continuidade da execução do processo utilizo "ValidatePermissionAsync"
             await permissionProvider.ValidatePermissionAsync(currentUser.Id, "DeleteTicket");
 
             #endregion

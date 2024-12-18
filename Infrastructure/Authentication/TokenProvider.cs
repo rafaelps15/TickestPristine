@@ -1,61 +1,46 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Tickest.Application.Abstractions.Authentication;
-using Tickest.Application.DTOs;
 using Tickest.Domain.Entities.Users;
-using Tickest.Domain.Exceptions;
-using Tickest.Infrastructure.Configurations;
 
 namespace Tickest.Infrastructure.Authentication;
 
-public class TokenProvider : ITokenProvider
+internal sealed class TokenProvider : ITokenProvider
 {
-    private readonly JwtConfiguration _jwtConfiguration;
+    private readonly IConfiguration _configuration;
 
-    public TokenProvider(JwtConfiguration jwtConfiguration) =>
-        _jwtConfiguration = jwtConfiguration ?? throw new TickestException("Configuração JWT inválida.");
-
-    public TokenResponse GenerateToken(User user)
+    public TokenProvider(IConfiguration configuration)
     {
-        var claims = BuildClaims(user);
-        var credentials = GetSigningCredentials();
+        _configuration = configuration;
+    }
+
+    public string Create(User user)
+    {
+        string secretKey = _configuration["Jwt:Secret"]!;
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(_jwtConfiguration.ExpirationMinutes),
-            Issuer = _jwtConfiguration.Issuer,
-            Audience = _jwtConfiguration.Audience,
-            SigningCredentials = credentials
+            Subject = new ClaimsIdentity(
+                new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email)
+                }),
+            Expires = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("Jwt:ExpirationInMinutes")),
+            SigningCredentials = credentials,
+            Issuer = _configuration["Jwt:Issuer"],
+            Audience = _configuration["Jwt:Audience"]
         };
 
-        var token = new JwtSecurityTokenHandler().CreateToken(tokenDescriptor);
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.CreateToken(tokenDescriptor);
 
-        return new TokenResponse
-        {
-            AccessToken = tokenString,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtConfiguration.ExpirationMinutes),
-            TokenType = "Bearer"
-        };
-    }
-
-    private List<Claim> BuildClaims(User user)
-    {
-        return new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Email, user.Email),
-            //new(ClaimTypes.Role, string.Join(",", user.UserRoles))
-        };
-    }
-
-    private SigningCredentials GetSigningCredentials()
-    {
-        var key = Encoding.UTF8.GetBytes(_jwtConfiguration.Secret);
-        var signingKey = new SymmetricSecurityKey(key);
-        return new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+        return handler.WriteToken(token);
     }
 }

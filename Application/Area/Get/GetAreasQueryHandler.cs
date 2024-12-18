@@ -29,8 +29,8 @@ internal sealed class GetAreasQueryHandler(IApplicationDbContext context, IAreaR
         {
             Id = area.Id,
             Name = area.Name,
-            Description = area.Description
-            SpecialtyName = area.Specialty?.Name?? "Nenhuma especialidade atribuída"
+            Description = area.Description,
+            SpecialtyName = area.Specialty?.Name ?? "Nenhuma especialidade atribuída"
         }).ToList();
 
 

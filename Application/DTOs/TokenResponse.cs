@@ -19,4 +19,5 @@ public class TokenResponse
     /// O tipo de token gerado (geralmente "Bearer" para tokens JWT).
     /// </summary>
     public string TokenType { get; set; } = "Bearer";
+    public string Token { get; set; }
 }
