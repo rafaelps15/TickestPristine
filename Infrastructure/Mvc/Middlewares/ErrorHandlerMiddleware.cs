@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Tickest.Domain.Exceptions;
 using Tickest.Infrastructure.Mvc.Responses;
-using System.Net.Http.Json;
+
 
 namespace Tickest.Infrastructure.Mvc.Middlewares;
 

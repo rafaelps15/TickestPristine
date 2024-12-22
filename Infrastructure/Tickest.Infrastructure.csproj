@@ -26,4 +26,15 @@
     <ProjectReference Include="..\Application\Tickest.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Configurations\" />
+  </ItemGroup>
+
+	<!--Isso garante que o appsettings.json seja copiado para a pasta de saída durante o processo de build.-->
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>

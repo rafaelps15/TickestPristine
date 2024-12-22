@@ -1,41 +1,17 @@
 using Application;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.Text;
 using Tickest.Infrastructure;
-using Tickest.Infrastructure.Configurations;
+using Tickest.Infrastructure.Authentication;
 using Tickest.Infrastructure.Mvc.Middlewares;
 using Tickest.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Carregar a configuração do JWT e registrá-la para injeção de dependência usando IOptions
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
 // Adiciona o IHttpContextAccessor para acessar o contexto HTTP
 builder.Services.AddHttpContextAccessor();
-
-// Carregar configuração do JWT
-var jwtConfig = builder.Configuration.GetSection("JwtConfiguracao").Get<JwtConfiguration>();
-builder.Services.AddSingleton(jwtConfig);
-
-// Configurar autenticação JWT usando o novo modelo
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.RequireHttpsMetadata = false;
-        options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtConfig.Issuer,
-            ValidAudience = jwtConfig.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.SecretKey)),
-            ClockSkew = TimeSpan.Zero // Remove o atraso padrão de 5 minutos
-        };
-    });
 
 // Adiciona outros serviços e configurações de controllers
 builder.Services.AddControllers();

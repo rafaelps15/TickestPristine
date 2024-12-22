@@ -2,6 +2,8 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Tickest.Application.Abstractions.Behaviors;
+using Tickest.Application.Abstractions.Services;
+using Tickest.Application.Services;
 
 namespace Application;
 
@@ -18,6 +20,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
 
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+        services.AddScoped<IQueryFilterService, QueryFilterService>();
 
         return services;
     }

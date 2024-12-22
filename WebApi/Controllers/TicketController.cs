@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Tickest.Application.Tickets.Create;
 using Tickest.Application.Tickets.Update;
-using Tickest.Infrastructure.Configurations;
+using Tickest.Infrastructure.Authentication;
 
 namespace WebApi.Controllers;
 
@@ -17,16 +17,16 @@ public class TicketController : ControllerBase
     private readonly IAuthorizationService _authorizationService;
     private readonly ILogger<TicketController> _logger;
     private readonly IMediator _mediator;
-    private readonly JwtConfiguration _jwtConfiguration;
+    private readonly JwtSettings _jwtSettings;
 
     public TicketController(
         IAuthorizationService authorizationService,
         ILogger<TicketController> logger,
-        IOptions<JwtConfiguration> jwtConfiguration,
+        IOptions<JwtSettings> jwtSettings,
         IMediator mediator)
     {
-        (_authorizationService, _logger, _jwtConfiguration, _mediator) =
-               (authorizationService, logger, jwtConfiguration.Value, mediator);
+        (_authorizationService, _logger, _jwtSettings, _mediator) =
+               (authorizationService, logger, jwtSettings.Value, mediator);
     }
 
     [HttpPost]

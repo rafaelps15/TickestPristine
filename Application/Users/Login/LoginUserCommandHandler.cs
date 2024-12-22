@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Common;
-using Tickest.Domain.Exceptions;
 
 namespace Tickest.Application.Users.Login;
 
