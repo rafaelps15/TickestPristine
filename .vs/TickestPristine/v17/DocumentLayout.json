@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\dev\\workspace\\projects\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D3968275-FA71-4256-B38D-F9DE9810FAC7}|Application\\Tickest.Application.csproj|c:\\dev\\workspace\\projects\\application\\area\\get\\getareasqueryhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D3968275-FA71-4256-B38D-F9DE9810FAC7}|Application\\Tickest.Application.csproj|solutionrelative:application\\area\\get\\getareasqueryhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D3968275-FA71-4256-B38D-F9DE9810FAC7}|Application\\Tickest.Application.csproj|c:\\dev\\workspace\\projects\\application\\area\\get\\arearesponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D3968275-FA71-4256-B38D-F9DE9810FAC7}|Application\\Tickest.Application.csproj|solutionrelative:application\\area\\get\\arearesponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GetAreasQueryHandler.cs",
+              "DocumentMoniker": "C:\\dev\\workspace\\projects\\Application\\Area\\Get\\GetAreasQueryHandler.cs",
+              "RelativeDocumentMoniker": "Application\\Area\\Get\\GetAreasQueryHandler.cs",
+              "ToolTip": "C:\\dev\\workspace\\projects\\Application\\Area\\Get\\GetAreasQueryHandler.cs",
+              "RelativeToolTip": "Application\\Area\\Get\\GetAreasQueryHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-23T00:09:53.53Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AreaResponse.cs",
+              "DocumentMoniker": "C:\\dev\\workspace\\projects\\Application\\Area\\Get\\AreaResponse.cs",
+              "RelativeDocumentMoniker": "Application\\Area\\Get\\AreaResponse.cs",
+              "ToolTip": "C:\\dev\\workspace\\projects\\Application\\Area\\Get\\AreaResponse.cs",
+              "RelativeToolTip": "Application\\Area\\Get\\AreaResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-23T00:09:46.556Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
