@@ -1,4 +1,5 @@
 Extended Description
+
 Este projeto é uma aplicação backend desenvolvida com .NET 8.0 e projetada utilizando a Clean Architecture. O objetivo é criar um sistema eficiente e escalável para o gerenciamento de chamados (tickets), proporcionando uma estrutura modular que suporte operações robustas e seguras. A aplicação é desenvolvida para garantir a integridade dos dados e a eficiência dos processos.
 
 Funcionalidades Principais
