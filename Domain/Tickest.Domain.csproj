@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable> 
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Contracts\**" />
+    <Compile Remove="Entities\Models\**" />
+    <EmbeddedResource Remove="Contracts\**" />
+    <EmbeddedResource Remove="Entities\Models\**" />
+    <None Remove="Contracts\**" />
+    <None Remove="Entities\Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
