@@ -9,6 +9,7 @@ namespace Tickest.Domain.Interfaces.Repositories;
 /// </summary>
 public interface ITicketRepository : IBaseRepository<Ticket>
 {
+
     /// <summary>
     /// Obtém todos os tickets de acordo com o status informado.
     /// </summary>

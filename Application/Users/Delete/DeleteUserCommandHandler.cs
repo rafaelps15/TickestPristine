@@ -48,7 +48,7 @@ internal sealed class DeleteUserCommandHandler(
 
         #region Exclusão do Usuário
 
-        await userRepository.DeleteByIdAsync(userToDelete.Id, cancellationToken);
+        await userRepository.DeleteAsync(userToDelete.Id, cancellationToken);
         logger.LogInformation("Usuário com ID {UserId} excluído com sucesso.", userToDelete.Id);
 
         #endregion
