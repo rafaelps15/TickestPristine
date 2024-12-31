@@ -11,24 +11,23 @@ internal sealed class GetAreasQueryHandler(IApplicationDbContext context, IAreaR
 {
     public async Task<Result<List<AreaResponse>>> Handle(GetAreasQuery request, CancellationToken cancellationToken)
     {
-        // Recupera todas as áreas via repositório
-        var areas = await areaRepository.GetAllAsync();
+        // Busca as áreas com especialidades
+        var areas = await areaRepository.GetAreasWithSpecialtiesByIdsAsync(request.AreaIds,cancellationToken);
 
         if (areas == null || areas.Any())
         {
             throw new TickestException("Nenhuma área encontrada.");
         }
 
-        // Mapeia as áreas para DTO
-        var response = areas.Select(area => new AreaResponse
-        {
-            Id = area.Id,
-            Name = area.Name,
-            Description = area.Description,
-            SpecialtyName = area.Specialty?.Name ?? "Nenhuma especialidade atribuída"
-        }).ToList();
+        // Mapeia as áreas para DTO(modelos de resposta)
+        var areaResponses = areas.Select(area => new AreaResponse
+        (
+            area.Id,
+            area.Name,
+            area.Description,
+            area.Specialty?.Name ?? "Nenhuma especialidade atribuída"
+        )).ToList();
 
-
-        return Result.Success(response);
+        return Result.Success(areaResponses);
     }
 }
