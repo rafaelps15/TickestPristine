@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
@@ -14,12 +15,18 @@ internal class UserRepository : BaseRepository<User>, IUserRepository
     public async Task<User?> GetUserByEmailAsync(string userEmail, CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()
-                      .FirstOrDefaultAsync(u => u.Email == userEmail);
+                      .FirstOrDefaultAsync(u => u.Email == userEmail, cancellationToken);
 
     public async Task<User?> GetByNameAsync(string userName) =>
-        await _context.Set<User>()
+         await _context.Users
                       .AsNoTracking()
                       .FirstOrDefaultAsync(user => user.Name == userName);
+
+    public async Task<Role> GetUserRoleAsync(User currentUser, CancellationToken cancellationToken) =>
+        await _context.Users
+                      .Where(u => u.Id == currentUser.Id)
+                      .Select(u => u.Role)
+                      .FirstOrDefaultAsync(cancellationToken);  // Retorna a Role ou null
 
     #endregion
 

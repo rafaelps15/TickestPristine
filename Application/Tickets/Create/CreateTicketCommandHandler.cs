@@ -22,6 +22,7 @@ internal sealed class CreateTicketCommandHandler(
 
         #region Validação de Permissões
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUserId = currentUser.Id;
 
         if (currentUser == null)
         {
@@ -30,7 +31,7 @@ internal sealed class CreateTicketCommandHandler(
         }
 
         // Verificar se o usuário tem permissão para criar ticket
-        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser.Id, "CreateTicket");
+        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "CreateTicket");
         if (!hasPermission)
         {
             logger.LogError("Usuário não tem permissão para criar tickets.");
@@ -43,7 +44,7 @@ internal sealed class CreateTicketCommandHandler(
 
         var ticket = new Ticket
         {
-            Id = Guid.NewGuid(),  // Gerando o GUID para o ticket
+            Id = Guid.NewGuid(),  
             Title = command.Title,
             Description = command.Description,
             Priority = command.Priority,

@@ -11,7 +11,7 @@ using Tickest.Domain.Interfaces.Repositories;
 namespace Tickest.Application.Users.GetById;
 
 internal sealed class GetUserByIdQueryHandler
-    (IAuthService _authService, IApplicationDbContext _context, IPermissionProvider _permissionProvider, ISpecialtyRepository _specialtyRepository, IPermissionRepository permission)
+    (IAuthService _authService, IApplicationDbContext _context, IPermissionProvider _permissionProvider)
     : IQueryHandler<GetUserByIdQuery, UserResponse>
 {
 
@@ -24,7 +24,6 @@ internal sealed class GetUserByIdQueryHandler
         // Verificando se o usuário tem permissão para visualizar outros usuários (por exemplo, "ViewUserDetails").
         // var hasPermission = await _permissionProvider.UserHasPermissionAsync(currentUser.Id, "ViewUserDetails");
 
-        // Verifica se o usuário tem permissão para acessar os dados de outro usuário
         if (query.UserId != currentUser.Id)
         {
             throw new TickestException("Você não tem permissão para acessar esses dados.");
@@ -32,26 +31,22 @@ internal sealed class GetUserByIdQueryHandler
 
         // Busca o usuário no banco de dados
         var user = await _context.Users
-            .Where(u => u.Id == query.UserId) 
-            .Include(u => u.UserSpecialties) 
-            .Include(u => u.Permissions)    
+            .Where(u => u.Id == query.UserId)
+            .Include(u => u.Specialties)
             .Select(u => new UserResponse(
                 u.Id,
                 u.Name,
                 u.Email,
-                u.UserSpecialties.Select(us => us.Specialty.Name).ToList(),
-                u.Permissions.Select(p => p.Description).ToList()
-))
+                u.Specialties.Select(s => s.Name).ToList()
+            ))
 
             .FirstOrDefaultAsync(cancellationToken);
 
-        // Se o usuário não for encontrado, lança uma exceção
         if (user == null)
         {
             throw new TickestException($"Usuário com ID {query.UserId} não encontrado.");
         }
 
-        // Retorna o usuário encontrado
         return user;
     }
 }

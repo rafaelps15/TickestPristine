@@ -1,5 +1,6 @@
 ﻿using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Entities.Departments;
+using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Interfaces;
@@ -20,17 +21,42 @@ public class DatabaseSeeder : IDatabaseSeeder
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-        if (!_context.Departments.Any())
+        // Verifica se há dados nas tabelas e faz o seeding apenas se necessário
+        if (!_context.Users.Any())
         {
+            // Criando GUIDs
             var departmentId = Guid.NewGuid();
             var sectorId = Guid.NewGuid();
             var areaId = Guid.NewGuid();
             var specialtyId = Guid.NewGuid();
 
             var adminMasterId = Guid.NewGuid();
-            string passwordAdmin = "@admin123"; 
-            var (adminPasswordHash, adminSalt) = _passwordHasher.HashWithSalt(passwordAdmin); 
+            string passwordAdmin = "@admin123";
+            var (adminPasswordHash, adminSalt) = _passwordHasher.HashWithSalt(passwordAdmin);
 
+            // Criação de Permissões
+            var manageUsersPermission = new Permission
+            {
+                Name = "ManageUsers",
+                Description = "Permissão para gerenciar usuários."
+            };
+
+            var manageTicketsPermission = new Permission
+            {
+                Name = "ManageTickets",
+                Description = "Permissão para gerenciar tickets."
+            };
+
+            var permissions = new List<Permission> { manageUsersPermission, manageTicketsPermission };
+
+            // Criação de Roles
+            var adminMasterRole = new Role
+            {
+                Name = "AdminMaster",
+                Permissions = new List<Permission> { manageUsersPermission, manageTicketsPermission }
+            };
+
+            // Criação de usuários
             var adminMaster = new User
             {
                 Id = adminMasterId,
@@ -38,13 +64,19 @@ public class DatabaseSeeder : IDatabaseSeeder
                 Email = "adminmaster@tickest.com",
                 PasswordHash = adminPasswordHash,
                 Salt = adminSalt,
-                Role = "AdminMaster",
+                Role = adminMasterRole, 
                 IsActive = true
             };
 
             var testUserId = Guid.NewGuid();
             string passwordTeste = "@teste123";
             var (testPasswordHash, testSalt) = _passwordHasher.HashWithSalt(passwordTeste);
+
+            var testUserRole = new Role
+            {
+                Name = "User",
+                Permissions = new List<Permission> { manageTicketsPermission } // Associando permissões
+            };
 
             var testUser = new User
             {
@@ -53,44 +85,62 @@ public class DatabaseSeeder : IDatabaseSeeder
                 Email = "testuser@tickest.com",
                 PasswordHash = testPasswordHash,
                 Salt = testSalt,
-                Role = "Analista",
+                Role = testUserRole, 
                 IsActive = true
             };
 
+            _context.Roles.Add(adminMasterRole);
+            _context.Roles.Add(testUserRole);
+            _context.Permissions.AddRange(permissions);
             _context.Users.Add(adminMaster);
             _context.Users.Add(testUser);
 
-            _context.Departments.Add(new Department
+            // Criação de Departamentos
+            var department = new Department
             {
                 Id = departmentId,
                 Name = "Tecnologia da Informação",
-                Description = "Departamento responsável por gerenciar TI"
-            });
+                Description = "Departamento responsável por gerenciar TI",
+                SectorId = sectorId, 
+                DepartmentManagerId = adminMasterId // Gestor do departamento
+            };
 
-            _context.Sectors.Add(new Sector
+            _context.Departments.Add(department);
+
+            // Criação de Setores
+            var sector = new Sector
             {
                 Id = sectorId,
                 Name = "Desenvolvimento",
                 Description = "Setor de Desenvolvimento de Software",
-                DepartmentId = departmentId
-            });
+                SectorManagerId = adminMasterId // Gestor do setor
+            };
 
-            _context.Areas.Add(new Area
+            _context.Sectors.Add(sector);
+
+            // Criação de Áreas
+            var area = new Area
             {
                 Id = areaId,
                 Name = "Desenvolvimento Backend",
                 Description = "Foco no desenvolvimento de APIs",
-                SectorId = sectorId,
-                ResponsibleUserId = testUserId, 
-                SpecialtyId = specialtyId
-            });
+                DepartmentId = departmentId, // Departamento ao qual a área pertence
+            };
 
-            _context.Specialties.Add(new Specialty
+            _context.Areas.Add(area);
+
+            // Criação de Especialidades
+            var specialty = new Specialty
             {
                 Id = specialtyId,
                 Name = "ASP.NET Core",
                 Description = "Desenvolvimento utilizando o framework ASP.NET Core"
-            });
+            };
+
+            _context.Specialties.Add(specialty);
+
+            // Relacionamento entre usuário e área
+            area.Users = new List<User> { testUser }; 
 
             await _context.SaveChangesAsync(cancellationToken);
         }

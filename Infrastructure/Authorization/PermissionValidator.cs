@@ -1,49 +1,53 @@
-﻿using Tickest.Application.Abstractions.Authentication;
-using Microsoft.Extensions.Logging;
+﻿//using Microsoft.Extensions.Logging;
+//using Tickest.Application.Abstractions.Authentication;
+//using Tickest.Domain.Entities.Users;
+//using Tickest.Domain.Exceptions;
 
-namespace Tickest.Infrastructure.Authorization;
+//namespace Tickest.Infrastructure.Authorization;
 
-public class PermissionValidator
-{
-    private readonly IAuthService _authService;
-    private readonly IPermissionProvider _permissionProvider;
-    private readonly ILogger<PermissionValidator> _logger;
+//public class PermissionValidator
+//{
+//    private readonly IAuthService _authService;
+//    private readonly IPermissionProvider _permissionProvider;
+//    private readonly ILogger<PermissionValidator> _logger;
 
-    #region Construtor
+//    #region Construtor
 
-    public PermissionValidator(
-        IAuthService authService,
-        IPermissionProvider permissionProvider,
-        ILogger<PermissionValidator> logger)
-        => (_authService, _permissionProvider, _logger) = (authService, permissionProvider, logger);
+//    public PermissionValidator(
+//        IAuthService authService,
+//        IPermissionProvider permissionProvider,
+//        ILogger<PermissionValidator> logger)
+//        => (_authService, _permissionProvider, _logger) = (authService, permissionProvider, logger);
 
-    #endregion
+//    #endregion
 
-    public async Task<bool> HasRequiredPermissionsAsync(Guid userId, HashSet<string> requiredPermissions, CancellationToken cancellationToken)
-    {
-        // Tenta obter o usuário atual de maneira simplificada
-        var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
+//    // Verifica se o usuário possui todas as permissões requeridas
+//    public async Task<bool> HasRequiredPermissionsAsync(Guid userId, HashSet<string> requiredPermissions, CancellationToken cancellationToken)
+//    {
+//        // Obtém as permissões do usuário
+//        var userPermissions = await _permissionProvider.GetPermissionsForUserAsync(userId);
 
-        // Se não encontrar o usuário ou o ID não corresponder, retorna false e loga
-        if (currentUser?.Id != userId)
-        {
-            _logger.LogWarning("Usuário não encontrado ou não autorizado.");
-            return false;
-        }
+//        // Verifica se o usuário possui todas as permissões requeridas
+//        return requiredPermissions.IsSubsetOf(userPermissions);
+//    }
 
-        try
-        {
-            // Obtém as permissões do usuário
-            var userPermissions = await _permissionProvider.GetPermissionsForUserAsync(userId);
+//    // Valida se o usuário tem permissão para realizar uma ação específica
+//    public async Task ValidatePermissionAsync(User currentUser, string permission, CancellationToken cancellationToken)
+//    {
+//        if (currentUser == null)
+//        {
+//            _logger.LogError("Usuário não autenticado.");
+//            throw new TickestException("Usuário não autenticado.");
+//        }
 
-            // Verifica se o usuário possui todas as permissões requeridas
-            return requiredPermissions.IsSubsetOf(userPermissions);
-        }
-        catch (Exception ex)
-        {
-            // Loga qualquer erro ocorrido
-            _logger.LogError(ex, "Erro ao validar permissões do usuário.");
-            return false;
-        }
-    }
-}
+//        var permissions = await _permissionProvider.GetPermissionsForUserAsync(currentUser.Id);
+
+//        if (!permissions.Contains(permission))
+//        {
+//            _logger.LogError("Usuário {UserId} não tem permissão para {Permission}.", currentUser.Id, permission);
+//            throw new TickestException($"Usuário não tem permissão para {permission}.");
+//        }
+
+//        _logger.LogInformation("Usuário {UserId} tem permissão para {Permission}.", currentUser.Id, permission);
+//    }
+//}

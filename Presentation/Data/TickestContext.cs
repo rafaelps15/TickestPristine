@@ -32,10 +32,11 @@ public class TickestContext : DbContext, IApplicationDbContext
     public DbSet<Department> Departments { get; set; }
     public DbSet<Area> Areas { get; set; }
     public DbSet<Specialty> Specialties { get; set; }
-    public DbSet<UserSpecialty> UserSpecialties { get; set; }
-    public DbSet<Permission> Permissions { get; set; }
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<Message> Messages { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,10 +1,11 @@
 ﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Departments;
 using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Specialties;
+using Tickest.Domain.Entities.Tickets;
 
 namespace Tickest.Domain.Entities.Users;
 
-#region User
 /// <summary>
 /// User: Representa um usuário no sistema, com suas informações e permissões associadas.
 /// </summary>
@@ -15,17 +16,25 @@ public class User : EntityBase
     public string PasswordHash { get; set; }
     public string Salt { get; set; }
 
-    // Relação N:N com especialidades
-    public ICollection<UserSpecialty> UserSpecialties { get; set; }
+    // Relacionamento com a entidade Role
+    public Guid RoleId { get; set; }
+    public Role Role { get; set; }
 
-    // Relação N:N com áreas e especialidades
-    public ICollection<AreaUserSpecialty> AreaUserSpecialties { get; set; }
+    // Relacionamento N:N com as especialidades
+    public ICollection<Specialty> Specialties { get; set; }
 
-    // Permissões associadas ao usuário
+    // Relacionamento N:N com as áreas
+    public ICollection<Area> Areas { get; set; }
+
+    // Coleção de mensagens enviadas por este usuário
+    public ICollection<Message> Messages { get; set; }
+
+    // Relacionamento muitos-para-muitos com Roles (caso um usuário tenha múltiplos papéis)
+    public ICollection<Role> Roles { get; set; }
+
+    // Relacionamento muitos-para-muitos com Permissões
     public ICollection<Permission> Permissions { get; set; }
-
-    // Relação N:N com papéis
-    public ICollection<UserRole> UserRoles { get; set; }
-    public string Role { get; set; }
+    
 }
-#endregion
+
+

@@ -1,43 +1,56 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Users;
 
-namespace Tickest.Infrastructure.Persistence.Configurations;
+namespace Tickest.Persistence.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        // Configurações básicas da entidade User
-        builder.Property(u => u.Name).IsRequired().HasMaxLength(200);
-        builder.Property(u => u.Email).IsRequired().HasMaxLength(200);
-        builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
-        builder.Property(u => u.Salt).IsRequired().HasMaxLength(255);
+        // Configuração da chave primária
+        builder.HasKey(u => u.Id);
 
-        // Relacionamento N:N com Specialties (via UserSpecialty)
-        builder.HasMany(u => u.UserSpecialties)
-            .WithOne() // Relacionamento configurado apenas no lado de UserSpecialty
-            .HasForeignKey(us => us.UserId)
-            .OnDelete(DeleteBehavior.Restrict); // As especialidades não serão deletadas ao excluir o usuário
+        // Configuração dos campos
+        builder.Property(u => u.Name)
+            .IsRequired()
+            .HasMaxLength(100);
 
-        // Relacionamento N:N com Areas e Specialties (via AreaUserSpecialty)
-        builder.HasMany(u => u.AreaUserSpecialties)
-            .WithOne() // Relacionamento configurado apenas no lado de AreaUserSpecialty
-            .HasForeignKey(aus => aus.UserId)
-            .OnDelete(DeleteBehavior.Restrict); // As áreas não serão deletadas ao excluir o usuário
+        builder.Property(u => u.Email)
+            .IsRequired()
+            .HasMaxLength(100);
 
-        // Relacionamento N:N com Permissions (as permissões serão deletadas ao excluir o usuário)
+        builder.Property(u => u.PasswordHash)
+            .IsRequired();
+
+        builder.Property(u => u.Salt)
+            .IsRequired();
+
+        // Relacionamento com Role (um-para-muitos)
+        builder.HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId)
+            .IsRequired();
+
+        // Relacionamento N:N com Specialties
+        builder.HasMany(u => u.Specialties)
+            .WithMany(s => s.Users)
+            .UsingEntity(j => j.ToTable("UserSpecialties"));
+
+        // Relacionamento N:N com Areas
+        builder.HasMany(u => u.Areas)
+            .WithMany(a => a.Users)
+            .UsingEntity(j => j.ToTable("UserAreas"));
+
+        // Relacionamento N:N com Permissions
         builder.HasMany(u => u.Permissions)
-            .WithMany() // Sem necessidade de coleções em Permission
-            .UsingEntity<Dictionary<string, object>>(
-                "UserPermissions",
-                j => j.HasOne<Permission>().WithMany().HasForeignKey("PermissionId")
-                    .OnDelete(DeleteBehavior.Cascade), // Permissões serão deletadas ao excluir o usuário
-                j => j.HasOne<User>().WithMany().HasForeignKey("UserId")
-            );
+            .WithMany(p => p.Users)
+            .UsingEntity(j => j.ToTable("UserPermissions"));
 
-        // Configuração de tabela
-        builder.ToTable("Users");
+        // Relacionamento de mensagens enviadas por este usuário
+        builder.HasMany(u => u.Messages)
+            .WithOne(m => m.Sender)
+            .HasForeignKey(m => m.SenderId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

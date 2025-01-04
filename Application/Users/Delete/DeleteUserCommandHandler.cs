@@ -23,14 +23,21 @@ internal sealed class DeleteUserCommandHandler(
         #region Validação de Permissões
 
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currenteUserId = currentUser.Id;
 
         if (currentUser == null)
         {
-            logger.LogError("Usuário não autenticado. Requisição de exclusão não permitida.");
-            throw new TickestException("Usuário não autenticado. Operação de exclusão falhou.");
+            logger.LogError("Usuário não autenticado.");
+            throw new TickestException("Usuário não encontrado.");
         }
 
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, "DeleteUser");
+        // Verificando se o usuário tem permissão 
+        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "DeleteUser");
+        if (!hasPermission)
+        {
+            logger.LogWarning("Usuário {userId} não tem permisão para deletar o ticket.", currenteUserId);
+            throw new Exception("Usuário não tem permisisão para deletar");
+        }
 
         #endregion
 

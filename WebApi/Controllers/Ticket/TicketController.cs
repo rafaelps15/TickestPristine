@@ -7,7 +7,7 @@ using Tickest.Application.Tickets.Create;
 using Tickest.Application.Tickets.Update;
 using Tickest.Infrastructure.Authentication;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.Ticket;
 
 [Route("api/[controller]")]
 [ApiController]

@@ -9,17 +9,16 @@ namespace Tickest.Domain.Entities.Tickets;
 /// </summary>
 public class Message : EntityBase
 {
-    public string Content { get; set; }
-    public DateTime SentAt { get; set; }
-    public bool IsEdited { get; set; }
+    public string Content { get; set; } // Conteúdo da mensagem
+    public DateTime SentDate { get; set; } // Data e hora do envio
 
-    public int TicketId { get; set; }
-    public Ticket Ticket { get; set; } // Relacionamento com Ticket
+    public Guid? SenderId { get; set; }
+    public User Sender { get; set; }
 
-    public int UserId { get; set; }
-    public User User { get; set; } // Relacionamento com User
+    public Guid? ReceiverId { get; set; }
+    public User Receiver { get; set; }
 
-    public int? RepliedToMessageId { get; set; }
-    public Message RepliedToMessage { get; set; } // Relacionamento com Message (para mensagens respondidas)
+    public Guid TicketId { get; set; }
+    public Ticket Ticket { get; set; }
 }
 #endregion

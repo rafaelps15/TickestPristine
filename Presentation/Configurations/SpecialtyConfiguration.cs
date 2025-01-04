@@ -2,26 +2,29 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Specialties;
 
-namespace Tickest.Infrastructure.Persistence.Configurations;
-
+namespace Tickest.Persistence.Configurations;
 public class SpecialtyConfiguration : IEntityTypeConfiguration<Specialty>
 {
     public void Configure(EntityTypeBuilder<Specialty> builder)
     {
-        // Configuração da chave primária
+        // Chave primária
         builder.HasKey(s => s.Id);
-
-        // Configuração da tabela
-        builder.ToTable("Specialties");
 
         // Propriedades
         builder.Property(s => s.Name)
             .IsRequired()
-            .HasMaxLength(150);
+            .HasMaxLength(200);  // Ajuste o tamanho máximo conforme necessário
 
         builder.Property(s => s.Description)
-            .HasMaxLength(500); // Tamanho máximo para descrição
+            .IsRequired(false)  // Pode ser opcional
+            .HasMaxLength(500);  // Ajuste o tamanho máximo conforme necessário
 
-        // Relacionamento N:N com áreas e usuários é configurado no lado de AreaUserSpecialty
+        // Relacionamento N:N com os usuários
+        builder.HasMany(s => s.Users)
+            .WithMany(u => u.Specialties)  // Supondo que a classe `User` tenha a propriedade `Specialties`
+            .UsingEntity(j => j.ToTable("UserSpecialties"));  // Nome da tabela de junção
+
+        builder.ToTable("Specialties");
+
     }
 }

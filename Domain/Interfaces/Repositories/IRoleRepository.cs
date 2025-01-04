@@ -1,13 +1,12 @@
-﻿using Tickest.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Entities.Permissions;
+using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-/// <summary>
-/// Interface para o repositório de roles (papéis) do sistema.
-/// Herda de IGenericRepository para operações básicas de CRUD.
-/// </summary>
 public interface IRoleRepository : IBaseRepository<Role>
 {
-   
+    Task<Role> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken);
+
+  
 }

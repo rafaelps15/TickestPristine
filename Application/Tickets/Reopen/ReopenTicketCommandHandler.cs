@@ -23,7 +23,9 @@ internal sealed class ReopenTicketCommandHandler(
         logger.LogInformation("Iniciando a reabertura do ticket.");
 
         #region Validação de Permissões
+
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUserId = currentUser.Id;
 
         if (currentUser == null)
         {
@@ -32,7 +34,12 @@ internal sealed class ReopenTicketCommandHandler(
         }
 
         // Validar permissão do usuário
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, "ReopenTicket");
+        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "ReopenTicket");
+        if (hasPermission)
+        {
+            logger.LogWarning("Usuário {UserId} não tem premissão para realizar a abertura do ticket.", currentUserId);
+            throw new TickestException("Usuário não tem permissão para reabrir o ticket.");
+        }
         #endregion
 
         #region Obtenção do Ticket

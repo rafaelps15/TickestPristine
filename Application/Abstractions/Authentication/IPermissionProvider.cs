@@ -1,49 +1,50 @@
-﻿namespace Tickest.Application.Abstractions.Authentication;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Tickest.Domain.Entities.Users;
 
-/// <summary>
-/// Interface responsável por fornecer permissões para usuários e papéis.
-/// </summary>
-public interface IPermissionProvider
+namespace Tickest.Application.Abstractions.Authentication
 {
     /// <summary>
-    /// Verifica se o usuário tem permissão para acessar o sistema.
+    /// Provides methods for handling permissions related to users and roles.
     /// </summary>
-    /// <param name="userId">O ID do usuário.</param>
-    /// <returns>Retorna true se o usuário tiver permissão para acessar o sistema, caso contrário, false.</returns>
-    Task<bool> CanUserLoginAsync(Guid userId);
+    public interface IPermissionProvider
+    {
+        /// <summary>
+        /// Retrieves the permissions assigned to a specific user.
+        /// This includes both individual permissions and those associated with the user's roles.
+        /// </summary>
+        /// <param name="user">The user whose permissions are to be retrieved.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a set of permissions.</returns>
+        Task<HashSet<string>> GetPermissionsForUserAsync(User user);
 
-    /// <summary>
-    /// Obtém as permissões atribuídas a um usuário específico.
-    /// Isso pode incluir permissões diretamente atribuídas ou permissões herdadas de papéis.
-    /// </summary>
-    /// <param name="userId">Identificador único do usuário.</param>
-    /// <returns>Conjunto de permissões atribuídas ao usuário.</returns>
-    /// <exception cref="ArgumentException">Lançada se o <paramref name="userId"/> for inválido.</exception>
-    Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId);
+        /// <summary>
+        /// Retrieves the permissions associated with a specific role.
+        /// </summary>
+        /// <param name="roleName">The name of the role whose permissions are to be retrieved.</param>
+        /// <returns>A set of permissions associated with the role.</returns>
+        HashSet<string> GetPermissionsForRole(string roleName);
 
-    /// <summary>
-    /// Obtém as permissões associadas a um papel específico.
-    /// </summary>
-    /// <param name="roleName">Nome do papel para o qual as permissões são recuperadas.</param>
-    /// <returns>Conjunto de permissões associadas ao papel.</returns>
-    /// <exception cref="ArgumentException">Lançada se o <paramref name="roleName"/> for inválido.</exception>
-    HashSet<string> GetPermissionsForRole(string roleName);
+        /// <summary>
+        /// Checks if a user has a specific permission.
+        /// </summary>
+        /// <param name="user">The user to check the permission for.</param>
+        /// <param name="permission">The permission to check.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating whether the user has the permission.</returns>
+        Task<bool> UserHasPermissionAsync(User user, string permission);
 
-    /// <summary>
-    /// Verifica se um usuário possui uma permissão específica.
-    /// </summary>
-    /// <param name="userId">Identificador único do usuário.</param>
-    /// <param name="permission">A permissão a ser verificada.</param>
-    /// <returns>Retorna true se o usuário tiver a permissão; caso contrário, false.</returns>
-    /// <exception cref="ArgumentException">Lançada se o <paramref name="userId"/> ou <paramref name="permission"/> for inválido.</exception>
-    Task<bool> UserHasPermissionAsync(Guid userId, string permission);
+        /// <summary>
+        /// Validates if a user has a specific permission. 
+        /// Throws an exception if the user does not have the permission.
+        /// </summary>
+        /// <param name="user">The user to check the permission for.</param>
+        /// <param name="permission">The permission to validate.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task ValidatePermissionAsync(User user, string permission);
 
-    /// <summary>
-    /// Valida se um usuário possui uma permissão específica.
-    /// Lança uma exceção caso o usuário não tenha a permissão necessária.
-    /// </summary>
-    /// <param name="userId">Identificador único do usuário.</param>
-    /// <param name="permission">A permissão a ser verificada.</param>
-    /// <exception cref="TickestException">Lançada se o usuário não tiver a permissão.</exception>
-    Task ValidatePermissionAsync(Guid userId, string permission);
+        /// <summary>
+        /// Retrieves a list of all available roles.
+        /// </summary>
+        /// <returns>A list of role names.</returns>
+        List<string> GetAvailableRoles();
+    }
 }

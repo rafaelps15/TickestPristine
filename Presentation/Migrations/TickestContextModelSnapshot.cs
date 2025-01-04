@@ -22,6 +22,66 @@ namespace Tickest.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AreaUser", b =>
+                {
+                    b.Property<Guid>("AreaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AreaId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAreas", (string)null);
+                });
+
+            modelBuilder.Entity("PermissionRole", b =>
+                {
+                    b.Property<Guid>("PermissionsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RolesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PermissionsId", "RolesId");
+
+                    b.HasIndex("RolesId");
+
+                    b.ToTable("RolePermissions", (string)null);
+                });
+
+            modelBuilder.Entity("PermissionUser", b =>
+                {
+                    b.Property<Guid>("PermissionsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PermissionsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("UserPermissions", (string)null);
+                });
+
+            modelBuilder.Entity("SpecialtyUser", b =>
+                {
+                    b.Property<Guid>("SpecialtiesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SpecialtiesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("UserSpecialties", (string)null);
+                });
+
             modelBuilder.Entity("Tickest.Domain.Entities.Auths.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -77,13 +137,20 @@ namespace Tickest.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("AreaManagerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeactivatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -101,32 +168,16 @@ namespace Tickest.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("ResponsibleUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SectorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("SectorId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SpecialtyId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ResponsibleUserId");
+                    b.HasIndex("AreaManagerId");
 
-                    b.HasIndex("SectorId");
+                    b.HasIndex("DepartmentId");
 
-                    b.HasIndex("SectorId1");
-
-                    b.HasIndex("SpecialtyId");
-
-                    b.ToTable("Areas", (string)null);
+                    b.ToTable("Areas");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Departments.Department", b =>
@@ -141,6 +192,9 @@ namespace Tickest.Persistence.Migrations
                     b.Property<DateTime?>("DeactivatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("DepartmentManagerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -159,7 +213,7 @@ namespace Tickest.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid?>("ResponsibleUserId")
+                    b.Property<Guid>("SectorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdateAt")
@@ -167,7 +221,9 @@ namespace Tickest.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ResponsibleUserId");
+                    b.HasIndex("DepartmentManagerId");
+
+                    b.HasIndex("SectorId");
 
                     b.ToTable("Departments", (string)null);
                 });
@@ -184,12 +240,6 @@ namespace Tickest.Persistence.Migrations
                     b.Property<DateTime?>("DeactivatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DepartmentId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -208,7 +258,7 @@ namespace Tickest.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("ResponsibleUserId")
+                    b.Property<Guid?>("SectorManagerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdateAt")
@@ -216,11 +266,7 @@ namespace Tickest.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("DepartmentId1");
-
-                    b.HasIndex("ResponsibleUserId");
+                    b.HasIndex("SectorManagerId");
 
                     b.ToTable("Sectors", (string)null);
                 });
@@ -238,7 +284,6 @@ namespace Tickest.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -250,6 +295,11 @@ namespace Tickest.Persistence.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
@@ -272,7 +322,6 @@ namespace Tickest.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -285,62 +334,22 @@ namespace Tickest.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
-
-                    b.ToTable("Role");
-                });
-
-            modelBuilder.Entity("Tickest.Domain.Entities.Permissions.UserRole", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("UserRole");
-                });
-
-            modelBuilder.Entity("Tickest.Domain.Entities.Specialties.AreaUserSpecialty", b =>
-                {
-                    b.Property<Guid>("AreaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SpecialtyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("AreaId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("SpecialtyId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("AreaId", "UserId", "SpecialtyId");
-
-                    b.HasIndex("AreaId1");
-
-                    b.HasIndex("SpecialtyId");
-
-                    b.HasIndex("SpecialtyId1");
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("UserId1");
-
-                    b.ToTable("AreaUserSpecialties", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Specialties.Specialty", b =>
@@ -370,8 +379,8 @@ namespace Tickest.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
@@ -381,19 +390,61 @@ namespace Tickest.Persistence.Migrations
                     b.ToTable("Specialties", (string)null);
                 });
 
-            modelBuilder.Entity("Tickest.Domain.Entities.Specialties.UserSpecialty", b =>
+            modelBuilder.Entity("Tickest.Domain.Entities.Tickets.Message", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("SpecialtyId")
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeactivatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ReceiverId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserId", "SpecialtyId");
+                    b.Property<Guid?>("SenderId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasIndex("SpecialtyId");
+                    b.Property<DateTime>("SentDate")
+                        .HasColumnType("datetime2");
 
-                    b.ToTable("UserSpecialties");
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("TicketId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("TicketId1");
+
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Tickets.Ticket", b =>
@@ -418,8 +469,9 @@ namespace Tickest.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
@@ -479,8 +531,8 @@ namespace Tickest.Persistence.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
@@ -493,43 +545,88 @@ namespace Tickest.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Role")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Salt")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("UserPermissions", b =>
+            modelBuilder.Entity("AreaUser", b =>
                 {
-                    b.Property<Guid>("PermissionId")
-                        .HasColumnType("uniqueidentifier");
+                    b.HasOne("Tickest.Domain.Entities.Departments.Area", null)
+                        .WithMany()
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.HasOne("Tickest.Domain.Entities.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.HasKey("PermissionId", "UserId");
+            modelBuilder.Entity("PermissionRole", b =>
+                {
+                    b.HasOne("Tickest.Domain.Entities.Permissions.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasIndex("UserId");
+                    b.HasOne("Tickest.Domain.Entities.Permissions.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.ToTable("UserPermissions");
+            modelBuilder.Entity("PermissionUser", b =>
+                {
+                    b.HasOne("Tickest.Domain.Entities.Permissions.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Tickest.Domain.Entities.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SpecialtyUser", b =>
+                {
+                    b.HasOne("Tickest.Domain.Entities.Specialties.Specialty", null)
+                        .WithMany()
+                        .HasForeignKey("SpecialtiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Tickest.Domain.Entities.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Auths.RefreshToken", b =>
@@ -543,143 +640,84 @@ namespace Tickest.Persistence.Migrations
 
             modelBuilder.Entity("Tickest.Domain.Entities.Departments.Area", b =>
                 {
-                    b.HasOne("Tickest.Domain.Entities.Users.User", "ResponsibleUser")
+                    b.HasOne("Tickest.Domain.Entities.Users.User", "AreaManager")
                         .WithMany()
-                        .HasForeignKey("ResponsibleUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Tickest.Domain.Entities.Departments.Sector", null)
-                        .WithMany("Areas")
-                        .HasForeignKey("SectorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Tickest.Domain.Entities.Departments.Sector", "Sector")
-                        .WithMany()
-                        .HasForeignKey("SectorId1");
-
-                    b.HasOne("Tickest.Domain.Entities.Specialties.Specialty", "Specialty")
-                        .WithMany()
-                        .HasForeignKey("SpecialtyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ResponsibleUser");
-
-                    b.Navigation("Sector");
-
-                    b.Navigation("Specialty");
-                });
-
-            modelBuilder.Entity("Tickest.Domain.Entities.Departments.Department", b =>
-                {
-                    b.HasOne("Tickest.Domain.Entities.Users.User", "ResponsibleUser")
-                        .WithMany()
-                        .HasForeignKey("ResponsibleUserId")
+                        .HasForeignKey("AreaManagerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("ResponsibleUser");
-                });
-
-            modelBuilder.Entity("Tickest.Domain.Entities.Departments.Sector", b =>
-                {
-                    b.HasOne("Tickest.Domain.Entities.Departments.Department", null)
-                        .WithMany("Sectors")
+                    b.HasOne("Tickest.Domain.Entities.Departments.Department", "Department")
+                        .WithMany("Areas")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Tickest.Domain.Entities.Departments.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId1");
-
-                    b.HasOne("Tickest.Domain.Entities.Users.User", "ResponsibleUser")
-                        .WithMany()
-                        .HasForeignKey("ResponsibleUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Navigation("AreaManager");
 
                     b.Navigation("Department");
-
-                    b.Navigation("ResponsibleUser");
                 });
 
-            modelBuilder.Entity("Tickest.Domain.Entities.Permissions.UserRole", b =>
+            modelBuilder.Entity("Tickest.Domain.Entities.Departments.Department", b =>
                 {
-                    b.HasOne("Tickest.Domain.Entities.Permissions.Role", "Role")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("RoleId")
+                    b.HasOne("Tickest.Domain.Entities.Users.User", "DepartmentManager")
+                        .WithMany()
+                        .HasForeignKey("DepartmentManagerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Tickest.Domain.Entities.Departments.Sector", "Sector")
+                        .WithMany("Departments")
+                        .HasForeignKey("SectorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Tickest.Domain.Entities.Users.User", "User")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("DepartmentManager");
 
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
+                    b.Navigation("Sector");
                 });
 
-            modelBuilder.Entity("Tickest.Domain.Entities.Specialties.AreaUserSpecialty", b =>
+            modelBuilder.Entity("Tickest.Domain.Entities.Departments.Sector", b =>
                 {
-                    b.HasOne("Tickest.Domain.Entities.Departments.Area", "Area")
+                    b.HasOne("Tickest.Domain.Entities.Users.User", "SectorManager")
                         .WithMany()
-                        .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SectorManagerId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Tickest.Domain.Entities.Departments.Area", null)
-                        .WithMany("AreaUserSpecialties")
-                        .HasForeignKey("AreaId1");
+                    b.Navigation("SectorManager");
+                });
 
-                    b.HasOne("Tickest.Domain.Entities.Specialties.Specialty", "Specialty")
-                        .WithMany()
-                        .HasForeignKey("SpecialtyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Tickest.Domain.Entities.Specialties.Specialty", null)
-                        .WithMany("AreaUserSpecialties")
-                        .HasForeignKey("SpecialtyId1");
-
+            modelBuilder.Entity("Tickest.Domain.Entities.Permissions.Role", b =>
+                {
                     b.HasOne("Tickest.Domain.Entities.Users.User", null)
-                        .WithMany("AreaUserSpecialties")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Tickest.Domain.Entities.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId1");
-
-                    b.Navigation("Area");
-
-                    b.Navigation("Specialty");
-
-                    b.Navigation("User");
+                        .WithMany("Roles")
+                        .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("Tickest.Domain.Entities.Specialties.UserSpecialty", b =>
+            modelBuilder.Entity("Tickest.Domain.Entities.Tickets.Message", b =>
                 {
-                    b.HasOne("Tickest.Domain.Entities.Specialties.Specialty", "Specialty")
-                        .WithMany("UserSpecialties")
-                        .HasForeignKey("SpecialtyId")
+                    b.HasOne("Tickest.Domain.Entities.Users.User", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Tickest.Domain.Entities.Users.User", "Sender")
+                        .WithMany("Messages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Tickest.Domain.Entities.Tickets.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Tickest.Domain.Entities.Users.User", "User")
-                        .WithMany("UserSpecialties")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Tickest.Domain.Entities.Tickets.Ticket", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("TicketId1");
 
-                    b.Navigation("Specialty");
+                    b.Navigation("Receiver");
 
-                    b.Navigation("User");
+                    b.Navigation("Sender");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Tickets.Ticket", b =>
@@ -724,55 +762,42 @@ namespace Tickest.Persistence.Migrations
                     b.Navigation("Sector");
                 });
 
-            modelBuilder.Entity("UserPermissions", b =>
+            modelBuilder.Entity("Tickest.Domain.Entities.Users.User", b =>
                 {
-                    b.HasOne("Tickest.Domain.Entities.Permissions.Permission", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Tickest.Domain.Entities.Permissions.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Tickest.Domain.Entities.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Tickest.Domain.Entities.Departments.Area", b =>
-                {
-                    b.Navigation("AreaUserSpecialties");
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Departments.Department", b =>
                 {
-                    b.Navigation("Sectors");
+                    b.Navigation("Areas");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Departments.Sector", b =>
                 {
-                    b.Navigation("Areas");
+                    b.Navigation("Departments");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Permissions.Role", b =>
                 {
-                    b.Navigation("UserRoles");
+                    b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("Tickest.Domain.Entities.Specialties.Specialty", b =>
+            modelBuilder.Entity("Tickest.Domain.Entities.Tickets.Ticket", b =>
                 {
-                    b.Navigation("AreaUserSpecialties");
-
-                    b.Navigation("UserSpecialties");
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Users.User", b =>
                 {
-                    b.Navigation("AreaUserSpecialties");
+                    b.Navigation("Messages");
 
-                    b.Navigation("UserRoles");
-
-                    b.Navigation("UserSpecialties");
+                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

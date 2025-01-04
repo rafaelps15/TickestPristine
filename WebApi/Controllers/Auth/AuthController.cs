@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tickest.Application.Users.Login;
 
-namespace WebApi.Controllers
+namespace WebApi.Controllers.Auth
 {
     [ApiController]
     [Route("api/[controller]")]

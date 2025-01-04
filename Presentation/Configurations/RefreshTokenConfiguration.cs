@@ -9,34 +9,37 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
     public void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
-        builder.ToTable("RefreshTokens");
-
+        // Definindo a chave primária
         builder.HasKey(rt => rt.Id);
 
-        builder.HasOne<User>()  
-            .WithMany() // Muitos refresh tokens para um usuário
-            .HasForeignKey(rt => rt.UserId)
+        // Propriedades
+        builder.Property(rt => rt.UserId)
             .IsRequired();
 
-        // Configura o campo Token como não nulo
         builder.Property(rt => rt.Token)
             .IsRequired()
-            .HasMaxLength(500); 
+            .HasMaxLength(500);  // Ajuste o tamanho do Token conforme necessário
 
-        // Configura o campo ExpiresAt como não nulo
         builder.Property(rt => rt.ExpiresAt)
             .IsRequired();
 
-        // Configura o campo IsRevoked como não nulo
         builder.Property(rt => rt.IsRevoked)
             .IsRequired()
-            .HasDefaultValue(false);
+            .HasDefaultValue(false);  // Valor padrão para "não revogado"
 
-        // Configura o campo IsUsed como não nulo
         builder.Property(rt => rt.IsUsed)
             .IsRequired()
-            .HasDefaultValue(false);
+            .HasDefaultValue(false);  // Valor padrão para "não usado"
 
-        builder.HasIndex(rt => rt.UserId);
+        // Relacionamento: Um RefreshToken pertence a um Usuário
+        builder.HasOne<User>()  // Supondo que haja uma classe Usuario no seu domínio
+            .WithMany()  // Um usuário pode ter vários tokens de refresh
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Cascade);  // Excluir tokens ao excluir o usuário
+
+        builder.ToTable("RefreshTokens");
+
+
+        // Outras validações e regras de negócios podem ser aplicadas aqui, conforme necessário
     }
 }

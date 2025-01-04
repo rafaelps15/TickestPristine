@@ -1,37 +1,46 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Departments;
+using Tickest.Domain.Entities.Users;
 
-namespace Tickest.Infrastructure.Persistence.Configurations;
+namespace Tickest.Persistence.Configurations;
 
 public class AreaConfiguration : IEntityTypeConfiguration<Area>
 {
     public void Configure(EntityTypeBuilder<Area> builder)
     {
-        // Configuração da chave primária
+        // Configuração da chave primária (herdada da EntityBase)
         builder.HasKey(a => a.Id);
 
-        // Configuração das propriedades
+        // Configuração do nome da área
         builder.Property(a => a.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(100); // Definindo o tamanho máximo para o nome
 
+        // Configuração da descrição da área
         builder.Property(a => a.Description)
-            .HasMaxLength(500);
+            .IsRequired()
+            .HasMaxLength(500); // Definindo o tamanho máximo para a descrição
 
-        // Relacionamento com o responsável pela área
-        builder.HasOne(a => a.ResponsibleUser)
-            .WithMany() // Um usuário pode ser responsável por várias áreas
-            .HasForeignKey(a => a.ResponsibleUserId)
-            .OnDelete(DeleteBehavior.Restrict); // Comportamento de exclusão
+        // Relacionamento N:1 com o Departamento
+        builder.HasOne(a => a.Department)
+            .WithMany(d => d.Areas)
+            .HasForeignKey(a => a.DepartmentId)
+            .OnDelete(DeleteBehavior.Cascade); // Quando o Departamento for excluído, as Áreas associadas também serão excluídas.
 
-        // Relação N:N com usuários e especialidades
-        builder.HasMany(a => a.AreaUserSpecialties)
-            .WithOne() // Relacionamento sem a necessidade de um lado explícito em AreaUserSpecialty
-            .HasForeignKey(aus => aus.AreaId)
-            .OnDelete(DeleteBehavior.Cascade); // Exclusão em cascata
+        // Relacionamento 1:1 com o Gerente da Área
+        builder.HasOne(a => a.AreaManager)
+            .WithMany()
+            .HasForeignKey(a => a.AreaManagerId)
+            .OnDelete(DeleteBehavior.SetNull); // Se o Gerente for excluído, o campo AreaManagerId se tornará NULL
 
-        // Configuração de tabela
-        builder.ToTable("Areas");
+        // Relacionamento N:N com os Usuários (definindo a tabela de junção)
+        builder.HasMany(a => a.Users)
+            .WithMany(u => u.Areas)
+            .UsingEntity<Dictionary<string, object>>(
+                "AreaUser", // Nome da tabela de junção
+                j => j.HasOne<User>().WithMany().HasForeignKey("UserId").OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<Area>().WithMany().HasForeignKey("AreaId").OnDelete(DeleteBehavior.Cascade)
+            );
     }
 }

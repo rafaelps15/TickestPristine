@@ -12,11 +12,12 @@ internal class AreaRepository : BaseRepository<Area>, IAreaRepository
     public AreaRepository(TickestContext context) : base(context) =>
         _context = context;
 
-    public async Task<List<Area>> GetAreasWithSpecialtiesByIdsAsync(List<Guid> areaIds, CancellationToken cancellationToken)
-    {
-        return await _context.Areas
-            .Include(area => area.Specialty)
-            .Where(area => areaIds.Contains(area.Id))
-            .ToListAsync(cancellationToken);
-    }
+    //public async Task<List<Area>> GetAllAreasAsync(CancellationToken cancellationToken)
+    //{
+    //    return await _context.Areas
+    //        .AsNoTracking()
+    //        .Include(a => a.Department)
+    //        .Include(a => a.Users)
+    //        .ToListAsync(cancellationToken);
+    //}
 }

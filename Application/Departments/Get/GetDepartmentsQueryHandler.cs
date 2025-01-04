@@ -1,10 +1,11 @@
-﻿using Tickest.Application.Abstractions.Data;
+﻿using System.Linq;
+using Tickest.Application.Abstractions.Data;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Departments;
+namespace Tickest.Application.Departments.Get;
 
 internal sealed class GetDepartmentsQueryHandler(IApplicationDbContext context, IDepartmentRepository departmentRepository)
     : IQueryHandler<GetDepartmentsQuery, List<DepartmentResponse>>
@@ -20,14 +21,13 @@ internal sealed class GetDepartmentsQueryHandler(IApplicationDbContext context, 
         }
 
         // Mapeia os departamentos para DTO
-        var response = departments.Select(department => new DepartmentResponse
-        {
-            Id = department.Id,
-            Name = department.Name,
-            Description = department.Description,
-            ResponsibleUserName = department.ResponsibleUser?.Name ?? "Nenhum responsável atribúido",
-            SectorNames = department.Sectors?.Select(s => s.Name).ToList() ?? new List<string>()
-        }).ToList();
+        var response = departments.Select(department => new DepartmentResponse(
+            department.Id,
+            department.Name,
+            department.Description,
+            department.DepartmentManager?.Name ?? "Nenhum responsável atribúido",
+            department.Sector?.Name ?? "Nenhum setor atribuído" 
+        )).ToList();
 
         return Result.Success(response);
     }

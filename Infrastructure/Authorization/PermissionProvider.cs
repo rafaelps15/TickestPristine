@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
+using Tickest.Domain.Entities.Permissions;
+using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
@@ -9,8 +11,6 @@ internal sealed class PermissionProvider : IPermissionProvider
 {
     #region Campos Privados
 
-    private readonly IUserRepository _userRepository;
-    private readonly IPermissionRepository _permissionRepository;
     private readonly ILogger<PermissionProvider> _logger;
     private readonly Dictionary<string, Func<HashSet<string>>> _rolePermissions;
 
@@ -18,12 +18,9 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     #region Construtor
 
-    public PermissionProvider(
-        IUserRepository userRepository,
-        IPermissionRepository permissionRepository,
-        ILogger<PermissionProvider> logger)
-        => (_userRepository, _permissionRepository, _logger, _rolePermissions) =
-            (userRepository, permissionRepository, logger, InitializeRolePermissions());
+    public PermissionProvider(ILogger<PermissionProvider> logger)
+        => (_logger, _rolePermissions) =
+            (logger, InitializeRolePermissions());
 
     #endregion
 
@@ -32,43 +29,43 @@ internal sealed class PermissionProvider : IPermissionProvider
     private static HashSet<string> GetMasterAdminPermissions() => new()
     {
         "FullSystemControl", "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments",
-        "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings","AccessSystem"
+        "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings", "AccessSystem"
     };
 
     private static HashSet<string> GetGeneralAdminPermissions() => new()
     {
         "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments", "ManageAreas",
-        "ManageTickets", "ViewReports","AccessSystem"
+        "ManageTickets", "ViewReports", "AccessSystem"
     };
 
     private static HashSet<string> GetSectorAdminPermissions() => new()
     {
-        "ManageSectors", "ManageDepartments", "ManageAreas","AccessSystem"
+        "ManageSectors", "ManageDepartments", "ManageAreas", "AccessSystem"
     };
 
     private static HashSet<string> GetDepartmentAdminPermissions() => new()
     {
-        "ManageDepartments", "ManageAreas", "AssignDepartmentRoles","AccessSystem"
+        "ManageDepartments", "ManageAreas", "AssignDepartmentRoles", "AccessSystem"
     };
 
     private static HashSet<string> GetAreaAdminPermissions() => new()
     {
-        "ManageAreas", "ManageTasks", "ManageCollaborators","AccessSystem"
+        "ManageAreas", "ManageTasks", "ManageCollaborators", "AccessSystem"
     };
 
     private static HashSet<string> GetTicketManagerPermissions() => new()
     {
-        "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance","AccessSystem"
+        "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance", "AccessSystem"
     };
 
     private static HashSet<string> GetCollaboratorPermissions() => new()
     {
-        "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst","AccessSystem"
+        "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst", "AccessSystem"
     };
 
     private static HashSet<string> GetSupportAnalystPermissions() => new()
     {
-        "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester","AccessSystem"
+        "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester", "AccessSystem"
     };
 
     #endregion
@@ -92,26 +89,22 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     #region Métodos de Permissões
 
-    public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
+    public Task<HashSet<string>> GetPermissionsForUserAsync(User user)
     {
-        if (userId == Guid.Empty)
-            throw new TickestException("O ID do usuário não pode ser vazio.", nameof(userId));
-
         var permissions = new HashSet<string>();
 
-        // Obtém permissões atribuídas diretamente ao usuário
-        var userPermissions = await GetPermissionsForUserDirectlyAsync(userId);
-        permissions.UnionWith(userPermissions);
+        // Obtém permissões diretamente associadas ao usuário
+        permissions.UnionWith(user.Permissions?.Select(p => p.Name) ?? Enumerable.Empty<string>());
 
-        return permissions;
+        // Se necessário, inclui permissões associadas aos papéis do usuário
+        foreach (var role in user.Roles ?? Enumerable.Empty<Role>())
+        {
+            permissions.UnionWith(role.Permissions?.Select(p => p.Name) ?? Enumerable.Empty<string>());
+        }
+
+        return Task.FromResult(permissions);
     }
 
-    private Task<IEnumerable<string>> GetPermissionsForUserDirectlyAsync(Guid userId)
-    {
-        // Implementação do repositório de permissões de usuários
-        // Este método será implementado para buscar as permissões atribuídas diretamente ao usuário.
-        throw new TickestException();
-    }
 
     public HashSet<string> GetPermissionsForRole(string roleName)
         => _rolePermissions.TryGetValue(roleName, out var permissions)
@@ -122,12 +115,12 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     #region Verificação de Permissão
 
-    public async Task<bool> UserHasPermissionAsync(Guid userId, string permission)
+    public async Task<bool> UserHasPermissionAsync(User user, string permission)
     {
         try
         {
             // Verifica se o usuário tem a permissão
-            var userPermissions = await GetPermissionsForUserAsync(userId);
+            var userPermissions = await GetPermissionsForUserAsync(user);
             return userPermissions.Contains(permission);
         }
         catch (TickestException ex)
@@ -137,23 +130,25 @@ internal sealed class PermissionProvider : IPermissionProvider
         }
     }
 
-    public async Task ValidatePermissionAsync(Guid userId, string permission)
+    public async Task ValidatePermissionAsync(User user, string permission)
     {
-        var hasPermission = await UserHasPermissionAsync(userId, permission);
+        var hasPermission = await UserHasPermissionAsync(user, permission);
 
         if (!hasPermission)
         {
-            _logger.LogError("Usuário {UserId} não tem permissão para {Permission}.", userId, permission);
+            _logger.LogError("Usuário {UserId} não tem permissão para {Permission}.", user.Id, permission);
             throw new TickestException($"Usuário não tem permissão para {permission}.");
         }
 
-        _logger.LogInformation("Usuário {UserId} tem permissão para a ação {Permission}.", userId, permission);
-    }
-
-    public async Task<bool> CanUserLoginAsync(Guid userId)
-    {
-        return await UserHasPermissionAsync(userId, "AccessSystem");
+        _logger.LogInformation("Usuário {UserId} tem permissão para a ação {Permission}.", user.Id, permission);
     }
 
     #endregion
+
+    // Método que retorna os papéis disponíveis
+    public List<string> GetAvailableRoles()
+    {
+        return _rolePermissions.Keys.ToList();
+    }
+
 }

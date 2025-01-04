@@ -2,34 +2,35 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Departments;
 
-namespace Tickest.Infrastructure.Persistence.Configurations;
+namespace Tickest.Persistence.Configurations;
 
 public class SectorConfiguration : IEntityTypeConfiguration<Sector>
 {
     public void Configure(EntityTypeBuilder<Sector> builder)
     {
-        // Configuração da chave primária
+        // Configura a chave primária
         builder.HasKey(s => s.Id);
 
-        // Configuração das propriedades
+        // Configura o nome do setor, sendo obrigatório e com limite de 100 caracteres
         builder.Property(s => s.Name)
-            .IsRequired()
-            .HasMaxLength(100);
+               .IsRequired()
+               .HasMaxLength(100);
 
+        // Configura a descrição do setor, com limite de 500 caracteres
         builder.Property(s => s.Description)
-            .HasMaxLength(500);
+               .HasMaxLength(500);
 
-        // Relacionamento com o responsável do setor
-        builder.HasOne(s => s.ResponsibleUser)
-            .WithMany() // Um usuário pode ser responsável por vários setores
-            .HasForeignKey(s => s.ResponsibleUserId)
-            .OnDelete(DeleteBehavior.Restrict); // Comportamento de exclusão
+        // Relacionamento 1:1 com o Gestor do Setor (User)
+        builder.HasOne(s => s.SectorManager)  // Um setor tem um gestor
+               .WithMany()  // O gestor pode estar associado a vários setores
+               .HasForeignKey(s => s.SectorManagerId)  // Chave estrangeira no setor
+               .OnDelete(DeleteBehavior.SetNull);  // Se o gestor for excluído, o campo do gestor no setor será nulo
 
-        // Relacionamento com a área (no lado do setor)
-        builder.HasMany(s => s.Areas) // Relacionamento com áreas
-            .WithOne() // Não precisa de um relacionamento explícito no lado da área
-            .HasForeignKey(a => a.SectorId) // Chave estrangeira no lado da área
-            .OnDelete(DeleteBehavior.Cascade); // Exclusão em cascata
+        // Relacionamento 1:N com Departamentos
+        builder.HasMany(s => s.Departments)  // Um setor pode ter vários departamentos
+               .WithOne(d => d.Sector)  // Cada departamento pertence a um setor
+               .HasForeignKey(d => d.SectorId)  // Chave estrangeira no departamento
+               .OnDelete(DeleteBehavior.Cascade);  // Se o setor for excluído, os departamentos associados também serão excluídos
 
         // Configuração de tabela
         builder.ToTable("Sectors");

@@ -41,6 +41,8 @@ public class Ticket : EntityBase
     public Guid AreaId { get; set; }
     public Area Area { get; set; } // Área (ex: Frontend, Backend, etc.)
 
+    // Relacionamento com as mensagens
+    public List<Message> Messages { get; set; }  
 }
 
 #endregion

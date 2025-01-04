@@ -1,17 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tickest.Domain.Entities;
 using Tickest.Domain.Entities.Permissions;
+using Tickest.Domain.Entities.Users;
+using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class RoleRepository : BaseRepository<Role>, IRoleRepository
+public class RoleRepository : BaseRepository<Role>, IRoleRepository
 {
-    private readonly TickestContext _context;
+    protected readonly TickestContext _context;
 
-    public RoleRepository(TickestContext context) : base(context) =>
-        _context = context;
+    public RoleRepository(TickestContext context) : base(context)
+        => _context = context;
 
-  
+    #region Métodos de consulta
+
+    public async Task<Role> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken) =>
+        await _context.Set<Role>()
+           .Where(r => r.Name == roleName)
+           .FirstOrDefaultAsync(cancellationToken)// Retorna um único Role ou null
+        ?? throw new TickestException($"Função com o nome '{roleName}' não encontrada.");
+
+    #endregion
 }

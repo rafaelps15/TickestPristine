@@ -1,5 +1,6 @@
 using Application;
 using Serilog;
+using Tickest.Domain.Interfaces;
 using Tickest.Infrastructure;
 using Tickest.Infrastructure.Authentication;
 using Tickest.Infrastructure.Mvc.Middlewares;
@@ -61,5 +62,20 @@ app.UseAuthentication();   // Ativa a autenticação com JWT
 app.UseAuthorization();    // Habilita a autorização para rotas protegidas
 
 app.MapControllers(); // Mapeia os controladores
+
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+         var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
+    await seeder.SeedAsync(CancellationToken.None);
+    }
+    catch (Exception ex)
+    {
+
+        Log.Error(ex, "Erro durante o seeding de dados.");
+    }
+   
+}
 
 app.Run(); // Inicia a aplicação

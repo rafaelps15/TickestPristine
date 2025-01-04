@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Sector\Create\" />
     <Folder Include="Users\Get\" />
   </ItemGroup>
 

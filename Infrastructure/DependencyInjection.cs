@@ -58,7 +58,7 @@ public static class DependencyInjection
     {
         // Registra serviços necessários para o controle de permissões
         services.AddScoped<IPermissionProvider, PermissionProvider>();
-        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        //services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
         // Configuração opcional de políticas de autorização

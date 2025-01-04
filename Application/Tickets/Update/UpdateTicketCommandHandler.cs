@@ -21,6 +21,7 @@ internal sealed class UpdateTicketCommandHandler(
         #region Validação de Permissões
 
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUserId = currentUser.Id;
 
         if (currentUser == null)
         {
@@ -28,7 +29,13 @@ internal sealed class UpdateTicketCommandHandler(
             throw new TickestException("Usuário não autenticado. A operação de edição do ticket falhou porque o usuário não está autenticado.");
         }
 
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, "EditTicket");
+        //Parei aqui.
+        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "EditTicket");
+        if (!hasPermission)
+        {
+            logger.LogWarning("Usuário {UserId} não tem premissão para realizar update no ticket.", currentUserId);
+            throw new TickestException("Usuário não tem permissão para update.");
+        }
 
         #endregion
 

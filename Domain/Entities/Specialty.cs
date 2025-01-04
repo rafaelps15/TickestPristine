@@ -1,4 +1,5 @@
 ﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Entities.Specialties;
 
@@ -8,11 +9,10 @@ namespace Tickest.Domain.Entities.Specialties;
 /// </summary>
 public class Specialty : EntityBase
 {
-    public string Name { get; set; }
+    public string Name { get; set; } 
     public string Description { get; set; }
 
-    // Relacionamento N:N com áreas e usuários
-    public ICollection<AreaUserSpecialty> AreaUserSpecialties { get; set; }
-    public ICollection<UserSpecialty> UserSpecialties { get; set; }
+    public List<User> Users { get; set; }  // Relacionamento N:N com os Usuários (um usuário pode ter várias especialidades)
+
 }
 #endregion

@@ -7,7 +7,6 @@ using Tickest.Domain.Exceptions;
 namespace Tickest.Application.Users.Login;
 
 internal sealed class LoginUserCommandHandler(
-    IPasswordHasher passwordHasher,
     IAuthService authService,
     ITokenProvider tokenProvider,
     IPermissionProvider permissionProvider,
@@ -28,7 +27,7 @@ internal sealed class LoginUserCommandHandler(
         // Após a autenticação, verifica as permissões do usuário
         var user = await authService.GetCurrentUserAsync(cancellationToken);
 
-        await permissionProvider.CanUserLoginAsync(user.Id);
+        //Verificar se será necessário verificar o papel do usuario para fazer login 
 
         logger.LogInformation($"Usuário {command.Email} autenticado com sucesso.");
 

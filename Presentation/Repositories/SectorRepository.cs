@@ -12,10 +12,5 @@ internal class SectorRepository : BaseRepository<Sector>,ISectorRepository
     public SectorRepository(TickestContext context) : base(context) =>
         _context = context;
 
-    public async Task<Sector> GetByIdWithDetailsAsync(Guid sectorId) =>
-       await _context.Sectors
-            .Include(s => s.Department)
-            .Include(s => s.ResponsibleUser)
-            .Include(s => s.Areas)
-            .FirstOrDefaultAsync(s => s.Id == sectorId);
+  
 }

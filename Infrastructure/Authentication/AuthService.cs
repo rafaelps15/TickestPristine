@@ -64,10 +64,9 @@ public class AuthService : IAuthService
         };
     }
 
-
     public async Task<User> GetCurrentUserAsync(CancellationToken cancellationToken)
     {
-        var email = GetEmailFromContext();
+        var email = GetEmailFromContext(); // Recupera o e-mail do usuário a partir do token JWT
         var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken);
 
         if (user == null)
@@ -130,6 +129,7 @@ public class AuthService : IAuthService
 
         return user;
     }
+
 
     #endregion
 }
