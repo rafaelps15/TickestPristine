@@ -19,6 +19,7 @@ namespace WebApi.Controllers.User
             _mediator = mediator;
         }
 
+        //[Authorize(Roles = "AdminMaster")]
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserCommand command) =>

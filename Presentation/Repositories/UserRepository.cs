@@ -15,6 +15,7 @@ internal class UserRepository : BaseRepository<User>, IUserRepository
     public async Task<User?> GetUserByEmailAsync(string userEmail, CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()
+                      .Include(p => p.Role)
                       .FirstOrDefaultAsync(u => u.Email == userEmail, cancellationToken);
 
     public async Task<User?> GetByNameAsync(string userName) =>

@@ -67,15 +67,15 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
-         var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
-    await seeder.SeedAsync(CancellationToken.None);
+        var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
+        await seeder.SeedAsync(CancellationToken.None);
     }
     catch (Exception ex)
     {
 
         Log.Error(ex, "Erro durante o seeding de dados.");
     }
-   
+
 }
 
 app.Run(); // Inicia a aplicação

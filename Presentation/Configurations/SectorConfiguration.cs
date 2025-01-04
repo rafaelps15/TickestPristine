@@ -30,7 +30,7 @@ public class SectorConfiguration : IEntityTypeConfiguration<Sector>
         builder.HasMany(s => s.Departments)  // Um setor pode ter vários departamentos
                .WithOne(d => d.Sector)  // Cada departamento pertence a um setor
                .HasForeignKey(d => d.SectorId)  // Chave estrangeira no departamento
-               .OnDelete(DeleteBehavior.Cascade);  // Se o setor for excluído, os departamentos associados também serão excluídos
+               .OnDelete(DeleteBehavior.NoAction);  // Evita a exclusão em cascata para evitar ciclos
 
         // Configuração de tabela
         builder.ToTable("Sectors");

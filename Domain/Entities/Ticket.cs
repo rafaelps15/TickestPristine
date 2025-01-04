@@ -18,7 +18,7 @@ public class Ticket : EntityBase
 
 
     // Relacionamento com o usuário que abriu o ticket
-    public Guid OpenedByUserId { get; set; }
+    public Guid? OpenedByUserId { get; set; }
     public User OpenedByUser { get; set; } // Usuário que abriu o ticket (ex: Cliente ou Colaborador)
 
 

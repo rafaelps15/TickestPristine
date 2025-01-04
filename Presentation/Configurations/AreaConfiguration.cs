@@ -26,7 +26,7 @@ public class AreaConfiguration : IEntityTypeConfiguration<Area>
         builder.HasOne(a => a.Department)
             .WithMany(d => d.Areas)
             .HasForeignKey(a => a.DepartmentId)
-            .OnDelete(DeleteBehavior.Cascade); // Quando o Departamento for excluído, as Áreas associadas também serão excluídas.
+            .OnDelete(DeleteBehavior.NoAction); // Impede a exclusão em cascata
 
         // Relacionamento 1:1 com o Gerente da Área
         builder.HasOne(a => a.AreaManager)

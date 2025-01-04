@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Tickets;
+using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Persistence.Configurations;
 
@@ -8,36 +9,33 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
 {
     public void Configure(EntityTypeBuilder<Message> builder)
     {
-        // Define a chave primária
-        builder.HasKey(m => m.Id);
-
-        // Define a tabela
         builder.ToTable("Messages");
 
-        // Define o relacionamento com o Sender (Remetente)
-        builder.HasOne(m => m.Sender)
-            .WithMany()  // Relacionamento 1:N (um usuário pode ter várias mensagens enviadas)
-            .HasForeignKey(m => m.SenderId)
-            .OnDelete(DeleteBehavior.Restrict); // Evita cascata ou ciclo (NO ACTION ou RESTRICT)
+        builder.HasKey(m => m.Id); // Supondo que 'Id' é a chave primária
 
-        // Define o relacionamento com o Receiver (Destinatário)
-        builder.HasOne(m => m.Receiver)
-            .WithMany()  // Relacionamento 1:N (um usuário pode ter várias mensagens recebidas)
-            .HasForeignKey(m => m.ReceiverId)
-            .OnDelete(DeleteBehavior.Restrict); // Definindo a ação de deleção como SetNull
-
-        // Define o relacionamento com o Ticket
-        builder.HasOne(m => m.Ticket)
-            .WithMany()  // Relacionamento 1:N (um ticket pode ter várias mensagens)
-            .HasForeignKey(m => m.TicketId)
-            .OnDelete(DeleteBehavior.Cascade); // Se o ticket for excluído, as mensagens também são excluídas
-
-        // Define os tamanhos máximos das propriedades
         builder.Property(m => m.Content)
-            .IsRequired() // Define que o conteúdo da mensagem é obrigatório
-            .HasMaxLength(1000); // Define o tamanho máximo do conteúdo
+            .IsRequired()
+            .HasMaxLength(1000); // Defina o comprimento conforme necessário
 
         builder.Property(m => m.SentDate)
-            .IsRequired(); // Define que a data de envio é obrigatória
+            .IsRequired();
+
+        // Configuração do relacionamento com o Ticket
+        builder.HasOne(m => m.Ticket)
+            .WithMany(t => t.Messages)
+            .HasForeignKey(m => m.TicketId)
+            .OnDelete(DeleteBehavior.Cascade); // Se o ticket for excluído, as mensagens serão excluídas
+
+        // Relacionamento com o Sender
+        builder.HasOne(m => m.Sender)
+            .WithMany() // Caso o Sender não precise de uma coleção de mensagens
+            .HasForeignKey(m => m.SenderId)
+            .OnDelete(DeleteBehavior.NoAction); // Não excluir o Sender quando a mensagem for excluída
+
+        // Relacionamento com o Receiver
+        builder.HasOne(m => m.Receiver)
+            .WithMany() // Caso o Receiver não precise de uma coleção de mensagens
+            .HasForeignKey(m => m.ReceiverId)
+            .OnDelete(DeleteBehavior.NoAction); // Não excluir o Receiver quando a mensagem for excluída
     }
 }

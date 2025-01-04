@@ -19,6 +19,12 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.Property(r => r.Description)
             .HasMaxLength(200);
 
+        builder.Property(r => r.IsActive)
+            .HasDefaultValue(true);
+
+        builder.Property(r => r.IsDeleted)
+            .HasDefaultValue(false);
+
         // Relacionamento N:N com Permissions
         builder.HasMany(r => r.Permissions)
             .WithMany(p => p.Roles)

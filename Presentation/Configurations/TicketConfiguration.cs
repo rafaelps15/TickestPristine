@@ -8,52 +8,56 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 {
     public void Configure(EntityTypeBuilder<Ticket> builder)
     {
-        // Configuração das propriedades
+        builder.ToTable("Tickets");
+
+        builder.HasKey(t => t.Id); // Supondo que 'Id' é a chave primária
+
         builder.Property(t => t.Title)
             .IsRequired()
-            .HasMaxLength(200); // Limita o título do ticket a 200 caracteres
+            .HasMaxLength(200);
 
         builder.Property(t => t.Description)
-            .IsRequired()
-            .HasMaxLength(1000); // Limita a descrição a 1000 caracteres
-
-        builder.Property(t => t.Priority)
-            .IsRequired(); // A prioridade é obrigatória
+            .HasMaxLength(1000);
 
         builder.Property(t => t.Status)
-            .IsRequired(); // O status é obrigatório
+            .IsRequired();
 
-        // Relacionamento com o usuário que abriu o ticket
+        builder.Property(t => t.Priority)
+            .IsRequired();
+
+        // Configuração dos relacionamentos com User
         builder.HasOne(t => t.OpenedByUser)
-            .WithMany()
+            .WithMany() // Defina como Many caso queira que o usuário tenha uma coleção de Tickets
             .HasForeignKey(t => t.OpenedByUserId)
-            .OnDelete(DeleteBehavior.Restrict); // Restrição de deletação
+            .OnDelete(DeleteBehavior.NoAction) // Impede exclusões automáticas
+            .IsRequired(false);  // Permite nulos
 
-        // Relacionamento com o usuário atribuído ao ticket
         builder.HasOne(t => t.AssignedToUser)
-            .WithMany()
+            .WithMany() // Defina como Many caso queira que o usuário tenha uma coleção de Tickets
             .HasForeignKey(t => t.AssignedToUserId)
-            .OnDelete(DeleteBehavior.SetNull); // Deleta o relacionamento, mas não o usuário
+            .OnDelete(DeleteBehavior.NoAction) // Impede exclusões automáticas
+            .IsRequired(false);  // Permite nulos
 
-        // Relacionamento com o departamento
+        // Relacionamento com o Departamento, Setor e Área
         builder.HasOne(t => t.Department)
             .WithMany()
             .HasForeignKey(t => t.DepartmentId)
-            .OnDelete(DeleteBehavior.Restrict); // Restrição de deletação
+            .OnDelete(DeleteBehavior.Cascade);  
 
-        // Relacionamento com o setor
         builder.HasOne(t => t.Sector)
             .WithMany()
             .HasForeignKey(t => t.SectorId)
-            .OnDelete(DeleteBehavior.Restrict); // Restrição de deletação
+            .OnDelete(DeleteBehavior.Cascade);  
 
-        // Relacionamento com a área
         builder.HasOne(t => t.Area)
             .WithMany()
             .HasForeignKey(t => t.AreaId)
-            .OnDelete(DeleteBehavior.Restrict); // Restrição de deletação
+            .OnDelete(DeleteBehavior.Cascade);  
 
-        // Configuração de tabela
-        builder.ToTable("Tickets");
+        // Relacionamento com as mensagens
+        builder.HasMany(t => t.Messages)
+            .WithOne(m => m.Ticket)
+            .HasForeignKey(m => m.TicketId)
+            .OnDelete(DeleteBehavior.Cascade);  
     }
 }

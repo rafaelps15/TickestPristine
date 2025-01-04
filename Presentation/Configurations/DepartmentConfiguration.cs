@@ -24,7 +24,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
         builder.HasOne(d => d.Sector) // Cada departamento pertence a um setor
                .WithMany(s => s.Departments) // Um setor pode ter vários departamentos
                .HasForeignKey(d => d.SectorId) // Chave estrangeira no departamento
-               .OnDelete(DeleteBehavior.Cascade); // Se o setor for excluído, os departamentos também serão excluídos
+               .OnDelete(DeleteBehavior.NoAction); // Evita a exclusão em cascata para evitar ciclos
 
         // Relacionamento 1:1 com o Gestor do Departamento (User)
         builder.HasOne(d => d.DepartmentManager) // O departamento tem um gestor
@@ -36,7 +36,6 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
         builder.HasMany(d => d.Areas) // Cada departamento pode ter várias áreas
                .WithOne(a => a.Department) // Cada área pertence a um departamento
                .HasForeignKey(a => a.DepartmentId); // Chave estrangeira na área
-
 
         // Configuração de tabela
         builder.ToTable("Departments");

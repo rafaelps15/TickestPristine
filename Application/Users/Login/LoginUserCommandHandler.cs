@@ -17,21 +17,18 @@ internal sealed class LoginUserCommandHandler(
         // Reaproveita o método AuthenticateAsync do AuthService
         var tokenResponse = await authService.AuthenticateAsync(command.Email, command.Password, cancellationToken);
 
-        if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.Token))
+        if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
         {
             throw new TickestException("Falha ao gerar o token.");
         }
 
         logger.LogInformation($"Usuário {command.Email} autenticado com sucesso.");
 
-        // Após a autenticação, verifica as permissões do usuário
-        var user = await authService.GetCurrentUserAsync(cancellationToken);
-
         //Verificar se será necessário verificar o papel do usuario para fazer login 
 
         logger.LogInformation($"Usuário {command.Email} autenticado com sucesso.");
 
         // Retorna o token gerado
-        return Result.Success(tokenResponse.Token);
+        return Result.Success(tokenResponse.AccessToken);
     }
 }

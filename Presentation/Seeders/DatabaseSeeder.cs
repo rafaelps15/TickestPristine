@@ -1,4 +1,5 @@
 ﻿using Tickest.Application.Abstractions.Authentication;
+using Tickest.Domain.Common;
 using Tickest.Domain.Entities.Departments;
 using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Specialties;
@@ -34,37 +35,17 @@ public class DatabaseSeeder : IDatabaseSeeder
             string passwordAdmin = "@admin123";
             var (adminPasswordHash, adminSalt) = _passwordHasher.HashWithSalt(passwordAdmin);
 
-            // Criação de Permissões
-            var manageUsersPermission = new Permission
-            {
-                Name = "ManageUsers",
-                Description = "Permissão para gerenciar usuários."
-            };
-
-            var manageTicketsPermission = new Permission
-            {
-                Name = "ManageTickets",
-                Description = "Permissão para gerenciar tickets."
-            };
-
-            var permissions = new List<Permission> { manageUsersPermission, manageTicketsPermission };
-
-            // Criação de Roles
-            var adminMasterRole = new Role
-            {
-                Name = "AdminMaster",
-                Permissions = new List<Permission> { manageUsersPermission, manageTicketsPermission }
-            };
+            var adminRole = _context.Roles.FirstOrDefault(p => p.Name == TickestRoleDefaults.AdminMaster);
 
             // Criação de usuários
-            var adminMaster = new User
+            var adminTeste = new User
             {
                 Id = adminMasterId,
                 Name = "AdminMaster",
                 Email = "adminmaster@tickest.com",
                 PasswordHash = adminPasswordHash,
                 Salt = adminSalt,
-                Role = adminMasterRole, 
+                Role = adminRole, 
                 IsActive = true
             };
 
@@ -72,12 +53,7 @@ public class DatabaseSeeder : IDatabaseSeeder
             string passwordTeste = "@teste123";
             var (testPasswordHash, testSalt) = _passwordHasher.HashWithSalt(passwordTeste);
 
-            var testUserRole = new Role
-            {
-                Name = "User",
-                Permissions = new List<Permission> { manageTicketsPermission } // Associando permissões
-            };
-
+            var testeRole = _context.Roles.FirstOrDefault(p => p.Name == TickestRoleDefaults.AdminGeneral);
             var testUser = new User
             {
                 Id = testUserId,
@@ -85,14 +61,12 @@ public class DatabaseSeeder : IDatabaseSeeder
                 Email = "testuser@tickest.com",
                 PasswordHash = testPasswordHash,
                 Salt = testSalt,
-                Role = testUserRole, 
+                Role = testeRole, 
                 IsActive = true
             };
-
-            _context.Roles.Add(adminMasterRole);
-            _context.Roles.Add(testUserRole);
-            _context.Permissions.AddRange(permissions);
-            _context.Users.Add(adminMaster);
+ 
+            //_context.Permissions.AddRange(permissions);
+            _context.Users.Add(adminTeste);
             _context.Users.Add(testUser);
 
             // Criação de Departamentos

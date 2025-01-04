@@ -12,8 +12,8 @@ using Tickest.Persistence.Data;
 namespace Tickest.Persistence.Migrations
 {
     [DbContext(typeof(TickestContext))]
-    [Migration("20250104000411_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250104145518_AddDataRoles")]
+    partial class AddDataRoles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -157,9 +157,6 @@ namespace Tickest.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -201,9 +198,6 @@ namespace Tickest.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -247,9 +241,6 @@ namespace Tickest.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -290,9 +281,6 @@ namespace Tickest.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -328,14 +316,15 @@ namespace Tickest.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -370,9 +359,6 @@ namespace Tickest.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -410,9 +396,6 @@ namespace Tickest.Persistence.Migrations
                     b.Property<DateTime?>("DeactivatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -431,9 +414,6 @@ namespace Tickest.Persistence.Migrations
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TicketId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
@@ -444,8 +424,6 @@ namespace Tickest.Persistence.Migrations
                     b.HasIndex("SenderId");
 
                     b.HasIndex("TicketId");
-
-                    b.HasIndex("TicketId1");
 
                     b.ToTable("Messages", (string)null);
                 });
@@ -472,12 +450,8 @@ namespace Tickest.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -485,7 +459,7 @@ namespace Tickest.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("OpenedByUserId")
+                    b.Property<Guid?>("OpenedByUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Priority")
@@ -536,9 +510,6 @@ namespace Tickest.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -651,7 +622,7 @@ namespace Tickest.Persistence.Migrations
                     b.HasOne("Tickest.Domain.Entities.Departments.Department", "Department")
                         .WithMany("Areas")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("AreaManager");
@@ -669,7 +640,7 @@ namespace Tickest.Persistence.Migrations
                     b.HasOne("Tickest.Domain.Entities.Departments.Sector", "Sector")
                         .WithMany("Departments")
                         .HasForeignKey("SectorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("DepartmentManager");
@@ -699,7 +670,7 @@ namespace Tickest.Persistence.Migrations
                     b.HasOne("Tickest.Domain.Entities.Users.User", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Tickest.Domain.Entities.Users.User", "Sender")
                         .WithMany("Messages")
@@ -707,14 +678,10 @@ namespace Tickest.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Tickest.Domain.Entities.Tickets.Ticket", "Ticket")
-                        .WithMany()
+                        .WithMany("Messages")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Tickest.Domain.Entities.Tickets.Ticket", null)
-                        .WithMany("Messages")
-                        .HasForeignKey("TicketId1");
 
                     b.Navigation("Receiver");
 
@@ -728,30 +695,29 @@ namespace Tickest.Persistence.Migrations
                     b.HasOne("Tickest.Domain.Entities.Departments.Area", "Area")
                         .WithMany()
                         .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Tickest.Domain.Entities.Users.User", "AssignedToUser")
                         .WithMany()
                         .HasForeignKey("AssignedToUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Tickest.Domain.Entities.Departments.Department", "Department")
                         .WithMany()
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Tickest.Domain.Entities.Users.User", "OpenedByUser")
                         .WithMany()
                         .HasForeignKey("OpenedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Tickest.Domain.Entities.Departments.Sector", "Sector")
                         .WithMany()
                         .HasForeignKey("SectorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Area");

@@ -9,6 +9,7 @@ using Tickest.Application.Abstractions.Authentication;
 using Tickest.Infrastructure.Authentication;
 using System.Text;
 using Tickest.Domain.Exceptions;
+using Tickest.Domain.Interfaces;
 
 namespace Tickest.Infrastructure;
 

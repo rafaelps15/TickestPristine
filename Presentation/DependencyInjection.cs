@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tickest.Application.Abstractions.Data;
+using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 using Tickest.Persistence.Repositories;
+using Tickest.Persistence.Seeders;
 
 namespace Tickest.Persistence;
 
@@ -33,7 +35,7 @@ public static class DependencyInjection
         services.AddScoped<IRoleRepository, RoleRepository>();
 
         // Registra o serviço que será utilizado para popular o banco de dados na primeira execução
-        //services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
+        services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
 
         return services;
     }

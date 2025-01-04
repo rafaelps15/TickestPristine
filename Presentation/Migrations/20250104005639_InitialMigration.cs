@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Tickest.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -101,7 +101,6 @@ namespace Tickest.Persistence.Migrations
                     SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ReceiverId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TicketId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TicketId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -305,10 +304,10 @@ namespace Tickest.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     Priority = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    OpenedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OpenedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AssignedToUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SectorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -328,31 +327,29 @@ namespace Tickest.Persistence.Migrations
                         column: x => x.AreaId,
                         principalTable: "Areas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Tickets_Departments_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Departments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Tickets_Sectors_SectorId",
                         column: x => x.SectorId,
                         principalTable: "Sectors",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Tickets_Users_AssignedToUserId",
                         column: x => x.AssignedToUserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Tickets_Users_OpenedByUserId",
                         column: x => x.OpenedByUserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -389,11 +386,6 @@ namespace Tickest.Persistence.Migrations
                 name: "IX_Messages_TicketId",
                 table: "Messages",
                 column: "TicketId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Messages_TicketId1",
-                table: "Messages",
-                column: "TicketId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_UserId",
@@ -465,8 +457,7 @@ namespace Tickest.Persistence.Migrations
                 table: "Areas",
                 column: "DepartmentId",
                 principalTable: "Departments",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Areas_Users_AreaManagerId",
@@ -481,8 +472,7 @@ namespace Tickest.Persistence.Migrations
                 table: "Departments",
                 column: "SectorId",
                 principalTable: "Sectors",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Departments_Users_DepartmentManagerId",
@@ -501,19 +491,11 @@ namespace Tickest.Persistence.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Messages_Tickets_TicketId1",
-                table: "Messages",
-                column: "TicketId1",
-                principalTable: "Tickets",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_Messages_Users_ReceiverId",
                 table: "Messages",
                 column: "ReceiverId",
                 principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Messages_Users_SenderId",
