@@ -2,11 +2,10 @@
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
-using Tickest.Domain.Entities.Departments;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Departments.Create;
+namespace Tickest.Application.Sectors.Create;
 
 internal sealed class CreateDepartmentCommandHandler(
     IPermissionProvider permissionProvider,
@@ -33,14 +32,11 @@ internal sealed class CreateDepartmentCommandHandler(
         }
 
         // Verificando se o usuário tem permissão 
-        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "CreateDepartment");
-        if (!hasPermission)
-        {
-            logger.LogWarning("Usuário {UserId} não tem permissão para criar um departamento.", currentUserId);
-            throw new TickestException("Usuário não tem permissão para criar um departamento.");
-        }
+        const string requiredPermission = "CreateDepartment";
+        await permissionProvider.ValidatePermissionAsync(currentUser, requiredPermission);
 
-        logger.LogInformation("Usuário {UserId} tem permissão para criar um departamento.", currentUserId);
+        // Se a execução chegou até aqui, significa que o usuário tem permissão
+        logger.LogInformation("O usuário {UserId} tem permissão para criar um departamento.", currentUser.Id);
 
         #endregion
 

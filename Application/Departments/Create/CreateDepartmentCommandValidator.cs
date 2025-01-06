@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Tickest.Application.Departments.Create;
+namespace Tickest.Application.Sectors.Create;
 
 public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartmentCommand>
 {

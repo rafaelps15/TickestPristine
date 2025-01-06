@@ -1,7 +1,7 @@
 ﻿using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Entities.Users;
 
-namespace Tickest.Domain.Entities.Departments;
+namespace Tickest.Domain.Entities.Sectors;
 /// <summary>
 /// Representa um departamento dentro de um setor. Cada departamento tem um foco específico 
 /// dentro da organização, como TI, Marketing, etc.

@@ -2,10 +2,9 @@
 
 namespace Tickest.Application.Sectors.Create;
 
-public record CreateDepartmentCommand(
+public record CreateAreaCommand(
     Guid Id,
     string Name,
     string Description,
-    Guid? DepartmentManagerId,
-    Guid SectorId
-) : ICommand<Guid>; // Retorna o ID do Departamento criado
+    Guid? AreaManagerId
+) : ICommand<Guid>; // Para retornar o Id da Área criada.

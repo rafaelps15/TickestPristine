@@ -3,7 +3,6 @@ using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces.Repositories;
 
 namespace Infrastructure.Authorization;
 

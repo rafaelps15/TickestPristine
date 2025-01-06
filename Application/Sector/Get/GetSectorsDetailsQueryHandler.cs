@@ -4,7 +4,7 @@ using Tickest.Domain.Common;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Sector.Get;
+namespace Tickest.Application.Departments.Get;
 
 ////Caso necessario utilizar o banco de dados utilizar IApplicationDbContext context
 internal sealed class GetSectorsDetailsQueryHandler(IApplicationDbContext context, ISectorRepository sectorRepository)

@@ -1,4 +1,4 @@
-﻿namespace Tickest.Application.Area.Get;
+﻿namespace Tickest.Application.Departments.Get;
 
 public sealed record AreaResponse(
     Guid Id,  

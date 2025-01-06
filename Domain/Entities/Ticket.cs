@@ -1,5 +1,5 @@
 ﻿using Tickest.Domain.Entities.Base;
-using Tickest.Domain.Entities.Departments;
+using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Enum;
 

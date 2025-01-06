@@ -1,4 +1,4 @@
-﻿namespace Tickest.Application.Sector.Get;
+﻿namespace Tickest.Application.Departments.Get;
 
 public sealed record SectorResponse(
      Guid Id,

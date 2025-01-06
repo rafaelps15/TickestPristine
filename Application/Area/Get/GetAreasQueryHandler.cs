@@ -5,7 +5,7 @@ using Tickest.Domain.Common;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Area.Get;
+namespace Tickest.Application.Departments.Get;
 
 internal sealed class GetAreasQueryHandler(IApplicationDbContext context, IAreaRepository areaRepository)
     : IQueryHandler<GetAreasQuery, List<AreaResponse>>

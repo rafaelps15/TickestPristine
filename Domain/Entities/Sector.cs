@@ -1,7 +1,7 @@
 ﻿using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Entities.Users;
 
-namespace Tickest.Domain.Entities.Departments;
+namespace Tickest.Domain.Entities.Sectors;
 
 /// <summary>
 /// Representa um setor dentro da organização, o nível mais alto da estrutura organizacional,

@@ -1,9 +1,8 @@
-﻿using Tickest.Domain.Entities.Departments;
+﻿using Tickest.Domain.Entities.Sectors;
 
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
 public interface IAreaRepository : IBaseRepository<Area>
 {
-    //Task<List<Area>> GetAllAreasAsync(CancellationToken cancellationToken);
 }
