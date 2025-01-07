@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Tickest.Application.Abstractions.Data;
 using Tickest.Domain.Entities.Auths;
-using Tickest.Domain.Entities.Departments;
 using Tickest.Domain.Entities.Permissions;
+using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Entities.Users;

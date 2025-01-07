@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Tickest.Domain.Entities.Departments;
+﻿using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 

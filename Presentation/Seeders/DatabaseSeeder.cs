@@ -1,7 +1,6 @@
 ﻿using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Common;
-using Tickest.Domain.Entities.Departments;
-using Tickest.Domain.Entities.Permissions;
+using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Interfaces;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tickest.Domain.Entities.Departments;
+using Tickest.Domain.Entities.Sectors;
 
 namespace Tickest.Persistence.Configurations;
 

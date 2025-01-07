@@ -15,4 +15,5 @@ public class Department : EntityBase
     public Guid? DepartmentManagerId { get; set; }// Gestor do departamento
     public User DepartmentManager { get; set; } // Relacionamento 1:1 com o gestor do departamento
     public List<Area> Areas { get; set; } // Relacionamento 1:N com as áreas
+
 }

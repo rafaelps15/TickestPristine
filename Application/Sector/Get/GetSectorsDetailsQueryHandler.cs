@@ -1,10 +1,11 @@
 ﻿using Tickest.Application.Abstractions.Data;
 using Tickest.Application.Abstractions.Messaging;
+using Tickest.Application.Departments.Get;
 using Tickest.Domain.Common;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Departments.Get;
+namespace Tickest.Application.Sectors.Get;
 
 ////Caso necessario utilizar o banco de dados utilizar IApplicationDbContext context
 internal sealed class GetSectorsDetailsQueryHandler(IApplicationDbContext context, ISectorRepository sectorRepository)
@@ -17,7 +18,7 @@ internal sealed class GetSectorsDetailsQueryHandler(IApplicationDbContext contex
 
         if (sectors == null)
         {
-            throw new TickestException($"Setor com o ID {query.SectorIds} não encontrado.");
+            throw new TickestException($"Setor com o ID {query.id} não encontrado.");
         }
 
         // Mapeia o setor para DTO

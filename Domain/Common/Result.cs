@@ -24,6 +24,11 @@ namespace Tickest.Domain.Common
         public static Result Failure(Error error) => new(false, error);
         public static Result<TValue> Failure<TValue>(Error error) =>
             new(default, false, error);
+
+        public static Result<Guid> Success(object id)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Result<TValue> : Result

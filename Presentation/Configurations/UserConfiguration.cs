@@ -37,6 +37,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithMany(s => s.Users)
             .UsingEntity(j => j.ToTable("UserSpecialties"));
 
+        // Relacionamento de 1:N com Sector
+        builder.HasOne(u => u.Sector)  // Relação de 1:N com Setor
+            .WithMany()  // Setor pode ter vários usuários
+            .HasForeignKey(u => u.SectorId)  // Chave estrangeira
+            .OnDelete(DeleteBehavior.SetNull);  // Caso o Setor seja deletado, o campo SectorId ficará nulo
+
         // Relacionamento N:N com Areas
         builder.HasMany(u => u.Areas)
             .WithMany(a => a.Users)

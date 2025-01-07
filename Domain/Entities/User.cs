@@ -6,9 +6,6 @@ using Tickest.Domain.Entities.Tickets;
 
 namespace Tickest.Domain.Entities.Users;
 
-/// <summary>
-/// User: Representa um usuário no sistema, com suas informações e permissões associadas.
-/// </summary>
 public class User : EntityBase
 {
     public string Name { get; set; }
@@ -34,7 +31,7 @@ public class User : EntityBase
 
     // Relacionamento muitos-para-muitos com Permissões
     public ICollection<Permission> Permissions { get; set; }
-    
+
+    public Guid SectorId { get; set; }
+    public Sector Sector { get; set; }
 }
-
-

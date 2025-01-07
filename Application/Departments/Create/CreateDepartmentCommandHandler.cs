@@ -2,6 +2,7 @@
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
+using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
