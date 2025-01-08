@@ -8,28 +8,33 @@ using Tickest.Domain.Interfaces.Repositories;
 namespace Tickest.Application.Tickets.GetById;
 
 internal sealed class GetByIdUserTicketsQueryHandler(
-    IAuthService _authService,
-    ITicketRepository _ticketRepository
+    IAuthService authService,
+    ITicketRepository ticketRepository,
+    IPermissionProvider permissionProvider
 ) : IQueryHandler<GetByIdUserTicketsQuery, List<TicketResponse>>
 {
     public async Task<Result<List<TicketResponse>>> Handle(GetByIdUserTicketsQuery query, CancellationToken cancellationToken)
     {
-        var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
+        #region Validação de Permissões
 
-        // Verificando se o usuário autenticado está tentando acessar seus próprios tickets
-        if (query.UserId == currentUser.Id)
-        {
-            throw new TickestException("Usuário inválido.");
-        }
+        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        await permissionProvider.ValidatePermissionAsync(currentUser, "ViewTickets");
 
-        var tickets = await _ticketRepository.GetTicketsByUserAsync(query.UserId, cancellationToken);
+        #endregion
+
+        #region Obtenção dos Tickets
+
+        var tickets = await ticketRepository.GetTicketsByUserAsync(query.UserId, cancellationToken);
 
         if (tickets == null || !tickets.Any())
         {
             throw new TickestException("Nenhum ticket encontrado para o usuário especificado.");
         }
 
-        // Mapeando os tickets para a resposta
+        #endregion
+
+        #region Mapeamento para Resposta
+
         var ticketResponses = tickets
             .Select(ticket => new TicketResponse
             {
@@ -38,8 +43,9 @@ internal sealed class GetByIdUserTicketsQueryHandler(
                 Status = ticket.Status,
                 Description = ticket.Description
             }).ToList();
-          
-        // Retorna o resultado com os tickets mapeados
+
+        #endregion
+
         return Result.Success(ticketResponses);
     }
 }

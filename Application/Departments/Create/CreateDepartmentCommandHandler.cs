@@ -22,22 +22,10 @@ internal sealed class CreateDepartmentCommandHandler(
 
         #region Verificação de Permissão do Usuário
 
-        // Obtém o usuário autenticado com todas as informações necessárias via token
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        var currentUserId = currentUser.Id;
+        await permissionProvider.ValidatePermissionAsync(currentUser, "CreateDepartment");
 
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
-        }
-
-        // Verificando se o usuário tem permissão 
-        const string requiredPermission = "CreateDepartment";
-        await permissionProvider.ValidatePermissionAsync(currentUser, requiredPermission);
-
-        // Se a execução chegou até aqui, significa que o usuário tem permissão
-        logger.LogInformation("O usuário {UserId} tem permissão para criar um departamento.", currentUser.Id);
+        logger.LogInformation("Usuário {UserId} autorizado a criar um Departamento.", currentUser.Id);
 
         #endregion
 

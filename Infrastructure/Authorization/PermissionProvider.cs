@@ -39,7 +39,7 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     private static HashSet<string> GetSectorAdminPermissions() => new()
     {
-        "ManageSectors", "ManageDepartments", "ManageAreas", "AccessSystem"
+        "ManageSectors", "ManageDepartments", "ManageAreas", "AccessSystem" ,"CanUserBeResponsible"
     };
 
     private static HashSet<string> GetDepartmentAdminPermissions() => new()

@@ -21,27 +21,14 @@ internal sealed class SoftDeleteTicketCommandHandler(
         #region Validação de Permissões
 
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        var currenteUserId = currentUser.Id;
+        await permissionProvider.ValidatePermissionAsync(currentUser, "DeleteTicket");
 
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não encontrado.");
-        }
-
-        // Verificando se o usuário tem permissão 
-        var HasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "DeleteTicket");
-        if (!HasPermission)
-        {
-            logger.LogWarning("Usuário {userId} não tem permisão para deletar o ticket.", currenteUserId);
-            throw new Exception("Usuário não tem permisisão para deletar");
-        }
+        logger.LogInformation("Usuário {UserId} autorizado para excluir o ticket.", currentUser.Id);
 
         #endregion
 
         #region Validação e manipulação do Ticket
 
-        // Busca o ticket no repositório após verificar permissões
         var ticket = await ticketRepository.GetByIdAsync(request.TicketId);
         if (ticket == null)
         {
@@ -56,10 +43,8 @@ internal sealed class SoftDeleteTicketCommandHandler(
             throw new TickestException("O ticket já está inativo.");
         }
 
-        // Executa a exclusão lógica
         ticket.SoftDelete();
 
-        // Atualiza o ticket no repositório
         await ticketRepository.UpdateAsync(ticket, cancellationToken);
 
         #endregion

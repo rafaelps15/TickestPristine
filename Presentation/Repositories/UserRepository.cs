@@ -29,6 +29,7 @@ internal class UserRepository : BaseRepository<User>, IUserRepository
                       .Select(u => u.Role)
                       .FirstOrDefaultAsync(cancellationToken);  // Retorna a Role ou null
 
+
     #endregion
 
     #region Métodos de Verificação

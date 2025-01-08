@@ -3,6 +3,6 @@
 namespace Tickest.Application.Departments.Add;
 
 public record  AddDepartmentsToSectorCommand(
-    Guid SectorId, 
-    ICollection<Guid> DepartmentIds
+    Guid SectorId,
+    Guid DepartamentId
 ) : ICommand<Guid>;

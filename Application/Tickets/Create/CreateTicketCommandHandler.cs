@@ -4,7 +4,6 @@ using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
 using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Enum;
-using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Tickets.Create;
@@ -21,30 +20,21 @@ internal sealed class CreateTicketCommandHandler(
         logger.LogInformation("Iniciando a criação de um novo ticket.");
 
         #region Validação de Permissões
+
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        var currentUserId = currentUser.Id;
+        await permissionProvider.ValidatePermissionAsync(currentUser, "CreateTicket");
 
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
-        }
+        logger.LogInformation("Usuário {UserId} autorizado a criar um ticket.", currentUser.Id);
 
-        // Verificar se o usuário tem permissão para criar ticket
-        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "CreateTicket");
-        if (!hasPermission)
-        {
-            logger.LogError("Usuário não tem permissão para criar tickets.");
-            throw new TickestException("Usuário não tem permissão para criar tickets.");
-        }
         #endregion
 
         #region Criação do Ticket
+
         var requesterId = command.RequesterId ?? currentUser.Id;
 
         var ticket = new Ticket
         {
-            Id = Guid.NewGuid(),  
+            Id = Guid.NewGuid(),
             Title = command.Title,
             Description = command.Description,
             Priority = command.Priority,
@@ -61,10 +51,12 @@ internal sealed class CreateTicketCommandHandler(
         #endregion
 
         #region Persistência no Repositório
+
         await ticketRepository.AddAsync(ticket, cancellationToken);
         logger.LogInformation("Ticket criado com sucesso: {TicketId}", ticket.Id);
+
         #endregion
 
-        return ticket.Id;  
+        return ticket.Id;
     }
 }

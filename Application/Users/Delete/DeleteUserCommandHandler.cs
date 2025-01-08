@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using Tickest.Application.Abstractions.Messaging;
 using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.Abstractions.Messaging;
+using Tickest.Domain.Common;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
-using Tickest.Domain.Common;
-using MediatR;
 
 namespace Tickest.Application.Users.Delete;
 
@@ -23,21 +22,9 @@ internal sealed class DeleteUserCommandHandler(
         #region Validação de Permissões
 
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        var currenteUserId = currentUser.Id;
+        await permissionProvider.ValidatePermissionAsync(currentUser, "DeleteUser");
 
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não encontrado.");
-        }
-
-        // Verificando se o usuário tem permissão 
-        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "DeleteUser");
-        if (!hasPermission)
-        {
-            logger.LogWarning("Usuário {userId} não tem permisão para deletar o ticket.", currenteUserId);
-            throw new Exception("Usuário não tem permisisão para deletar");
-        }
+        logger.LogInformation("Usuário {UserId} autorizado para excluir.", currentUser.Id);
 
         #endregion
 

@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Interceptorr\SetCreateDateOnInsert.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
@@ -21,6 +25,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Tickest.Application.csproj" />
     <ProjectReference Include="..\Domain\Tickest.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interceptorr\" />
   </ItemGroup>
 
 </Project>

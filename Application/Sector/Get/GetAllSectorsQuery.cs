@@ -2,6 +2,5 @@
 
 namespace Tickest.Application.Sectors.Get;
 
-public sealed record GetSectorsDetailsQuery(Guid id) : IQuery<List<SectorResponse>>;
-
+public sealed record GetAllSectorsQuery(): IQuery<List<SectorResponse>>;
 

@@ -12,8 +12,8 @@ using Tickest.Persistence.Data;
 namespace Tickest.Persistence.Migrations
 {
     [DbContext(typeof(TickestContext))]
-    [Migration("20250107011807_AddSectorIdToUser")]
-    partial class AddSectorIdToUser
+    [Migration("20250108174001_UpdateSectorIdColumn")]
+    partial class UpdateSectorIdColumn
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

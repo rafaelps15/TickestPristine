@@ -10,6 +10,7 @@ using Tickest.Domain.Interfaces.Repositories;
 namespace Tickest.Application.Users.Create;
 
 internal sealed class RegisterUserCommandHandler(
+    IAuthService authService,
     IRoleRepository roleRepository,
     IUserRepository userRepository,
     IPermissionProvider permissionProvider,
@@ -20,13 +21,18 @@ internal sealed class RegisterUserCommandHandler(
     {
         logger.LogInformation("Iniciando a criação de um novo usuário.");
 
-        //a pessoa logada pode criar esse usuário?
+        #region Validação de Permissões
+
+        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        await permissionProvider.ValidatePermissionAsync(currentUser, "CreateUser");
+
+        logger.LogInformation("Usuário {UserId} autorizado para criar.", currentUser.Id);
+
+        #endregion
 
         #region Validação do Usuário Existente
 
-        var existingUser = await userRepository.GetUserByEmailAsync(command.Email, cancellationToken);
-
-        if (existingUser != null)
+        if (await userRepository.GetUserByEmailAsync(command.Email, cancellationToken) is not null)
         {
             logger.LogError("O e-mail {Email} já está em uso.", command.Email);
             throw new TickestException("O e-mail fornecido já está em uso.");
@@ -34,15 +40,25 @@ internal sealed class RegisterUserCommandHandler(
 
         #endregion
 
-        #region Obter Papéis Disponíveis
+        #region Obter e Validar Papel
 
-        // Verifica se o papel fornecido existe entre os papéis disponíveis
         var role = await roleRepository.GetByIdAsync(command.RoleId);
         if (role == null)
         {
-            logger.LogError("O papel fornecido {Role} não existe.", command.RoleId);
+            logger.LogError("O papel fornecido {RoleId} não existe.", command.RoleId);
             throw new TickestException("O papel fornecido não é válido.");
         }
+
+        #endregion
+
+        #region Obter Permissões do Papel
+
+        // Obtém as permissões com base no papel do usuário
+        var permissions = permissionProvider.GetPermissionsForRole(role.Name);
+
+        // (Aqui você pode adicionar a lógica para validar se o papel tem permissões adequadas, caso necessário)
+
+        logger.LogInformation("Permissões obtidas para o papel {RoleName}: {Permissions}.", role.Name, string.Join(", ", permissions));
 
         #endregion
 
@@ -59,14 +75,10 @@ internal sealed class RegisterUserCommandHandler(
             PasswordHash = password,
             Salt = salt,
             CreatedAt = DateTime.UtcNow,
-            Role = role, // Define o papel do novo usuário
+            Role = role,
             IsActive = true
         };
 
-        // Obtém as permissões com base no papel do usuário OBS: Inicialmente para testes, depois será inserido no banco de dados.
-        var permissions = permissionProvider.GetPermissionsForRole(role.Name);
-
-        // Adicionar as permissões ao usuário (se necessário, caso o modelo de usuário suporte e necessite)
         logger.LogInformation("Usuário preparado para persistência: {UserId}.", user.Id);
 
         #endregion
@@ -76,7 +88,7 @@ internal sealed class RegisterUserCommandHandler(
         await userRepository.AddAsync(user, cancellationToken);
         await userRepository.SaveChangesAsync();
 
-        logger.LogInformation($"Usuário {user.Name} com o papel {user.Role} criado com sucesso.");
+        logger.LogInformation("Usuário {UserId} criado com sucesso com o papel {Role}.", user.Id, role.Name);
 
         #endregion
 

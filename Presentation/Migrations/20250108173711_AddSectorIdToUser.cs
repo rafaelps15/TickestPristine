@@ -5,18 +5,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Tickest.Persistence.Migrations
 {
-    /// <inheritdoc />
     public partial class AddSectorIdToUser : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<Guid>(
                 name: "SectorId",
                 table: "Users",
                 type: "uniqueidentifier",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+                nullable: true, // Permitir valores nulos
+                defaultValue: null); // Não usar GUID padrão, pois queremos permitir nulos
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_SectorId",
@@ -29,10 +27,9 @@ namespace Tickest.Persistence.Migrations
                 column: "SectorId",
                 principalTable: "Sectors",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull); // Definindo a ação referencial para SET NULL
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(

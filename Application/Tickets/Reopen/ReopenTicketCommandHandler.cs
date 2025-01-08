@@ -12,7 +12,6 @@ namespace Tickest.Application.Tickets.Reopen;
 
 internal sealed class ReopenTicketCommandHandler(
     ITicketRepository ticketRepository,
-    IValidator<ReopenTicketCommand> validator,
     IAuthService authService,
     IPermissionProvider permissionProvider,
     ILogger<ReopenTicketCommandHandler> logger)
@@ -25,24 +24,14 @@ internal sealed class ReopenTicketCommandHandler(
         #region Validação de Permissões
 
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        var currentUserId = currentUser.Id;
+        await permissionProvider.ValidatePermissionAsync(currentUser, "ReopenTicket");
 
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
-        }
+        logger.LogInformation("Usuário {UserId} autorizado para reabrir o ticket.", currentUser.Id);
 
-        // Validar permissão do usuário
-        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser, "ReopenTicket");
-        if (hasPermission)
-        {
-            logger.LogWarning("Usuário {UserId} não tem premissão para realizar a abertura do ticket.", currentUserId);
-            throw new TickestException("Usuário não tem permissão para reabrir o ticket.");
-        }
         #endregion
 
         #region Obtenção do Ticket
+
         var ticket = await ticketRepository.GetByIdAsync(request.TicketId);
         if (ticket == null)
         {
@@ -59,15 +48,17 @@ internal sealed class ReopenTicketCommandHandler(
         // Reabre o ticket
         ticket.IsActive = true;
         ticket.Status = TicketStatus.Open;
+
         #endregion
 
         #region Persistência no Repositório
-        await ticketRepository.UpdateAsync(ticket, cancellationToken);
 
+        // Atualiza o ticket no repositório
+        await ticketRepository.UpdateAsync(ticket, cancellationToken);
         logger.LogInformation("Ticket reaberto com sucesso: {TicketId}", ticket.Id);
+
         #endregion
 
         return ticket.Id;
     }
-
 }

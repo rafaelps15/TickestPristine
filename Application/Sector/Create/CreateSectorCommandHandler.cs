@@ -2,56 +2,61 @@
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
+using Tickest.Application.Sectors.Create;
 using Tickest.Domain.Common;
 using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Tickest.Application.Sectors.Create;
+namespace Tickest.Application.Sectors.Get;
 
 internal sealed class CreateSectorCommandHandler(
+    ISectorRepository sectorRepository,
+    IUserRepository userRepository,
     IAuthService authService,
     IPermissionProvider permissionProvider,
-    ISectorRepository sectorRepository,
-    IDepartmentRepository departmentRepository,
-    IUserRepository userRepository,
     ILogger<CreateSectorCommandHandler> logger)
     : ICommandHandler<CreateSectorCommand, Guid>
 {
     public async Task<Result<Guid>> Handle(CreateSectorCommand command, CancellationToken cancellationToken)
     {
-        #region Verificação de Permissão do Usuário
+        #region Validação de Permissões
 
-        logger.LogInformation("Iniciando a criação de um novo setor.");
-
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
-        }
-
-        const string requiredPermission = "ManageSector";
-        await permissionProvider.ValidatePermissionAsync(currentUser, requiredPermission);
-        logger.LogInformation("O usuário {UserId} tem permissão para criar um setor.", currentUser.Id);
+        //var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        //await permissionProvider.ValidatePermissionAsync(currentUser, "CreateSector");
 
         #endregion
 
+        #region Criação do Setor
+
         var sector = new Sector
         {
-            Id = Guid.NewGuid(),
             Name = command.Name,
             Description = command.Description,
-            SectorManagerId = command.SectorManagerId,
-            CreatedAt = DateTime.UtcNow,
-            IsActive = true
         };
 
-        await sectorRepository.AddAsync(sector, cancellationToken);
+        if (command.SectorManagerId.HasValue)
+        {
+            var currentUserResponsible = await userRepository.GetByIdAsync(command.SectorManagerId.Value);
+            if (currentUserResponsible is null)
+            {
+                throw new TickestException("Usuário responsável não encontrado.");
+            }
 
-        logger.LogInformation("Setor {SectorName} criado com sucesso com ID {SectorId}.", sector.Name, sector.Id);
+            await permissionProvider.ValidatePermissionAsync(currentUserResponsible, "CanUserBeResponsible");
+
+            sector.SectorManager = currentUserResponsible;
+        }
+
+        #endregion
+
+        #region Salvamento no Repositório
+
+        await sectorRepository.AddAsync(sector, cancellationToken);
+        logger.LogInformation("Setor criado com sucesso: {SectorId}", sector.Id);
+
+        #endregion
 
         return Result.Success(sector.Id);
-
     }
 }

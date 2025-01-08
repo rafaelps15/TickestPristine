@@ -53,29 +53,21 @@ internal sealed class AddDepartmentsToSectorCommandHandler(
 
         #region Validação e Associação dos Departamentos
 
-        var departments = new List<Department>();
-        foreach (var departmentId in command.DepartmentIds)
+        var department = await departmentRepository.GetByIdAsync(command.DepartamentId, cancellationToken);
+        if (department == null)
         {
-            var department = await departmentRepository.GetByIdAsync(departmentId, cancellationToken);
-            if (department == null)
-            {
-                logger.LogError("Departamento com ID {DepartmentId} não encontrado.", departmentId);
-                throw new TickestException($"Departamento com ID {departmentId} não encontrado.");
-            }
-
-            department.SectorId = sector.Id;
-            departments.Add(department);
+            logger.LogError("Departamento com ID {DepartmentId} não encontrado.", command.DepartamentId);
+            throw new TickestException("Departamento não encontrado.");
         }
+
+        sector.Departments.Add(department);
+
 
         #endregion
 
         #region Persistência dos Departamentos
 
-        foreach (var department in departments)
-        {
-            await departmentRepository.UpdateAsync(department, cancellationToken);
-        }
-
+        await sectorRepository.UpdateAsync(sector,cancellationToken);
         logger.LogInformation("Departamentos associados ao setor {SectorId} com sucesso.", command.SectorId);
 
         #endregion
