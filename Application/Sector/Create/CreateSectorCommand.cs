@@ -6,6 +6,7 @@ namespace Tickest.Application.Sectors.Create;
 public record CreateSectorCommand(
     string Name,
     string Description,
+    DateTime CreatedAt,
     Guid? SectorManagerId
 ) : ICommand<Guid>;
 

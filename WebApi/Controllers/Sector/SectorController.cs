@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tickest.Application.Departments.Add;
 using Tickest.Application.Sectors.Create;
+using Tickest.Application.Sectors.Delete;
 using Tickest.Application.Sectors.Get;
 using Tickest.Application.Sectors.GetById;
 using Tickest.Application.Users.Add;
@@ -58,6 +59,16 @@ public class SectorController : ControllerBase
     public async Task<IActionResult> AddUserToSector([FromBody] AddUserToSectorCommand command)
     {
         var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    // Deletar um setor
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteSector(Guid id)
+    {
+        var command = new DeleteSectorCommand(id);
+        var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 

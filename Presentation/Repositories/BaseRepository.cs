@@ -54,7 +54,7 @@ namespace Tickest.Persistence.Repositories
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var entity = await GetByIdAsync(id, cancellationToken);
-            if (entity != null)
+            if (entity is null)
             {
                 _context.Set<TEntity>().Remove(entity);
                 await SaveChangesAsync(cancellationToken);
