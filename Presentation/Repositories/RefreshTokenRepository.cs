@@ -29,16 +29,10 @@ public class RefreshTokenRepository : BaseRepository<RefreshToken>, IRefreshToke
             .AsNoTracking()
             .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
 
-        if (refreshTokenEntity is null)
-            throw new TickestException("Refresh token não encontrado.");
-
         // Busca o usuário associado ao refresh token
         var user = await _context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == refreshTokenEntity.UserId, cancellationToken);
-
-        if (user is null)
-            throw new TickestException("Usuário associado ao refresh token não encontrado.");
 
         return user;
     }

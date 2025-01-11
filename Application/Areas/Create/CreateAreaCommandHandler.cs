@@ -22,18 +22,12 @@ internal sealed class CreateAreaCommandHandler(
 
         #region Verificação de Permissão do Usuário
 
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        //var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
 
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
-        }
+        //const string requiredPermission = "CreateArea";
+        //await permissionProvider.ValidatePermissionAsync(currentUser, requiredPermission);
 
-        const string requiredPermission = "CreateArea";
-        await permissionProvider.ValidatePermissionAsync(currentUser, requiredPermission);
-
-        logger.LogInformation("O usuário {UserId} tem permissão para criar uma área.", currentUser.Id);
+        //logger.LogInformation("O usuário {UserId} tem permissão para criar uma área.", currentUser.Id);
 
         #endregion
 

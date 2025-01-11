@@ -15,5 +15,5 @@ public class Sector : EntityBase
     public Guid? SectorManagerId { get; set; }    // Chave estrangeira para o Gestor (Manager)
     public User? SectorManager { get; set; }     // Relacionamento 1:1 com o Usuário (Gestor do setor)
 
-    public List<Department> Departments { get; set; } // Relacionamento 1:N com os departamentos (um setor pode ter vários departamentos)
+    public ICollection<Department> Departments { get; set; } // Relacionamento 1:N com os departamentos (um setor pode ter vários departamentos)
 }

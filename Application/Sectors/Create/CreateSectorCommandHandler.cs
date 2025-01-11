@@ -33,7 +33,7 @@ internal sealed class CreateSectorCommandHandler(
         {
             Name = command.Name,
             Description = command.Description,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = command.CreatedAt
         };
 
         if (command.SectorManagerId.HasValue)

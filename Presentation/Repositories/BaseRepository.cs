@@ -29,24 +29,36 @@ namespace Tickest.Persistence.Repositories
 
         public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
+            entity.CreatedAt = DateTime.Now;
             await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
             await SaveChangesAsync(cancellationToken);
         }
 
         public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
         {
+            foreach (var entity in entities)
+            {
+                entity.CreatedAt = DateTime.UtcNow;
+            }
+
             await _context.Set<TEntity>().AddRangeAsync(entities, cancellationToken);
             await SaveChangesAsync(cancellationToken);
         }
 
         public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
+            entity.UpdateAt = DateTime.Now;
             _context.Set<TEntity>().Update(entity);
             await SaveChangesAsync(cancellationToken);
         }
 
         public async Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
         {
+            foreach (var entity in entities)
+            {
+                entity.UpdateAt = DateTime.UtcNow;
+            }
+
             _context.Set<TEntity>().UpdateRange(entities);
             await SaveChangesAsync(cancellationToken);
         }
@@ -59,6 +71,14 @@ namespace Tickest.Persistence.Repositories
                 _context.Set<TEntity>().Remove(entity);
                 await SaveChangesAsync(cancellationToken);
             }
+        }
+
+        public async Task SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var entity = await GetByIdAsync(id, cancellationToken);
+            entity.SoftDelete();
+            _context.Set<TEntity>().Update(entity);
+            await SaveChangesAsync(cancellationToken);
         }
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)

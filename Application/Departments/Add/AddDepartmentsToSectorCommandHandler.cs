@@ -3,7 +3,6 @@ using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Application.Departments.Add;
 using Tickest.Domain.Common;
-using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
@@ -27,16 +26,16 @@ internal sealed class AddDepartmentsToSectorCommandHandler(
 
         #region Verificação de Permissão do Usuário
 
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
-        }
+        //var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        //if (currentUser == null)
+        //{
+        //    logger.LogError("Usuário não autenticado.");
+        //    throw new TickestException("Usuário não autenticado.");
+        //}
 
-        const string requiredPermission = "AdminMaster, AdminGeral";
-        await permissionProvider.ValidatePermissionAsync(currentUser, requiredPermission);
-        logger.LogInformation("Usuário {UserId} autorizado para associar departamentos.", currentUser.Id);
+        //const string requiredPermission = "AdminMaster, AdminGeral, SectorManager";
+        //await permissionProvider.ValidatePermissionAsync(currentUser, requiredPermission);
+        //logger.LogInformation("Usuário {UserId} autorizado para associar departamentos.", currentUser.Id);
 
         #endregion
 

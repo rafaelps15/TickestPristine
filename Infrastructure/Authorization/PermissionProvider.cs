@@ -39,7 +39,8 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     private static HashSet<string> GetSectorAdminPermissions() => new()
     {
-        "ManageSectors", "ManageDepartments", "ManageAreas", "AccessSystem" ,"CanUserBeResponsible"
+        "ManageSectors", "ManageDepartments", "ManageAreas", "AccessSystem", "CanUserBeResponsible",
+        "ManageSectorTasks" // Permissão para gerenciar tarefas do setor
     };
 
     private static HashSet<string> GetDepartmentAdminPermissions() => new()
@@ -67,6 +68,18 @@ internal sealed class PermissionProvider : IPermissionProvider
         "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester", "AccessSystem"
     };
 
+    // Novos papéis: AreaManager e SectorManager
+
+    private static HashSet<string> GetAreaManagerPermissions() => new()
+    {
+        "ManageAreas", "ManageCollaborators", "AssignAreaRoles", "AccessSystem"
+    };
+
+    private static HashSet<string> GetSectorManagerPermissions() => new()
+    {
+        "ManageSectors", "AssignSectorRoles", "AccessSystem"
+    };
+
     #endregion
 
     #region Inicialização de Permissões por Papel
@@ -81,7 +94,9 @@ internal sealed class PermissionProvider : IPermissionProvider
             ["AreaAdmin"] = GetAreaAdminPermissions,
             ["TicketManager"] = GetTicketManagerPermissions,
             ["Collaborator"] = GetCollaboratorPermissions,
-            ["SupportAnalyst"] = GetSupportAnalystPermissions
+            ["SupportAnalyst"] = GetSupportAnalystPermissions,
+            ["AreaManager"] = GetAreaManagerPermissions, // Papel de responsável pela área
+            ["SectorManager"] = GetSectorManagerPermissions // Papel de responsável pelo setor
         };
 
     #endregion
@@ -103,7 +118,6 @@ internal sealed class PermissionProvider : IPermissionProvider
 
         return Task.FromResult(permissions);
     }
-
 
     public HashSet<string> GetPermissionsForRole(string roleName)
         => _rolePermissions.TryGetValue(roleName, out var permissions)

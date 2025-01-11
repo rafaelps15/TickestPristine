@@ -44,9 +44,10 @@ public class SectorController : ControllerBase
         var result = await _mediator.Send(query);
 
         return Ok(result);
-    } 
+    }
 
     // Adicionar departamentos ao setor
+    [AllowAnonymous]
     [HttpPost("add-department-to-sector")]
     public async Task<IActionResult> AddDepartments(AddDepartmentsToSectorCommand command)
     {

@@ -18,7 +18,7 @@ public class SectorConfiguration : IEntityTypeConfiguration<Sector>
 
         // Configura a descrição do setor, com limite de 500 caracteres
         builder.Property(s => s.Description)
-               .HasMaxLength(500);
+               .HasMaxLength(1000);
 
         // Relacionamento 1:1 com o Gestor do Setor (User)
         builder.HasOne(s => s.SectorManager)  // Um setor tem um gestor

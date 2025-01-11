@@ -43,7 +43,7 @@ internal class SetCreateDateOnInsert : SaveChangesInterceptor
                 {
                     baseEntity.DataAlteracao = DateTime.UtcNow;
                 }
-            }
+            }<
         }
     }
 }

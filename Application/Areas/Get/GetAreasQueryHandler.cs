@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Tickest.Application.Abstractions.Data;
+﻿using Tickest.Application.Abstractions.Data;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
 using Tickest.Domain.Exceptions;
