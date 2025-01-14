@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Tickest.Application.Abstractions.Data;
+using Tickest.Domain.Entities;
 using Tickest.Domain.Entities.Auths;
 using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Sectors;
@@ -37,7 +38,7 @@ public class TickestContext : DbContext, IApplicationDbContext
     public DbSet<Role> Roles { get; set; }
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<Message> Messages { get; set; }
-
+    public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

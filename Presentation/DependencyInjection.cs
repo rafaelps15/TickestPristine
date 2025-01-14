@@ -34,9 +34,11 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<RoleSeeder>();
+        services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
+
 
         // Registra o serviço que será utilizado para popular o banco de dados na primeira execução
-        services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
+        //services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
 
         return services;
     }

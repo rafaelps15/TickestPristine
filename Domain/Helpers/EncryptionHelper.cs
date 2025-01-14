@@ -1,6 +1,4 @@
-﻿using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-
-namespace Tickest.Domain.Helpers;
+﻿namespace Tickest.Domain.Helpers;
 
 public class EncryptionHelper
 {

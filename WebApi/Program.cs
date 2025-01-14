@@ -42,12 +42,12 @@ builder.Host.UseSerilog((context, configuration) =>
 
 var app = builder.Build();
 
-// Chama o DatabaseSeeder para inicializar os dados
-using (var scope = app.Services.CreateScope())
-{
-    var dataBaseSeeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-    dataBaseSeeder.Seed();
-} 
+//// Chama o DatabaseSeeder para inicializar os dados
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dataBaseSeeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+//    dataBaseSeeder.Seed();
+//} 
 
 // Configurações de middleware
 app.UseCors("DefaultPolicy");

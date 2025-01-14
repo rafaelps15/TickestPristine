@@ -1,4 +1,6 @@
-﻿using Tickest.Domain.Entities.Permissions;
+﻿using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Permissions;
+using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Seeders;
@@ -6,17 +8,23 @@ namespace Tickest.Persistence.Seeders;
 public class RoleSeeder
 {
     private readonly TickestContext _context;
+    private readonly IApplicationSettingRepository _applicationSettingRepository;
 
-    public RoleSeeder(TickestContext context)
+    public RoleSeeder(TickestContext context, IApplicationSettingRepository applicationSettingRepository)
     {
         _context = context;
+        _applicationSettingRepository = applicationSettingRepository;
     }
 
-    public void SeedRoles()
+    public async Task SeedRolesAsync()
     {
-        if (!_context.Roles.Any())
+        var seederFlag = await _applicationSettingRepository.GetSettingAsync("RolesSeeded");
+
+        if (seederFlag is null || seederFlag.Value != "True")
         {
-            var roles = new List<Role>
+            if (!_context.Roles.Any())
+            {
+                var roles = new List<Role>
             {
                 new Role{ Name = "AdminMaster", Description = "Controle total do Sistema", Permissions = GetMasterAdminPermissions() },
                 new Role{ Name = "GeneralAdmin", Description = "Administração geral do sistema", Permissions = GetGeneralAdminPermissions() },
@@ -30,10 +38,26 @@ public class RoleSeeder
                 new Role{ Name = "SectorManager", Description = "Responsável pelo setor", Permissions = GetSectorManagerPermissions() }
             };
 
-            _context.Roles.AddRange(roles);
-            _context.SaveChanges();
+                _context.Roles.AddRange(roles);
+                _context.SaveChanges();
+            }
+
+            if (seederFlag is null)
+            {
+                await _applicationSettingRepository.SetSettingAsync(new ApplicationSetting
+                {
+                    Key = "RolesSeeded",
+                    Value = "True"
+                });
+            }
+            else
+            {
+                seederFlag.Value = "true";
+                await _applicationSettingRepository.SetSettingAsync(seederFlag);
+            }
         }
     }
+
 
     private List<Permission> GetMasterAdminPermissions()
     {
