@@ -30,7 +30,7 @@ public class EncryptionHelper
         }
     }
 
-    public static bool CheckPasswod(string password, string salt, string passwordHashed)
+    public static bool CheckPassword(string password, string salt, string passwordHashed)
     {
         var pass = EncryptionHelper.CreatePasswordHashWithSalt(password, salt);
 

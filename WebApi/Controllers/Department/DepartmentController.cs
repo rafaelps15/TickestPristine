@@ -1,14 +1,16 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Tickest.Application.Areas.Add;
 using Tickest.Application.Departments.Get;
 using Tickest.Application.Sectors.Create;
+using Tickest.Domain.Common;
 
 namespace WebApi.Controllers.Department;
 
 [ApiController]
-[Authorize]
 [Route("api/[controller]")]
+[Authorize]
 public class DepartmentController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -18,7 +20,7 @@ public class DepartmentController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateDepartment([FromBody] CreateDepartmentCommand command)
     {
         var result = await _mediator.Send(command);
@@ -26,11 +28,22 @@ public class DepartmentController : ControllerBase
     }
 
     //GET para listar departamentos
-    [HttpGet]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetDepartment(Guid id)
     {
-        var department = await _mediator.Send(new GetDepartmentsQuery(id));
-        return department != null ? Ok(department) : NotFound();
+        var result = await _mediator.Send(new GetDepartmentsQuery(id));
+        return Ok(result);
+    }
+
+
+    // testar *******************************************************
+    // POST para adicionar áreas a um departamento
+    [HttpPost("{departmentId:guid}/areas")]
+    public async Task<IActionResult> AddAreasToDepartment([FromRoute] Guid departmentId , [FromBody] AddAreasToDepartmentsCommand command)
+    {
+        command = command with { DepartmentId = departmentId };
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
 }

@@ -19,6 +19,7 @@ internal class AreaRepository : BaseRepository<Area>, IAreaRepository
             .ToListAsync(cancellationToken);
     }
 
+    // Retorna as áreas cujo ID está na lista fornecida e que ainda não estão associadas ao departamento.
     public async Task<IEnumerable<Area>> GetAvailableAsync(Department department, IEnumerable<Guid> areaIds, CancellationToken cancellationToken)
     {
         return await _context.Areas

@@ -76,7 +76,7 @@ public class AuthService : IAuthService
 
     private void ValidatePassword(string password, User user)
     {
-        if (!EncryptionHelper.CheckPasswod(password, user.Salt, user.PasswordHash))
+        if (!EncryptionHelper.CheckPassword(password, user.Salt, user.PasswordHash))
             throw new TickestException("Credenciais inválidas");
     }
 

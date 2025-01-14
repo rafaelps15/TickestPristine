@@ -1,8 +1,10 @@
-﻿using Tickest.Application.Abstractions.Authentication;
-using Tickest.Domain.Common;
+﻿using Microsoft.Extensions.Logging;
+using Tickest.Application.Abstractions.Authentication;
+using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
+using Tickest.Domain.Helpers;
 using Tickest.Domain.Interfaces;
 using Tickest.Persistence.Data;
 
@@ -12,61 +14,166 @@ public class DatabaseSeeder : IDatabaseSeeder
 {
     private readonly TickestContext _context;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly RoleSeeder _roleSeeder;
+    private readonly ILogger<DatabaseSeeder> _logger;
 
-    public DatabaseSeeder(TickestContext context, IPasswordHasher passwordHasher)
+    public DatabaseSeeder(
+        (TickestContext context, IPasswordHasher passwordHasher, RoleSeeder roleSeeder, ILogger<DatabaseSeeder> logger) dependencies)
     {
-        _context = context;
-        _passwordHasher = passwordHasher;
+        _context = dependencies.context;
+        _passwordHasher = dependencies.passwordHasher;
+        _roleSeeder = dependencies.roleSeeder;
+        _logger = dependencies.logger;
     }
+
+    public void Seed()
+    {
+        try
+        {
+            _roleSeeder.SeedRoles();
+            _logger.LogInformation("Banco de dados seedado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex, "Error ao seedar o banco de dados.");
+        }
+    }
+
+    // Seeding de outros dados, como configurações, usuários padrão, etc.
+
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-        // Verifica se há dados nas tabelas e faz o seeding apenas se necessário
         if (!_context.Users.Any())
         {
-            // Criando GUIDs
+            // Gerando GUIDs para Departamentos, Setores, Áreas e Especialidades
             var departmentId = Guid.NewGuid();
             var sectorId = Guid.NewGuid();
             var areaId = Guid.NewGuid();
             var specialtyId = Guid.NewGuid();
 
-            var adminMasterId = Guid.NewGuid();
-            string passwordAdmin = "@admin123";
-            var (adminPasswordHash, adminSalt) = _passwordHasher.HashWithSalt(passwordAdmin);
+            // Criando o salt e hash para a senha
+            const string password = "@teste123";
+            var salt = EncryptionHelper.CreateSaltKey(32);
+            var passwordHash = EncryptionHelper.CreatePasswordHashWithSalt(password, salt);
 
-            var adminRole = _context.Roles.FirstOrDefault(p => p.Name == TickestRoleDefaults.AdminMaster);
-
-            // Criação de usuários
-            var adminTeste = new User
+            // Criando usuários com nomes sequenciais diretamente
+            var users = new List<User>
             {
-                Id = adminMasterId,
-                Name = "AdminMaster",
-                Email = "adminmaster@tickest.com",
-                PasswordHash = adminPasswordHash,
-                Salt = adminSalt,
-                Role = adminRole, 
-                IsActive = true
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste1",
+                    Email = "usuarioteste1@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "AdminMaster",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste2",
+                    Email = "usuarioteste2@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "GeneralAdmin",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste3",
+                    Email = "usuarioteste3@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "SectorAdmin",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste4",
+                    Email = "usuarioteste4@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "AdminMaster",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste5",
+                    Email = "usuarioteste5@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "AreaAdmin",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste6",
+                    Email = "usuarioteste6@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "TicketManager",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste7",
+                    Email = "usuarioteste7@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "Collaborator",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste8",
+                    Email = "usuarioteste8@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "SupportAnalyst",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste9",
+                    Email = "usuarioteste9@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "AreaManager",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "UsuarioTeste10",
+                    Email = "usuarioteste10@tickest.com",
+                    PasswordHash = passwordHash,
+                    Salt = salt,
+                    //Role = "SectorManager",
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                }
             };
 
-            var testUserId = Guid.NewGuid();
-            string passwordTeste = "@teste123";
-            var (testPasswordHash, testSalt) = _passwordHasher.HashWithSalt(passwordTeste);
-
-            var testeRole = _context.Roles.FirstOrDefault(p => p.Name == TickestRoleDefaults.AdminGeneral);
-            var testUser = new User
-            {
-                Id = testUserId,
-                Name = "Usuário Teste",
-                Email = "testuser@tickest.com",
-                PasswordHash = testPasswordHash,
-                Salt = testSalt,
-                Role = testeRole, 
-                IsActive = true
-            };
- 
-            //_context.Permissions.AddRange(permissions);
-            _context.Users.Add(adminTeste);
-            _context.Users.Add(testUser);
+            // Adicionando os usuários ao contexto
+            _context.Users.AddRange(users);
 
             // Criação de Departamentos
             var department = new Department
@@ -74,8 +181,8 @@ public class DatabaseSeeder : IDatabaseSeeder
                 Id = departmentId,
                 Name = "Tecnologia da Informação",
                 Description = "Departamento responsável por gerenciar TI",
-                SectorId = sectorId, 
-                DepartmentManagerId = adminMasterId // Gestor do departamento
+                DepartmentManagerId = users.First(u => u.Name == "UsuarioTeste4").Id,
+                CreatedAt = DateTime.Now
             };
 
             _context.Departments.Add(department);
@@ -86,7 +193,8 @@ public class DatabaseSeeder : IDatabaseSeeder
                 Id = sectorId,
                 Name = "Desenvolvimento",
                 Description = "Setor de Desenvolvimento de Software",
-                SectorManagerId = adminMasterId // Gestor do setor
+                SectorManagerId = users.First(u => u.Name == "UsuarioTeste3").Id,
+                CreatedAt = DateTime.Now
             };
 
             _context.Sectors.Add(sector);
@@ -97,23 +205,34 @@ public class DatabaseSeeder : IDatabaseSeeder
                 Id = areaId,
                 Name = "Desenvolvimento Backend",
                 Description = "Foco no desenvolvimento de APIs",
-                DepartmentId = departmentId, // Departamento ao qual a área pertence
+                DepartmentId = departmentId,
+                AreaManagerId = users.First(u => u.Name == "UsuarioTeste5").Id,
+                CreatedAt = DateTime.Now
             };
 
             _context.Areas.Add(area);
 
             // Criação de Especialidades
-            var specialty = new Specialty
+            var specialty1 = new Specialty
             {
                 Id = specialtyId,
                 Name = "ASP.NET Core",
-                Description = "Desenvolvimento utilizando o framework ASP.NET Core"
+                Description = "Desenvolvimento utilizando o framework ASP.NET Core para construir APIs robustas."
             };
 
-            _context.Specialties.Add(specialty);
+            var specialty2 = new Specialty
+            {
+                Id = Guid.NewGuid(),
+                Name = "Front End",
+                Description = "Foco no desenvolvimento de interfaces de usuário com HTML, CSS e JavaScript."
+            };
 
-            // Relacionamento entre usuário e área
-            area.Users = new List<User> { testUser }; 
+            // Adicionando as especialidades
+            _context.Specialties.Add(specialty1);
+            _context.Specialties.Add(specialty2);
+
+            // Relacionando área com usuários
+            area.Users = new List<User> { users.First(u => u.Name == "UsuarioTeste5") };
 
             await _context.SaveChangesAsync(cancellationToken);
         }

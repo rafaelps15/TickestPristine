@@ -5,6 +5,7 @@ using Tickest.Infrastructure;
 using Tickest.Infrastructure.Authentication;
 using Tickest.Infrastructure.Mvc.Middlewares;
 using Tickest.Persistence;
+using Tickest.Persistence.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,13 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
 var app = builder.Build();
+
+// Chama o DatabaseSeeder para inicializar os dados
+using (var scope = app.Services.CreateScope())
+{
+    var dataBaseSeeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    dataBaseSeeder.Seed();
+} 
 
 // Configurações de middleware
 app.UseCors("DefaultPolicy");

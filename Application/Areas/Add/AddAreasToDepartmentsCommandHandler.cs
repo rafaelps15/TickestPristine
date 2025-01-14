@@ -21,7 +21,7 @@ internal sealed class AddAreasToDepartmentsCommandHandler(
 
         #region Verificação de Permissão do Usuário
 
-        //var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
 
         //const string requiredPermission = "CanAddAreasToDepartments";
         //await permissionProvider.ValidatePermissionAsync(currentUser, requiredPermission);
@@ -45,6 +45,7 @@ internal sealed class AddAreasToDepartmentsCommandHandler(
         var areas = await areaRepository.GetAreasByIdsAsync(command.AreaIds, cancellationToken);
         if (!areas.Any())
         {
+            //Any() retorna true se a lista contiver pelo menos um item e false caso contrário
             logger.LogWarning("Nenhuma área encontrada para os IDs fornecidos.");
             throw new TickestException("Nenhuma área encontrada.");
         }

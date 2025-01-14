@@ -72,6 +72,6 @@ public static class DependencyInjection
         // Registra os serviços necessários para autenticação e fornecimento de tokens
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenProvider, TokenProvider>();
-        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        //services.AddScoped<IPasswordHasher, PasswordHasher>();
     }
 }

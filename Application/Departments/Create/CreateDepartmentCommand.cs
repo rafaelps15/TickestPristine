@@ -6,6 +6,5 @@ public record CreateDepartmentCommand(
     Guid Id,
     string Name,
     string Description,
-    Guid? DepartmentManagerId,
-    Guid SectorId
+    Guid? DepartmentManagerId
 ) : ICommand<Guid>; // Retorna o ID do Departamento criado

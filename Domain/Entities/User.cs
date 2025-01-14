@@ -13,8 +13,10 @@ public class User : EntityBase
     public string PasswordHash { get; set; }
     public string Salt { get; set; }
 
-    // Relacionamento com a entidade Role
-    public Guid RoleId { get; set; }
+    public Guid? SectorId { get; set; }
+    public Sector Sector { get; set; }
+
+    public Guid? RoleId { get; set; }
     public Role Role { get; set; }
 
     // Relacionamento N:N com as especialidades
@@ -32,6 +34,4 @@ public class User : EntityBase
     // Relacionamento muitos-para-muitos com Permissões
     public ICollection<Permission> Permissions { get; set; }
 
-    public Guid SectorId { get; set; }
-    public Sector Sector { get; set; }
 }

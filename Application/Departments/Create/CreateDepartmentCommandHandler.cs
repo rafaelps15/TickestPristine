@@ -51,7 +51,6 @@ internal sealed class CreateDepartmentCommandHandler(
             Id = Guid.NewGuid(),
             Name = command.Name,
             Description = command.Description,
-            SectorId = command.SectorId,
             CreatedAt = DateTime.UtcNow,
             IsActive = true
         };
@@ -67,14 +66,12 @@ internal sealed class CreateDepartmentCommandHandler(
 
         #region Persistência no Banco de Dados
 
-        // Salvando o departamento no repositório
         await departmentRepository.AddAsync(department, cancellationToken);
-        await departmentRepository.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation($"Departamento {department.Name} criado com sucesso.");
 
         #endregion
 
-        return Result.Success(department.Id); // Retorna o ID do departamento criado
+        return Result.Success(department.Id);
     }
 }

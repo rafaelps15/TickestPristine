@@ -20,7 +20,7 @@ public class SectorController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("Create")]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateSector([FromBody] CreateSectorCommand command)
     {
         var result = await _mediator.Send(command);
