@@ -48,10 +48,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithMany(a => a.Users)
             .UsingEntity(j => j.ToTable("UserAreas"));
 
-        // Relacionamento N:N com Permissions
-        builder.HasMany(u => u.Permissions)
-            .WithMany(p => p.Users)
-            .UsingEntity(j => j.ToTable("UserPermissions"));
 
         // Relacionamento de mensagens enviadas por este usuário
         builder.HasMany(u => u.Messages)

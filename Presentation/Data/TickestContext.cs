@@ -16,14 +16,6 @@ public class TickestContext : DbContext, IApplicationDbContext
     public TickestContext(DbContextOptions<TickestContext> options)
         : base(options) { }
 
-    // Implementação dos métodos da interface
-    public DbSet<TEntity> Set<TEntity>() where TEntity : class => base.Set<TEntity>();
-
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        return await base.SaveChangesAsync(cancellationToken);
-    }
-
     public DatabaseFacade Database => base.Database;
 
 

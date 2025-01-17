@@ -4,52 +4,68 @@ using Tickest.Domain.Entities.Base;
 namespace Tickest.Domain.Interfaces.Repositories;
 
 /// <summary>
-/// Interface genérica para repositórios de entidades, fornecendo métodos CRUD básicos.
+/// Interface para operações básicas de repositório.
 /// </summary>
+/// <typeparam name="TEntity">Tipo da entidade.</typeparam>
 public interface IBaseRepository<TEntity> : IDisposable where TEntity : EntityBase
 {
     /// <summary>
-    /// Busca uma entidade com base em uma expressão de filtro.
+    /// Encontra um registro que satisfaça a condição.
     /// </summary>
     Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Retorna todas as entidades.
+    /// Verifica se existe algum registro que satisfaça a condição.
+    /// </summary>
+    Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Obtém todos os registros.
     /// </summary>
     Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Busca uma entidade pelo ID.
+    /// Obtém um registro pelo ID.
     /// </summary>
     Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Adiciona uma entidade ao banco de dados.
+    /// Adiciona um registro.
     /// </summary>
     Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Adiciona várias entidades ao banco de dados.
+    /// Adiciona múltiplos registros.
     /// </summary>
     Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Atualiza uma entidade no banco de dados.
+    /// Atualiza um registro.
     /// </summary>
     Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Atualiza várias entidades no banco de dados.
+    /// Atualiza múltiplos registros.
     /// </summary>
     Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Remove uma entidade do banco de dados.
+    /// Deleta um registro pelo ID.
     /// </summary>
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Salva as alterações no contexto de dados.
+    /// Realiza a exclusão lógica de um registro.
+    /// </summary>
+    Task SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Persiste as mudanças no banco de dados.
     /// </summary>
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Libera os recursos.
+    /// </summary>
+    void Dispose();
 }

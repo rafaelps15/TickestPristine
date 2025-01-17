@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
@@ -21,6 +22,12 @@ public class RoleRepository : BaseRepository<Role>, IRoleRepository
            .Where(r => r.Name == roleName)
            .FirstOrDefaultAsync(cancellationToken)// Retorna um único Role ou null
         ?? throw new TickestException($"Função com o nome '{roleName}' não encontrada.");
+
+    public async Task<bool> AnyRoleExistsAsync(Expression<Func<Role,bool>> predicate,CancellationToken cancellationToken)
+    {
+        var role = await _context.Set<Role>().FirstOrDefaultAsync(predicate, cancellationToken);
+        return role != null;
+    }
 
     #endregion
 }

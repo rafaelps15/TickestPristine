@@ -8,25 +8,26 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
-        // Configuração da chave primária
+        // Definindo a chave primária (herdada de EntityBase)
         builder.HasKey(p => p.Id);
 
-        // Configuração dos campos
+        // Definindo a propriedade Name como única
+        builder.HasIndex(p => p.Name)
+            .IsUnique();
+
+        // Definindo as propriedades Name e Description
         builder.Property(p => p.Name)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(256);
 
         builder.Property(p => p.Description)
-            .HasMaxLength(200);
+            .IsRequired()
+            .HasMaxLength(512);
 
-        // Relacionamento N:N com Roles
-        builder.HasMany(p => p.Roles)
-            .WithMany(r => r.Permissions)
-            .UsingEntity(j => j.ToTable("RolePermissions"));
-
-        // Relacionamento N:N com Users
-        builder.HasMany(p => p.Users)
-            .WithMany(u => u.Permissions)
-            .UsingEntity(j => j.ToTable("UserPermissions"));
+        // Relacionamento muitos-para-muitos com RolePermissions
+        builder.HasMany(p => p.RolePermissions)
+            .WithOne(rp => rp.Permission)
+            .HasForeignKey(rp => rp.PermissionId)
+            .OnDelete(DeleteBehavior.Cascade); // Exclui RolePermissions ao excluir uma Permission
     }
 }

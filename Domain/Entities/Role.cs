@@ -8,11 +8,11 @@ public class Role : EntityBase
     public string Name { get; set; } // Exemplo: "Admin", "Collaborator", "Manager"
     public string Description { get; set; } // Descrição do papel (opcional)
 
-    // Relacionamento muitos-para-muitos com Permissions(Um papel pode ter várias permissões)
-    public ICollection<Permission> Permissions { get; set; } 
+    // Relacionamento N:N com Permissions através de RolePermission
+    public ICollection<RolePermission> RolePermissions { get; set; }
 
-    // Relacionamento um-para-muitos com User (um papel pode ter vários usuários)
-    public ICollection<User> Users { get; set; }  
+    // Relacionamento 1:N com User (um papel pode ser atribuído a vários usuários)
+    public ICollection<User> Users { get; set; }
 }
 
 

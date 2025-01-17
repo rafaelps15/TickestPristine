@@ -1,22 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tickest.Domain.Entities;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class ApplicationSettingRepository : IApplicationSettingRepository
+internal class ApplicationSettingRepository : BaseRepository<ApplicationSetting>,IApplicationSettingRepository
 {
-    private readonly TickestContext _context;
-
-    public ApplicationSettingRepository(TickestContext context)
+   
+    public ApplicationSettingRepository(TickestContext context) : base(context)
     {
-        _context = context;
+       
     }
 
     public async Task<ApplicationSetting> GetSettingAsync(string key)
@@ -30,7 +24,17 @@ public class ApplicationSettingRepository : IApplicationSettingRepository
         var existingSetting = await _context.ApplicationSettings
                                                .FirstOrDefaultAsync(s => s.Key == setting.Key);
 
-        _context.ApplicationSettings.Add(setting);
-        await _context.SaveChangesAsync();
+        await AddAsync(setting);
+    }
+
+    public async Task UptadeSettingFlagAsync(string settingKey, string value)
+    {
+        var setting = await _context.ApplicationSettings
+            .FirstOrDefaultAsync(s => s.Key == settingKey);
+
+        //altera o valor da configuração, 
+        setting.Value = value;
+
+        await SaveChangesAsync();
     }
 }

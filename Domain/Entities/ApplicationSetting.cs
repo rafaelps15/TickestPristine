@@ -1,8 +1,9 @@
-﻿namespace Tickest.Domain.Entities;
+﻿using Tickest.Domain.Entities.Base;
 
-public class ApplicationSetting
+namespace Tickest.Domain.Entities;
+
+public class ApplicationSetting : EntityBase
 {
-    public int Id { get; set; }
     public string Key { get; set; }
     public string Value { get; set; }
 }

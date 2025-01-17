@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Behaviors;
 using Tickest.Application.Abstractions.Services;
 using Tickest.Application.Services;

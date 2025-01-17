@@ -16,8 +16,10 @@ public class User : EntityBase
     public Guid? SectorId { get; set; }
     public Sector Sector { get; set; }
 
+    // Relacionamento 1:N com Role (um usuário pode ter apenas um papel)
     public Guid? RoleId { get; set; }
     public Role Role { get; set; }
+
 
     // Relacionamento N:N com as especialidades
     public ICollection<Specialty> Specialties { get; set; }
@@ -27,11 +29,5 @@ public class User : EntityBase
 
     // Coleção de mensagens enviadas por este usuário
     public ICollection<Message> Messages { get; set; }
-
-    // Relacionamento muitos-para-muitos com Roles (caso um usuário tenha múltiplos papéis)
-    public ICollection<Role> Roles { get; set; }
-
-    // Relacionamento muitos-para-muitos com Permissões
-    public ICollection<Permission> Permissions { get; set; }
 
 }

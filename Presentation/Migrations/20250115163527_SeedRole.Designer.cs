@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tickest.Persistence.Data;
 
@@ -11,9 +12,11 @@ using Tickest.Persistence.Data;
 namespace Tickest.Persistence.Migrations
 {
     [DbContext(typeof(TickestContext))]
-    partial class TickestContextModelSnapshot : ModelSnapshot
+    [Migration("20250115163527_SeedRole")]
+    partial class SeedRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,6 +38,36 @@ namespace Tickest.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserAreas", (string)null);
+                });
+
+            modelBuilder.Entity("PermissionRole", b =>
+                {
+                    b.Property<Guid>("PermissionsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RolesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PermissionsId", "RolesId");
+
+                    b.HasIndex("RolesId");
+
+                    b.ToTable("RolePermissions", (string)null);
+                });
+
+            modelBuilder.Entity("PermissionUser", b =>
+                {
+                    b.Property<Guid>("PermissionsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PermissionsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("UserPermissions", (string)null);
                 });
 
             modelBuilder.Entity("SpecialtyUser", b =>
@@ -146,9 +179,8 @@ namespace Tickest.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -158,16 +190,13 @@ namespace Tickest.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Permissions");
                 });
@@ -185,43 +214,35 @@ namespace Tickest.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("Tickest.Domain.Entities.Permissions.RolePermission", b =>
-                {
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PermissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("RoleId", "PermissionId");
-
-                    b.HasIndex("PermissionId");
-
-                    b.ToTable("RolePermission");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Sectors.Area", b =>
@@ -574,6 +595,36 @@ namespace Tickest.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PermissionRole", b =>
+                {
+                    b.HasOne("Tickest.Domain.Entities.Permissions.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Tickest.Domain.Entities.Permissions.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PermissionUser", b =>
+                {
+                    b.HasOne("Tickest.Domain.Entities.Permissions.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Tickest.Domain.Entities.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SpecialtyUser", b =>
                 {
                     b.HasOne("Tickest.Domain.Entities.Specialties.Specialty", null)
@@ -598,23 +649,11 @@ namespace Tickest.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Tickest.Domain.Entities.Permissions.RolePermission", b =>
+            modelBuilder.Entity("Tickest.Domain.Entities.Permissions.Role", b =>
                 {
-                    b.HasOne("Tickest.Domain.Entities.Permissions.Permission", "Permission")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Tickest.Domain.Entities.Permissions.Role", "Role")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("Role");
+                    b.HasOne("Tickest.Domain.Entities.Users.User", null)
+                        .WithMany("Roles")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Tickest.Domain.Entities.Sectors.Area", b =>
@@ -747,15 +786,8 @@ namespace Tickest.Persistence.Migrations
                     b.Navigation("Sector");
                 });
 
-            modelBuilder.Entity("Tickest.Domain.Entities.Permissions.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
-                });
-
             modelBuilder.Entity("Tickest.Domain.Entities.Permissions.Role", b =>
                 {
-                    b.Navigation("RolePermissions");
-
                     b.Navigation("Users");
                 });
 
@@ -777,6 +809,8 @@ namespace Tickest.Persistence.Migrations
             modelBuilder.Entity("Tickest.Domain.Entities.Users.User", b =>
                 {
                     b.Navigation("Messages");
+
+                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

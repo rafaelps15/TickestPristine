@@ -103,21 +103,21 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     #region Métodos de Permissões
 
-    public Task<HashSet<string>> GetPermissionsForUserAsync(User user)
-    {
-        var permissions = new HashSet<string>();
+    //public Task<HashSet<string>> GetPermissionsForUserAsync(User user)
+    //{
+    //    var permissions = new HashSet<string>();
 
-        // Obtém permissões diretamente associadas ao usuário
-        permissions.UnionWith(user.Permissions?.Select(p => p.Name) ?? Enumerable.Empty<string>());
+    //    // Obtém permissões diretamente associadas ao usuário
+    //    permissions.UnionWith(user.Permissions?.Select(p => p.Name) ?? Enumerable.Empty<string>());
 
-        // Se necessário, inclui permissões associadas aos papéis do usuário
-        foreach (var role in user.Roles ?? Enumerable.Empty<Role>())
-        {
-            permissions.UnionWith(role.Permissions?.Select(p => p.Name) ?? Enumerable.Empty<string>());
-        }
+    //    // Se necessário, inclui permissões associadas aos papéis do usuário
+    //    foreach (var role in user.Roles ?? Enumerable.Empty<Role>())
+    //    {
+    //        permissions.UnionWith(role.Permissions?.Select(p => p.Name) ?? Enumerable.Empty<string>());
+    //    }
 
-        return Task.FromResult(permissions);
-    }
+    //    return Task.FromResult(permissions);
+    //}
 
     public HashSet<string> GetPermissionsForRole(string roleName)
         => _rolePermissions.TryGetValue(roleName, out var permissions)
@@ -128,33 +128,33 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     #region Verificação de Permissão
 
-    public async Task<bool> UserHasPermissionAsync(User user, string permission)
-    {
-        try
-        {
-            // Verifica se o usuário tem a permissão
-            var userPermissions = await GetPermissionsForUserAsync(user);
-            return userPermissions.Contains(permission);
-        }
-        catch (TickestException ex)
-        {
-            _logger.LogError(ex, "Erro ao verificar permissão para o usuário.");
-            return false; // Retorna false caso ocorra um erro ao verificar as permissões
-        }
-    }
+    //public async Task<bool> UserHasPermissionAsync(User user, string permission)
+    //{
+    //    try
+    //    {
+    //        // Verifica se o usuário tem a permissão
+    //        var userPermissions = await GetPermissionsForUserAsync(user);
+    //        return userPermissions.Contains(permission);
+    //    }
+    //    catch (TickestException ex)
+    //    {
+    //        _logger.LogError(ex, "Erro ao verificar permissão para o usuário.");
+    //        return false; // Retorna false caso ocorra um erro ao verificar as permissões
+    //    }
+    //}
 
-    public async Task ValidatePermissionAsync(User user, string permission)
-    {
-        var hasPermission = await UserHasPermissionAsync(user, permission);
+    //public async Task ValidatePermissionAsync(User user, string permission)
+    //{
+    //    var hasPermission = await UserHasPermissionAsync(user, permission);
 
-        if (!hasPermission)
-        {
-            _logger.LogError("Usuário {UserId} não tem permissão para {Permission}.", user.Id, permission);
-            throw new TickestException($"Usuário não tem permissão para {permission}.");
-        }
+    //    if (!hasPermission)
+    //    {
+    //        _logger.LogError("Usuário {UserId} não tem permissão para {Permission}.", user.Id, permission);
+    //        throw new TickestException($"Usuário não tem permissão para {permission}.");
+    //    }
 
-        _logger.LogInformation("Usuário {UserId} tem permissão para a ação {Permission}.", user.Id, permission);
-    }
+    //    _logger.LogInformation("Usuário {UserId} tem permissão para a ação {Permission}.", user.Id, permission);
+    //}
 
     #endregion
 
@@ -164,4 +164,18 @@ internal sealed class PermissionProvider : IPermissionProvider
         return _rolePermissions.Keys.ToList();
     }
 
+    public Task<HashSet<string>> GetPermissionsForUserAsync(User user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UserHasPermissionAsync(User user, string permission)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task ValidatePermissionAsync(User user, string permission)
+    {
+        throw new NotImplementedException();
+    }
 }
