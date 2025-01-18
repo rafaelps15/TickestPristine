@@ -20,8 +20,8 @@ public class RoleRepository : BaseRepository<Role>, IRoleRepository
     public async Task<Role> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken) =>
         await _context.Set<Role>()
            .Where(r => r.Name == roleName)
-           .FirstOrDefaultAsync(cancellationToken)// Retorna um único Role ou null
-        ?? throw new TickestException($"Função com o nome '{roleName}' não encontrada.");
+           .FirstOrDefaultAsync(cancellationToken);
+       
 
     public async Task<bool> AnyRoleExistsAsync(Expression<Func<Role,bool>> predicate,CancellationToken cancellationToken)
     {

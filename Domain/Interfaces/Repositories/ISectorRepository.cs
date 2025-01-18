@@ -6,6 +6,5 @@ namespace Tickest.Domain.Interfaces.Repositories;
 public interface ISectorRepository : IBaseRepository<Sector>
 {
     Task AddDepartmentAsync(Department department, CancellationToken cancellationToken);
-
     Task<User> GetSectorManagerByIdAsync(Guid sectorManagerId, CancellationToken cancellationToken);
 }

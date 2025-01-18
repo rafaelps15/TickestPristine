@@ -21,7 +21,7 @@ public class User : EntityBase
     public Role Role { get; set; }
 
 
-    // Relacionamento N:N com as especialidades
+    // Relacionamento N:N com as especialidades<
     public ICollection<Specialty> Specialties { get; set; }
 
     // Relacionamento N:N com as áreas

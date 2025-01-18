@@ -1,31 +1,42 @@
 ﻿using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
+using Tickest.Persistence.Helpers;
+using Tickest.Domain.Entities.Sectors;
 
-namespace Tickest.Persistence.Seeders.Sector;
+namespace Tickest.Persistence.Seeders;
 
-public class SectorSeeder
+public static class SectorSeeder
 {
-    private readonly TickestContext _context;
-    private readonly ISectorRepository _sectorRepository;
-    private readonly IApplicationSettingRepository _applicationSettingRepository;
-
-    public SectorSeeder(TickestContext context, ISectorRepository sectorRepository, IApplicationSettingRepository applicationSettingRepository)
+    public static async Task SeedSectorsAsync(
+        TickestContext context,
+        IApplicationSettingRepository applicationSettingRepository,
+        ISectorRepository sectorRepository)
     {
-        _context = context;
-        _sectorRepository = sectorRepository;
-        _applicationSettingRepository = applicationSettingRepository;
+        // Verifica se os setores já foram semeados antes de realizar a inserção
+        await SeederHelper.SeedEntityIfNotExistAsync<Sector>(
+            context,
+            applicationSettingRepository,
+            "SectorsSeeded",
+            async () => await AddSectorsAsync(sectorRepository)
+        );
     }
 
-    public async Task SeedSector()
+    private static async Task AddSectorsAsync(ISectorRepository sectorRepository)
     {
-        var seederFlag = await _applicationSettingRepository.GetSettingAsync("SectorSeeded");
-
-        if (seederFlag is null || seederFlag.Value != "true")
+        var fixedSectors = new List<Sector>
         {
-            if (!_context.Sectors.Any())
-            {
+            new Sector {Name = "Administração Geral", Description = "Gestão de todos os departamentos e áreas da organização", CreatedAt = DateTime.Now},
+            new Sector {Name = "Operações", Description = "Setor responsável pelas operações principais da empresa", CreatedAt = DateTime.Now},
+            new Sector {Name = "Tecnologia", Description = "Setor de Tecnologia da Informação e Inovação", CreatedAt = DateTime.Now},
+            new Sector {Name = "Financeiro", Description = "Gestão de finanças e recursos econômicos", CreatedAt = DateTime.Now},
+            new Sector {Name = "Logística", Description = "Gestão de suprimentos e transporte", CreatedAt = DateTime.Now}
+        };
 
-            }
+        foreach (var sector in fixedSectors)
+        {
+            await sectorRepository.AddRangeAsync(fixedSectors);
         }
     }
 }
+
+

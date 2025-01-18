@@ -1,77 +1,149 @@
-﻿//using Tickest.Domain.Entities.Permissions;
-//using Tickest.Domain.Entities;
-//using Tickest.Domain.Interfaces.Repositories;
-//using Tickest.Persistence.Data;
+﻿using Tickest.Domain.Entities.Permissions;
+using Tickest.Domain.Interfaces.Repositories;
+using Tickest.Persistence.Data;
+using Tickest.Persistence.Helpers;
 
-//public class PermissionSeeder
-//{
-//    private readonly TickestContext _context;
-//    private readonly IPermissionRepository _permissionRepository;
-//    private readonly IApplicationSettingRepository _applicationSettingRepository;
+namespace Tickest.Persistence.Seeders;
 
-//    public PermissionSeeder(IPermissionRepository permissionRepository, IApplicationSettingRepository applicationSettingRepository)
-//    {
-//        _permissionRepository = permissionRepository;
-//        _applicationSettingRepository = applicationSettingRepository;
-//    }
+public static class PermissionSeeder
+{
+    // Verifica se as permissões foram semeadas, se não, executa o processo de seed
+    public static async Task SeedPermissionsAsync(
+        TickestContext context,
+        IApplicationSettingRepository applicationSettingRepository,
+        IPermissionRepository permissionRepository)
+    {
+        await SeederHelper.SeedEntityIfNotExistAsync<Permission>(
+            context,
+            applicationSettingRepository,
+            "PermissionsSeeded",
+            async () => await AddPermissionsAsync(permissionRepository)
+        );
+    }
 
-//    public async Task SeedPermissionsAsync(CancellationToken cancellationToken = default)
-//    {
-//        // Verifica se as permissões já foram semeadas
-//        var seederFlag = await _applicationSettingRepository.GetSettingAsync("PermissionsSeeded");
-//        if (seederFlag?.Value == "True") return;
+    // Método que adiciona as permissões ao banco
+    private static async Task AddPermissionsAsync(IPermissionRepository permissionRepository)
+    {
+        var permissionGroups = new List<PermissionGroup>
+        {
+            new AdminMasterPermissions(),
+            new AdminGeneralPermissions(),
+            new SectorAdminPermissions(),
+            new DepartmentAdminPermissions(),
+            new AreaAdminPermissions(),
+            new TicketManagerPermissions(),
+            new CollaboratorPermissions()
+        };
 
-//        // Adiciona permissões predefinidas, evitando duplicação
-//        var allPermissions = GetAllPermissions();
-//        foreach (var permission in allPermissions)
-//        {
-//            if (!await _permissionRepository.AnyAsync(p => p.Name == permission.Name, cancellationToken))
-//            {
-//                await _permissionRepository.AddAsync(permission, cancellationToken);
-//            }
-//        }
+        foreach (var permissionGroup in permissionGroups)
+        {
+            var permissions = permissionGroup.GetPermissions();
+            await permissionRepository.AddRangeAsync(permissions);
+        }
+    }
+}
 
-//        // Atualiza ou insere o estado do seed no banco
-//        await _applicationSettingRepository.SetSettingAsync(
-//            new ApplicationSetting { Key = "PermissionsSeeded", Value = "True" }
-//        );
-//    }
+// Abstração para representar um grupo de permissões
+public abstract class PermissionGroup
+{
+    public abstract IEnumerable<Permission> GetPermissions();
+}
 
-//    // Métodos de Permissões
-//    private static List<Permission> GetPermissions(string role, params string[] permissions)
-//        => permissions.Select(p => new Permission { Name = $"{role}.{p}" }).ToList();
+#region Implementações específicas dos grupos de permissões
 
-//    public List<Permission> GetAdminMasterPermissions()
-//        => GetPermissions("AdminMaster", "FullAccess", "ManageUsers", "ManageRoles", "ManageSystemSettings", "AccessChat", "ViewAuditLogs");
+public class AdminMasterPermissions : PermissionGroup
+{
+    public override IEnumerable<Permission> GetPermissions() =>
+        new List<Permission>
+        {
+            new Permission { Name = "AdminMaster.FullAccess", Description = "Acesso total ao sistema" },
+            new Permission { Name = "AdminMaster.ManageUsers", Description = "Gerenciar usuários" },
+            new Permission { Name = "AdminMaster.ManageRoles", Description = "Gerenciar funções de usuário" },
+            new Permission { Name = "AdminMaster.ManageSystemSettings", Description = "Gerenciar configurações do sistema" },
+            new Permission { Name = "AdminMaster.AccessChat", Description = "Acesso ao chat" },
+            new Permission { Name = "AdminMaster.ViewAuditLogs", Description = "Visualizar logs de auditoria" }
+        };
+}
 
-//    public List<Permission> GetAdminGeneralPermissions()
-//        => GetPermissions("AdminGeneral", "FullAccess", "ManageUsers", "ViewTickets", "ManageTickets", "AccessChat", "ManageDepartments", "ManageAreas", "ManageSectors");
+public class AdminGeneralPermissions : PermissionGroup
+{
+    public override IEnumerable<Permission> GetPermissions() =>
+        new List<Permission>
+        {
+            new Permission { Name = "AdminGeneral.FullAccess", Description = "Acesso total ao sistema" },
+            new Permission { Name = "AdminGeneral.ManageUsers", Description = "Gerenciar usuários" },
+            new Permission { Name = "AdminGeneral.ViewTickets", Description = "Visualizar tickets" },
+            new Permission { Name = "AdminGeneral.ManageTickets", Description = "Gerenciar tickets" },
+            new Permission { Name = "AdminGeneral.AccessChat", Description = "Acesso ao chat" },
+            new Permission { Name = "AdminGeneral.ManageDepartments", Description = "Gerenciar departamentos" },
+            new Permission { Name = "AdminGeneral.ManageAreas", Description = "Gerenciar áreas" },
+            new Permission { Name = "AdminGeneral.ManageSectors", Description = "Gerenciar setores" }
+        };
+}
 
-//    public List<Permission> GetSectorAdminPermissions()
-//        => GetPermissions("SectorAdmin", "ManageDepartments", "ViewSectorTickets", "ManageSectorAreas", "AccessChat");
+public class SectorAdminPermissions : PermissionGroup
+{
+    public override IEnumerable<Permission> GetPermissions() =>
+        new List<Permission>
+        {
+            new Permission { Name = "SectorAdmin.ManageDepartments", Description = "Gerenciar departamentos" },
+            new Permission { Name = "SectorAdmin.ViewSectorTickets", Description = "Visualizar tickets do setor" },
+            new Permission { Name = "SectorAdmin.ManageSectorAreas", Description = "Gerenciar áreas do setor" },
+            new Permission { Name = "SectorAdmin.AccessChat", Description = "Acesso ao chat" }
+        };
+}
 
-//    public List<Permission> GetDepartmentAdminPermissions()
-//        => GetPermissions("DepartmentAdmin", "ManageDepartment", "ViewDepartmentTickets", "ManageDepartmentAreas", "AccessChat");
+public class DepartmentAdminPermissions : PermissionGroup
+{
+    public override IEnumerable<Permission> GetPermissions() =>
+        new List<Permission>
+        {
+            new Permission { Name = "DepartmentAdmin.ManageDepartment", Description = "Gerenciar departamento" },
+            new Permission { Name = "DepartmentAdmin.ViewDepartmentTickets", Description = "Visualizar tickets do departamento" },
+            new Permission { Name = "DepartmentAdmin.ManageDepartmentAreas", Description = "Gerenciar áreas do departamento" },
+            new Permission { Name = "DepartmentAdmin.AccessChat", Description = "Acesso ao chat" }
+        };
+}
 
-//    public List<Permission> GetAreaAdminPermissions()
-//        => GetPermissions("AreaAdmin", "ManageArea", "ViewAreaTickets", "ManageUsersInArea", "AccessChat");
+public class AreaAdminPermissions : PermissionGroup
+{
+    public override IEnumerable<Permission> GetPermissions() =>
+        new List<Permission>
+        {
+            new Permission { Name = "AreaAdmin.ManageArea", Description = "Gerenciar área" },
+            new Permission { Name = "AreaAdmin.ViewAreaTickets", Description = "Visualizar tickets da área" },
+            new Permission { Name = "AreaAdmin.ManageUsersInArea", Description = "Gerenciar usuários da área" },
+            new Permission { Name = "AreaAdmin.AccessChat", Description = "Acesso ao chat" }
+        };
+}
 
-//    public List<Permission> GetTicketManagerPermissions()
-//        => GetPermissions("TicketManager", "AssignTicketsToSpecialists", "ViewAllTickets", "ViewTicketDetails", "VerifyUserData", "ManageTickets", "AssignTicketsToOthers", "ViewTicketHistory", "AccessChat");
+public class TicketManagerPermissions : PermissionGroup
+{
+    public override IEnumerable<Permission> GetPermissions() =>
+        new List<Permission>
+        {
+            new Permission { Name = "TicketManager.AssignTicketsToSpecialists", Description = "Atribuir tickets a especialistas" },
+            new Permission { Name = "TicketManager.ViewAllTickets", Description = "Visualizar todos os tickets" },
+            new Permission { Name = "TicketManager.ViewTicketDetails", Description = "Visualizar detalhes de tickets" },
+            new Permission { Name = "TicketManager.VerifyUserData", Description = "Verificar dados de usuários" },
+            new Permission { Name = "TicketManager.ManageTickets", Description = "Gerenciar tickets" },
+            new Permission { Name = "TicketManager.AssignTicketsToOthers", Description = "Atribuir tickets a outros usuários" },
+            new Permission { Name = "TicketManager.ViewTicketHistory", Description = "Visualizar histórico de tickets" },
+            new Permission { Name = "TicketManager.AccessChat", Description = "Acesso ao chat" }
+        };
+}
 
-//    public List<Permission> GetCollaboratorPermissions()
-//        => GetPermissions("Collaborator", "ViewTickets", "EditTickets", "Finalize", "SendTicketMessage", "AccessChat");
+public class CollaboratorPermissions : PermissionGroup
+{
+    public override IEnumerable<Permission> GetPermissions() =>
+        new List<Permission>
+        {
+            new Permission { Name = "Collaborator.ViewTickets", Description = "Visualizar tickets" },
+            new Permission { Name = "Collaborator.EditTickets", Description = "Editar tickets" },
+            new Permission { Name = "Collaborator.Finalize", Description = "Finalizar tickets" },
+            new Permission { Name = "Collaborator.SendTicketMessage", Description = "Enviar mensagens para o ticket" },
+            new Permission { Name = "Collaborator.AccessChat", Description = "Acesso ao chat" }
+        };
+}
 
-//    private List<Permission> GetAllPermissions()
-//    {
-//        var permissions = new List<Permission>();
-//        permissions.AddRange(GetAdminMasterPermissions());
-//        permissions.AddRange(GetAdminGeneralPermissions());
-//        permissions.AddRange(GetSectorAdminPermissions());
-//        permissions.AddRange(GetDepartmentAdminPermissions());
-//        permissions.AddRange(GetAreaAdminPermissions());
-//        permissions.AddRange(GetTicketManagerPermissions());
-//        permissions.AddRange(GetCollaboratorPermissions());
-//        return permissions;
-//    }
-//}
+#endregion

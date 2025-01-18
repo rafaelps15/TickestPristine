@@ -6,37 +6,30 @@ using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Helpers;
 using Tickest.Domain.Interfaces;
+using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Seeders;
 
-public class DatabaseSeeder : IDatabaseSeeder
+public static class DatabaseSeeder
 {
-    private readonly TickestContext _context;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly RoleSeeder _roleSeeder;
-    private readonly ILogger<DatabaseSeeder> _logger;
-
-    public DatabaseSeeder(TickestContext context, IPasswordHasher passwordHasher, RoleSeeder roleSeeder, ILogger<DatabaseSeeder> logger)
+    public static async Task SeedAsync(
+        TickestContext context,
+        IApplicationSettingRepository applicationSettingRepository,
+        IPermissionRepository permissionRepository)
     {
-        _context = context;
-        _passwordHasher = passwordHasher;
-        _roleSeeder = roleSeeder;
-        _logger = logger;
-    }
+        // Chama os seeders, verificando se já foram semeados utilizando o SeederHelper
+        await PermissionSeeder.SeedPermissionsAsync(
+            context,
+            applicationSettingRepository,
+            permissionRepository
+        );
 
-    public async Task Seed()
-    {
-        try
-        {
-            await _roleSeeder.SeedRoles();
-            _logger.LogInformation("Banco de dados seedado com sucesso.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex, "Error ao seedar o banco de dados.");
-        }
+        // Você pode adicionar outros seeders aqui
+        // await AnotherSeeder.SeedAsync(...);
     }
+}
+
 
     // Seeding de outros dados, como configurações, usuários padrão, etc.
 
