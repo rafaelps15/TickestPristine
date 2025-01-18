@@ -29,8 +29,6 @@
 
   <ItemGroup>
     <Folder Include="Interceptorr\" />
-    <Folder Include="Seeders\Department\" />
-    <Folder Include="Seeders\Area\" />
     <Folder Include="Seeders\User\" />
   </ItemGroup>
 

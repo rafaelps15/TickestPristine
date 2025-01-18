@@ -25,16 +25,16 @@ public static class SectorSeeder
     {
         var fixedSectors = new List<Sector>
         {
-            new Sector {Name = "Administração Geral", Description = "Gestão de todos os departamentos e áreas da organização", CreatedAt = DateTime.Now},
-            new Sector {Name = "Operações", Description = "Setor responsável pelas operações principais da empresa", CreatedAt = DateTime.Now},
+            //new Sector {Name = "Administração Geral", Description = "Gestão de todos os departamentos e áreas da organização", CreatedAt = DateTime.Now},
+            //new Sector {Name = "Operações", Description = "Setor responsável pelas operações principais da empresa", CreatedAt = DateTime.Now},
             new Sector {Name = "Tecnologia", Description = "Setor de Tecnologia da Informação e Inovação", CreatedAt = DateTime.Now},
-            new Sector {Name = "Financeiro", Description = "Gestão de finanças e recursos econômicos", CreatedAt = DateTime.Now},
-            new Sector {Name = "Logística", Description = "Gestão de suprimentos e transporte", CreatedAt = DateTime.Now}
+            //new Sector {Name = "Financeiro", Description = "Gestão de finanças e recursos econômicos", CreatedAt = DateTime.Now},
+            //new Sector {Name = "Logística", Description = "Gestão de suprimentos e transporte", CreatedAt = DateTime.Now}
         };
 
         foreach (var sector in fixedSectors)
         {
-            await sectorRepository.AddRangeAsync(fixedSectors);
+            await sectorRepository.AddAsync(sector);
         }
     }
 }
