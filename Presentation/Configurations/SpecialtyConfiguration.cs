@@ -13,7 +13,13 @@ public class SpecialtyConfiguration : IEntityTypeConfiguration<Specialty>
         // Propriedades
         builder.Property(s => s.Name)
             .IsRequired()
-            .HasMaxLength(200);  // Ajuste o tamanho máximo conforme necessário
+            .HasMaxLength(500);  // Ajuste o tamanho máximo conforme necessário
+
+        // Relacionamento com Area (Muitos para Um)
+        builder.HasOne(s => s.Area) // Specialty está relacionado com uma Area
+            .WithMany(a => a.Specialties) // Uma Area pode ter várias Specialties
+            .HasForeignKey(s => s.AreaId) // Chave estrangeira
+            .OnDelete(DeleteBehavior.Restrict); // Evita exclusão em cascata
 
         builder.Property(s => s.Description)
             .IsRequired(false)  // Pode ser opcional

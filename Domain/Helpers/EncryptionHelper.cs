@@ -28,6 +28,16 @@ public class EncryptionHelper
         }
     }
 
+    /// <summary>
+    /// Gera o hash de uma senha, retornando o salt e o hash correspondente.
+    /// </summary>
+    public static(string Salt, string PasswordHash) GeneratePasswordHash(string password)
+    {
+        var salt = CreateSaltKey(16);
+        var passwordHash = CreatePasswordHashWithSalt(password, salt);
+        return (salt, passwordHash);
+    }
+
     public static bool CheckPassword(string password, string salt, string passwordHashed)
     {
         var pass = EncryptionHelper.CreatePasswordHashWithSalt(password, salt);

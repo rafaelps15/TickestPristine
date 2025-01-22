@@ -33,16 +33,12 @@ public static class DependencyInjection
         services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
 
         // Registra a unidade de trabalho
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Registra o seeder
-        //services.AddScoped<RoleSeeder>();
-
-        // Registra o serviço para popular o banco de dados na primeira execução
-        //services.AddScoped<ILogger<DatabaseSeeder>, Logger<DatabaseSeeder>>();
+        // Registra o DatabaseSeeder
+        services.AddScoped<DatabaseSeeder>();
 
         return services;
     }

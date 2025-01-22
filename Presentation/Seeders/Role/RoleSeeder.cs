@@ -1,7 +1,8 @@
-﻿using Tickest.Domain.Entities.Permissions;
+﻿using Microsoft.EntityFrameworkCore;
+using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
-using Tickest.Persistence.Helpers;
+using static Tickest.Persistence.Seeders.PermissionSeeder;
 
 namespace Tickest.Persistence.Seeders;
 
@@ -9,20 +10,13 @@ public static class RoleSeeder
 {
     public static async Task SeedRolesAsync(
         TickestContext context,
-        IApplicationSettingRepository applicationSettingRepository,
         IRoleRepository roleRepository,
-        IPermissionRepository permissionRepository)
+        IPermissionRepository permissionRepository = null)
     {
-        // Verifica se as roles já foram semeadas antes de realizar a inserção
-        await SeederHelper.SeedEntityIfNotExistAsync<Role>(
-            context,
-            applicationSettingRepository,
-            "RolesSeeded",
-            async () => await AddRolesAsync(roleRepository, permissionRepository)
-        );
+        await AddRolesAsync(context, roleRepository, permissionRepository);
     }
 
-    private static async Task AddRolesAsync(IRoleRepository roleRepository, IPermissionRepository permissionRepository)
+    private static async Task AddRolesAsync(TickestContext context, IRoleRepository roleRepository, IPermissionRepository permissionRepository)
     {
         var permissionGroups = new List<PermissionGroup>
         {
@@ -34,6 +28,8 @@ public static class RoleSeeder
             new TicketManagerPermissions(),
             new CollaboratorPermissions()
         };
+
+        var allPermissions = permissionGroups.SelectMany(group => group.GetPermissions()).ToList();
 
         // Associa permissões às roles
         var roleData = new[]
@@ -49,34 +45,36 @@ public static class RoleSeeder
 
         foreach (var (roleName, description, permissionGroup) in roleData)
         {
-            var role = await CreateRoleWithPermissionsAsync(roleRepository, permissionRepository, roleName, description, permissionGroup);
+            var role = new Role
+            {
+                Name = roleName,
+                Description = description,
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                DeactivatedAt = null,
+                UpdateAt = null
+            };
+
+            foreach (var permission in permissionGroup.GetPermissions())
+            {
+                // Verifica se a permissão já existe
+                var existingPermission = await permissionRepository.GetPermissionByNameAsync(permission.Name);
+
+                if (existingPermission != null)
+                {
+                    // Associar a permissão à role
+                    var rolePermission = new RolePermission
+                    {
+                        Role = role,
+                        Permission = existingPermission
+                    };
+
+                    // Adiciona a associação RolePermission à role
+                    role.RolePermissions.Add(rolePermission);
+                }
+            }
+
             await roleRepository.AddAsync(role);
         }
-    }
-
-
-    //Passar esse métod
-    private static async Task<Role> CreateRoleWithPermissionsAsync(
-        IRoleRepository roleRepository,
-        IPermissionRepository permissionRepository,
-        string roleName,
-        string description,
-        PermissionGroup permissionGroup)
-    {
-        var role = new Role
-        {
-            Name = roleName,
-            Description = description
-        };
-
-        // Obtém as permissões associadas a essa role
-        var permissions = permissionGroup.GetPermissions();
-        role.RolePermissions = permissions.Select(permission => new RolePermission
-        {
-            Role = role,
-            Permission = permission
-        }).ToList();
-
-        return role;
     }
 }

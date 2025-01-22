@@ -12,8 +12,8 @@ public class PermissionRepository : BaseRepository<Permission>, IPermissionRepos
     public PermissionRepository(TickestContext context) : base(context)
         => _context = context;
 
-    public async Task<Permission> GetPermissionByNameAsync(string permissionName, CancellationToken cancellationToken) =>
+    public async Task<Permission> GetPermissionByNameAsync(string name) =>
         await _context.Permissions
-             .FirstOrDefaultAsync(p => p.Name == permissionName, cancellationToken);
+             .FirstOrDefaultAsync(p => p.Name == name);
 
 }

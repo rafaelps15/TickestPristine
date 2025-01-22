@@ -1,7 +1,6 @@
 ﻿using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
-using Tickest.Persistence.Helpers;
 
 namespace Tickest.Persistence.Seeders;
 
@@ -9,16 +8,10 @@ public static class AreaSeeder
 {
     public static async Task SeedAreasAsync(
         TickestContext context,
-        IApplicationSettingRepository applicationSettingRepository,
         IAreaRepository areaRepository,
         IDepartmentRepository departmentRepository)
     {
-        await SeederHelper.SeedEntityIfNotExistAsync<Area>(
-            context,
-            applicationSettingRepository,
-            "AreaSeeded",
-            async () => await AddAreasAync(areaRepository, departmentRepository)
-        );
+        await AddAreasAync(areaRepository, departmentRepository);
     }
 
     private static async Task AddAreasAync(IAreaRepository areaRepository, IDepartmentRepository departmentRepository)
@@ -162,9 +155,9 @@ public static class AreaSeeder
                 Id = Guid.NewGuid(),
                 Name = "Desenvolvimento Frontend",
                 Description = "Desenvolve interfaces de usuário com tecnologias como HTML, CSS, JavaScript e frameworks (React, Angular, Vue.js).",
+                DepartmentId = departments.Where(s => s.Name == "Setor Tecnologia").Select(s => s.Id).FirstOrDefault(),
                 CreatedAt = DateTime.Now,
                 IsActive = true,
-                IsDeleted = false,
                 DeactivatedAt = null,
                 UpdateAt = null
             },
@@ -174,7 +167,6 @@ public static class AreaSeeder
                 Description = "Desenvolve a lógica de servidor e APIs, gerenciando comunicação entre frontend e banco de dados.",
                 CreatedAt = DateTime.Now,
                 IsActive = true,
-                IsDeleted = false,
                 DeactivatedAt = null,
                 UpdateAt = null
             },
@@ -184,7 +176,6 @@ public static class AreaSeeder
                 Description = "Gerencia e organiza dados, criando pipelines e data warehouses para otimização do uso de dados.",
                 CreatedAt = DateTime.Now,
                 IsActive = true,
-                IsDeleted = false,
                 DeactivatedAt = null,
                 UpdateAt = null
             },
@@ -194,7 +185,6 @@ public static class AreaSeeder
                 Description = "Oferece suporte técnico para desenvolvedores, configurando ambientes de desenvolvimento e integração.",
                 CreatedAt = DateTime.Now,
                 IsActive = true,
-                IsDeleted = false,
                 DeactivatedAt = null,
                 UpdateAt = null
             },
@@ -234,10 +224,6 @@ public static class AreaSeeder
 
         foreach (var area in fixedAreas)
         {
-            if (area.IsDeleted)
-            {
-                area.SoftDelete();
-            }
             await areaRepository.AddAsync(area);
         }
     }

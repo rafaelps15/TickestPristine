@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Tickest.Domain.Entities.Permissions;
-using Tickest.Domain.Entities.Users;
-using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 

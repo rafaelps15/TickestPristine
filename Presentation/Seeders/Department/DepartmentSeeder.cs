@@ -1,31 +1,25 @@
 ﻿using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
-using Tickest.Persistence.Helpers;
 
 namespace Tickest.Persistence.Seeders;
 
+//VERIFICAR A POSSIBILIDADE DE MUDAR PARA DICTONARY AS LISTAS, DIMINUINDO A BUSCA REPETIDAS NO BDADOS.
 public static class DepartmentSeeder
 {
     public static async Task SeedDepartmentsAsync(
         TickestContext context,
-        IApplicationSettingRepository applicationSettingRepository,
         IDepartmentRepository departmentRepository,
         ISectorRepository sectorRepository)
     {
-        await SeederHelper.SeedEntityIfNotExistAsync<Department>(
-            context,
-            applicationSettingRepository,
-            "DepartmentsSeeded",
-            async () => await AddDepartmentsAsync(departmentRepository, sectorRepository)
-        );
+        await AddDepartmentsAsync(departmentRepository, sectorRepository);
     }
 
     private static async Task AddDepartmentsAsync(
         IDepartmentRepository departmentRepository,
         ISectorRepository sectorRepository)
     {
-       
+
         var sectors = await sectorRepository.GetAllAsync();
 
         var fixedDepartments = new List<Department>
@@ -54,7 +48,11 @@ public static class DepartmentSeeder
                 Id = Guid.NewGuid(),
                 Name = "Desenvolvimento de Software",
                 Description = "Desenvolve interfaces de usuário e lógicas de servidor com tecnologias como HTML, CSS, JavaScript, React, Angular, Vue.js, e APIs.",
-                SectorId = sectors.Where(s => s.Name == "Tecnologia").Select(s => s.Id).FirstOrDefault()
+                SectorId = sectors.Where(s => s.Name == "Tecnologia").Select(s => s.Id).FirstOrDefault(),
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                DeactivatedAt = null,
+                UpdateAt = null
             },
 
             // Setor Tecnologia - Departamento Suporte Técnico
@@ -63,7 +61,11 @@ public static class DepartmentSeeder
                 Id = Guid.NewGuid(),
                 Name = "Suporte Técnico",
                 Description = "Oferece suporte técnico para desenvolvedores, configurando ambientes de desenvolvimento e integração.",
-                SectorId = sectors.Where(s => s.Name == "Tecnologia").Select(s => s.Id).FirstOrDefault()
+                SectorId = sectors.Where(s => s.Name == "Tecnologia").Select(s => s.Id).FirstOrDefault(),
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                DeactivatedAt = null,
+                UpdateAt = null
             },
 
             //// Setor Financeiro - Departamento Contabilidade

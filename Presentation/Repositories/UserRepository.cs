@@ -6,7 +6,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class UserRepository : BaseRepository<User>, IUserRepository
+public class UserRepository : BaseRepository<User>, IUserRepository
 {
     public UserRepository(TickestContext context) : base(context) { }
 

@@ -1,4 +1,5 @@
 ﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Entities.Sectors;
@@ -22,4 +23,6 @@ public class Area : EntityBase
 
     public List<User> Users { get; set; }  // Relacionamento N:N com os Usuários (uma área pode ter vários usuários)
 
+    public Guid SpecialtyId { get; set; }
+    public List<Specialty> Specialties { get; set; }
 }
