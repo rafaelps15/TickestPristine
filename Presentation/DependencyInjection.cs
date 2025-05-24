@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Data;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
@@ -37,8 +36,9 @@ public static class DependencyInjection
         // Registra a unidade de trabalho
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Registra o DatabaseSeeder
-        services.AddScoped<DatabaseSeeder>();
+        services.AddScoped<IDataBaseSeeder, RoleSeeder>();
+
+        services.AddScoped<DatabaseSeederRunner>();
 
         return services;
     }

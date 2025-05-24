@@ -8,7 +8,7 @@ namespace Tickest.Domain.Entities.Specialties;
 /// <summary>
 /// Specialty: Representa uma especialidade dentro de uma área, indicando uma área de especialização específica.
 /// </summary>
-public class Specialty : EntityBase
+public class Specialty : Entity
 {
     public string Name { get; set; } 
     public string Description { get; set; }

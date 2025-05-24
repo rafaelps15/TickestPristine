@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Users\Get\" />
+    <Folder Include="Features\Users\Get\" />
   </ItemGroup>
 
 </Project>

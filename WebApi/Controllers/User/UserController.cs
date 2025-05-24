@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tickest.Application.Abstractions.Authentication;
-using Tickest.Application.Users.Create;
+using Tickest.Application.Features.Users.Create;
 
 namespace WebApi.Controllers.User
 {

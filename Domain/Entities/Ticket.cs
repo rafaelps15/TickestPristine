@@ -9,7 +9,7 @@ namespace Tickest.Domain.Entities.Tickets;
 /// <summary>
 /// Ticket: Representa um ticket dentro do sistema, com informações sobre o problema ou solicitação.
 /// </summary>
-public class Ticket : EntityBase
+public class Ticket : Entity
 {
     public string Title { get; set; }
     public string Description { get; set; }

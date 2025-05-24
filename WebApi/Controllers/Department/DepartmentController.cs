@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Tickest.Application.Areas.Add;
 using Tickest.Application.Departments.Get;
-using Tickest.Application.Sectors.Create;
+using Tickest.Application.Features.Areas.Add;
+using Tickest.Application.Features.Departments.Create;
 using Tickest.Domain.Common;
 
 namespace WebApi.Controllers.Department;

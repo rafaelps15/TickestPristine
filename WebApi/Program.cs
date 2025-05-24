@@ -1,11 +1,11 @@
 using Application;
 using Serilog;
-using Tickest.Domain.Interfaces;
+using Tickest.Domain.Interfaces.Seeders;
 using Tickest.Infrastructure;
 using Tickest.Infrastructure.Authentication;
 using Tickest.Infrastructure.Mvc.Middlewares;
 using Tickest.Persistence;
-using Tickest.Persistence.Seeders;
+using Tickest.Persistence.Persistence.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 

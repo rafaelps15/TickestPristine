@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Tickest.Application.csproj" />
+    <ProjectReference Include="..\Presentation\Tickest.Persistence.csproj" />
   </ItemGroup>
 
 	<!--Isso garante que o appsettings.json seja copiado para a pasta de saída durante o processo de build.-->
