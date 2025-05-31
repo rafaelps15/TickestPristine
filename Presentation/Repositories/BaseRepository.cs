@@ -19,53 +19,41 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         return await _context.Set<TEntity>().AnyAsync(predicate, cancellationToken);
     }
 
-    public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    public async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
     {
-        return await _context.Set<TEntity>().FirstOrDefaultAsync(predicate, cancellationToken);
+        return await _context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
     public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Set<TEntity>().ToListAsync(cancellationToken);
+        return await _context.Set<TEntity>().AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Set<TEntity>().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        return await _context.Set<TEntity>().FindAsync(new object[] {id},cancellationToken);
     }
 
     public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        entity.CreatedAt = DateTime.Now;
         await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
         await SaveChangesAsync(cancellationToken);
     }
 
     public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
-        foreach (var entity in entities)
-        {
-            entity.CreatedAt = DateTime.UtcNow;
-        }
-
         await _context.Set<TEntity>().AddRangeAsync(entities, cancellationToken);
         await SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        entity.UpdateAt = DateTime.Now;
         _context.Set<TEntity>().Update(entity);
         await SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
-        foreach (var entity in entities)
-        {
-            entity.UpdateAt = DateTime.UtcNow;
-        }
-
         _context.Set<TEntity>().UpdateRange(entities);
         await SaveChangesAsync(cancellationToken);
     }
@@ -73,19 +61,11 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await GetByIdAsync(id, cancellationToken);
-        if (entity is null)
+        if (entity != null)
         {
             _context.Set<TEntity>().Remove(entity);
             await SaveChangesAsync(cancellationToken);
         }
-    }
-
-    public async Task SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        var entity = await GetByIdAsync(id, cancellationToken);
-        entity.SoftDelete();
-        _context.Set<TEntity>().Update(entity);
-        await SaveChangesAsync(cancellationToken);
     }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -93,8 +73,5 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public void Dispose()
-    {
-        _context.Dispose();
-    }
+    
 }

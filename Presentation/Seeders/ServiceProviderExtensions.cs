@@ -3,9 +3,9 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Seeders;
 
-public static class DatabaseSeedingService
+public static class ServiceProviderExtensions
 {
-    public static async Task SeedDatabaseAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+    public static async Task RunDatabaseSeedingAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         using var scope = services.CreateScope();
         var provider = scope.ServiceProvider;

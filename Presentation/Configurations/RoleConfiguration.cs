@@ -20,12 +20,6 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .IsRequired()
             .HasMaxLength(256);
 
-        // Relacionamento muitos-para-muitos com Permissions via RolePermissions
-        builder.HasMany(r => r.RolePermissions)
-            .WithOne(rp => rp.Role)
-            .HasForeignKey(rp => rp.RoleId)
-            .OnDelete(DeleteBehavior.Cascade); // Exclui RolePermissions ao excluir uma Role
-
         // Relacionamento 1:N com Users (um papel pode ser atribuído a vários usuários)
         builder.HasMany(r => r.Users)
             .WithOne(u => u.Role) // Um usuário tem um papel

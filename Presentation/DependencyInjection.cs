@@ -36,10 +36,28 @@ public static class DependencyInjection
         // Registra a unidade de trabalho
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        services.AddScoped<IDataBaseSeeder, RoleSeeder>();
-
         services.AddScoped<DatabaseSeederRunner>();
 
         return services;
     }
+
+    /// <summary>
+    /// Executa o seeding do banco de dados com um escopo de serviço.
+    /// </summary>
+    public static class RunDatabaseSeedingAsync
+    {
+        public static async Task SeedDatabaseAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+        {
+            using var scope = services.CreateScope();
+            var provider = scope.ServiceProvider;
+
+            var context = provider.GetRequiredService<TickestContext>();
+            var seederRunner = provider.GetRequiredService<DatabaseSeederRunner>();
+
+            await seederRunner.RunAsync(context, cancellationToken);
+        }
+    }
+
+
+
 }

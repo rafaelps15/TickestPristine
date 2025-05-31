@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tickest.Application.Features.Departments.Add;
 using Tickest.Application.Features.Sectors.Create;
+using Tickest.Application.Features.Sectors.Delete;
+using Tickest.Application.Features.Sectors.Get;
+using Tickest.Application.Features.Sectors.GetById;
 using Tickest.Application.Features.Users.Add;
-using Tickest.Application.Sectors.Delete;
-using Tickest.Application.Sectors.Get;
-using Tickest.Application.Sectors.GetById;
 
 namespace WebApi.Controllers.Sector;
 

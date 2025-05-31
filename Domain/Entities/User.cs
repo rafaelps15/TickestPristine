@@ -6,7 +6,7 @@ using Tickest.Domain.Entities.Tickets;
 
 namespace Tickest.Domain.Entities.Users;
 
-public class User : EntityBase
+public class User : Entity
 {
     public string Name { get; set; }
     public string Email { get; set; }

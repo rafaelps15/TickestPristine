@@ -4,9 +4,9 @@ namespace Tickest.Persistence.Seeders;
 
 public class DatabaseSeederRunner
 {
-    private readonly IEnumerable<IDataBaseSeeder> _seeders;
+    private readonly IEnumerable<IDatabaseSeeder> _seeders;
 
-    public DatabaseSeederRunner(IEnumerable<IDataBaseSeeder> seeders)
+    public DatabaseSeederRunner(IEnumerable<IDatabaseSeeder> seeders)
     {
         _seeders = seeders;
     }
