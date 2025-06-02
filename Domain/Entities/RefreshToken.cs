@@ -3,7 +3,7 @@ using Tickest.Domain.Exceptions;
 
 namespace Tickest.Domain.Entities.Auths;
 
-public class RefreshToken : Entity
+public class RefreshToken : Entity<Guid>
 {
     public Guid UserId { get; set; }
     public string Token { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Tickest.Domain.Entities.Base;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
@@ -6,7 +7,7 @@ namespace Tickest.Domain.Interfaces.Repositories;
 /// Interface genérica para repositório base que define operações comuns de persistência.
 /// </summary>
 /// <typeparam name="TEntity">Tipo da entidade que herda de EntityBase.</typeparam>
-public interface IBaseRepository<TEntity> where TEntity : class
+public interface IBaseRepository<TEntity,TKey> where TEntity : EntityBase<TKey>
 {
     /// <summary>
     /// Verifica se existe algum registro que satisfaz o predicado informado.

@@ -1,9 +1,10 @@
-﻿using Tickest.Domain.Entities.Base;
+﻿using System.Security.Cryptography;
+using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Exceptions;
 
 namespace Tickest.Domain.Entities;
 
-public abstract class Entity : EntityBase
+public abstract class Entity<TId> : EntityBase<TId>
 {
     public bool IsActive { get; set; }
     public bool IsDeleted { get; private set; }   // Indica se a entidade foi deletada

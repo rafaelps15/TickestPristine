@@ -3,7 +3,7 @@ using Tickest.Domain.Entities.Specialties;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-public interface ISpecialtyRepository : IBaseRepository<Specialty>
+public interface ISpecialtyRepository : IBaseRepository<Specialty, Guid>
 {
     Task<ICollection<Specialty>> GetSpecialtiesByNamesAsync(IEnumerable<string> specialtyNames, CancellationToken cancellationToken);
 }

@@ -6,7 +6,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : EntityBase
+public class BaseRepository<TEntity, TKey> : IBaseRepository<TEntity, TKey> where TEntity : EntityBase<TKey>
 {
     protected readonly TickestContext _context;
 
@@ -31,7 +31,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
 
     public async Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Set<TEntity>().FindAsync(new object[] {id},cancellationToken);
+        return await _context.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);
     }
 
     public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
@@ -73,5 +73,5 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    
+
 }

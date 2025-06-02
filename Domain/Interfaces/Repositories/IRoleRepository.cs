@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Tickest.Domain.Entities;
 using Tickest.Domain.Entities.Permissions;
-using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-public interface IRoleRepository : IBaseRepository<Role>
+public interface IRoleRepository : IBaseRepository<Role, Guid>
 {
     Task<Role> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken);
 }

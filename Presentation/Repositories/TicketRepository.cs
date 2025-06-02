@@ -6,7 +6,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class TicketRepository : BaseRepository<Ticket>, ITicketRepository
+internal class TicketRepository : BaseRepository<Ticket,Guid>, ITicketRepository
 {
     protected readonly TickestContext _context;
 

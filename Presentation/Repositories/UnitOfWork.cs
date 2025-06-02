@@ -1,124 +1,43 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Tickest.Application.Abstractions.Services;
-using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork : IUnitOfWork, IDisposable
 {
-    private readonly TickestContext _context;
-    private readonly IQueryFilterService _queryFilterService;
-    private readonly IUserRepository _userRepository;
-    private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly ITicketRepository _ticketRepository;
-    private readonly ISpecialtyRepository _specialtyRepository;
-    private readonly IAreaRepository _areaRepository;
-    private readonly ISectorRepository _sectorRepository;
-    private bool _disposed;
-    private IDbContextTransaction _currentTransaction;
+    private readonly DbContext _context;
+    private IDbContextTransaction _transaction;
 
-    public UnitOfWork(
-        TickestContext context,
-        IUserRepository userRepository,
-        IRefreshTokenRepository refreshTokenRepository,
-        ITicketRepository ticketRepository,
-        ISpecialtyRepository specialtyRepository,
-        IAreaRepository areaRepository,
-        IQueryFilterService queryFilterService)
-        => (_context, _queryFilterService, _userRepository, _refreshTokenRepository, _ticketRepository, _specialtyRepository, _areaRepository, _sectorRepository ) =
-        (context, queryFilterService, userRepository, refreshTokenRepository, ticketRepository, specialtyRepository, areaRepository, sectorRepository );
-
-    public IUserRepository Users => _userRepository;
-    public IRefreshTokenRepository RefreshTokenRepository => _refreshTokenRepository;
-    public ITicketRepository TicketRepository => _ticketRepository;
-    public IAreaRepository AreaRepository => _areaRepository;
-    public ISpecialtyRepository SpecialtyRepository => _specialtyRepository;
-    public ISectorRepository sectorRepository => _sectorRepository;
-
-    public IQueryable<TEntity> ApplyFilters<TEntity>(IQueryable<TEntity> query) where TEntity : class =>
-        _queryFilterService.ApplyFilters(query);
-
-    public async Task<int> CommitAsync(CancellationToken cancellationToken)
+    public UnitOfWork(TickestContext context)
     {
-        try
-        {
-            if (_currentTransaction == null)
-            {
-                return await _context.SaveChangesAsync(cancellationToken);
-            }
-            else
-            {
-                await _currentTransaction.CommitAsync(cancellationToken);
-                return 1;
-            }
-        }
-        catch (DbUpdateException dbEx)
-        {
-            await RollbackCurrentTransaction(cancellationToken);
-            throw new TickestException("Erro ao tentar salvar as alterações no banco de dados.", dbEx);
-        }
-        catch (Exception ex)
-        {
-            await RollbackCurrentTransaction(cancellationToken);
-            throw new TickestException("Ocorreu um erro ao processar a transação.", ex);
-        }
+        _context = context;
     }
 
-    private async Task RollbackCurrentTransaction(CancellationToken cancellationToken)
+    public Task BeginTransactionAsync()
     {
-        if (_currentTransaction != null)
-        {
-            await _currentTransaction.RollbackAsync(cancellationToken);
-        }
+        return _context.Database.BeginTransactionAsync().ContinueWith(t => _transaction = t.Result);
     }
 
-    public async Task<int> CommitBatchAsync(CancellationToken cancellationToken, IEnumerable<Task> batchTasks)
+    public Task<int> SaveChangesAsync()
     {
-        try
-        {
-            await Task.WhenAll(batchTasks);
-            return await _context.SaveChangesAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            throw new TickestException("Erro ao realizar commit em lote.", ex);
-        }
+        return _context.SaveChangesAsync();
     }
 
-    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
+    public Task CommitTransactionAsync()
     {
-        _currentTransaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-        return _currentTransaction;
+        return _transaction.CommitAsync();
     }
 
-    public void CommitTransaction()
+    public Task RollbackTransactionAsync()
     {
-        _currentTransaction?.Commit();
-    }
-
-    public void RollbackTransaction()
-    {
-        _currentTransaction?.Rollback();
+        return _transaction.RollbackAsync();
     }
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                _context.Dispose();
-            }
-            _disposed = true;
-        }
+        _transaction?.Dispose();
+        _context.Dispose();
     }
 }

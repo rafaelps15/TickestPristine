@@ -7,7 +7,7 @@ namespace Tickest.Domain.Entities.Sectors;
 /// Representa um setor dentro da organização, o nível mais alto da estrutura organizacional,
 /// com várias divisões internas (departamentos). Cada setor tem um gestor (manager) responsável.
 /// </summary>
-public class Sector : Entity
+public class Sector : Entity<Guid>
 {
     public string Name { get; set; }
     public string Description { get; set; }

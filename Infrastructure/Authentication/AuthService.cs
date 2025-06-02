@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.DTOs;
 using Tickest.Domain.Common;
@@ -17,17 +18,20 @@ public class AuthService : IAuthService
     private readonly IUserRepository _userRepository;
     private readonly ITokenProvider _tokenProvider;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ILogger<AuthService> _logger;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly JwtSettings _jwtSettings;
+    private readonly ILogger<AuthService> _logger;
+
 
     public AuthService(
         IUserRepository userRepository,
         ITokenProvider tokenProvider,
         IHttpContextAccessor httpContextAccessor,
-        ILogger<AuthService> logger,
-        IRefreshTokenRepository refreshTokenRepository) =>
-        (_userRepository, _tokenProvider, _httpContextAccessor, _logger, _refreshTokenRepository) =
-        (userRepository, tokenProvider, httpContextAccessor, logger, refreshTokenRepository);
+        IRefreshTokenRepository refreshTokenRepository,
+        IOptions<JwtSettings> jwtOptions,
+        ILogger<AuthService> logger) =>
+        (_userRepository, _tokenProvider, _httpContextAccessor, _refreshTokenRepository, _jwtSettings, _logger) =
+        (userRepository, tokenProvider, httpContextAccessor, refreshTokenRepository, jwtOptions.Value, logger);
 
     #endregion
 
@@ -42,9 +46,20 @@ public class AuthService : IAuthService
         ValidatePassword(password, user);
 
         var accessToken = _tokenProvider.Create(user);
+
         _logger.LogInformation("Usuário {Email} autenticado com sucesso.", email);
 
-        return new TokenResponse { AccessToken = accessToken };
+        // Calcula o momento da expiração do token
+        var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes);
+
+        return new TokenResponse
+        {
+            UserId = user.Id,
+            Email = user.Email,
+            AccessToken = accessToken,
+            ExpiresAt = expiresAt,
+            TokenType = "Bearer"
+        };
     }
 
     public async Task<User> GetCurrentUserAsync(CancellationToken cancellationToken)

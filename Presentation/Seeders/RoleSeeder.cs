@@ -21,7 +21,17 @@ public class RoleSeeder : IDatabaseSeeder
                new Role("Collaborator", "Colaborador")
             };
 
-            context.Roles.AddRange(roles);
+            foreach (var role in roles)
+            {
+                bool existingRole = await context.Roles
+                    .AnyAsync(r => role.Name.ToLower() == role.Name.ToLower(), cancellationToken);
+
+                if (!existingRole)
+                {
+                    context.Add(role);
+                }
+            }
+
             await context.SaveChangesAsync(cancellationToken);
         }
     }

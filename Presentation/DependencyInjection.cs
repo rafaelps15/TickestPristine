@@ -22,7 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext, TickestContext>();
 
         // Registra os repositórios
-        services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+        services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAreaRepository, AreaRepository>();
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IDatabaseSeeder, RoleSeeder>();
 
         // Registra a unidade de trabalho
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -40,24 +41,4 @@ public static class DependencyInjection
 
         return services;
     }
-
-    /// <summary>
-    /// Executa o seeding do banco de dados com um escopo de serviço.
-    /// </summary>
-    public static class RunDatabaseSeedingAsync
-    {
-        public static async Task SeedDatabaseAsync(IServiceProvider services, CancellationToken cancellationToken = default)
-        {
-            using var scope = services.CreateScope();
-            var provider = scope.ServiceProvider;
-
-            var context = provider.GetRequiredService<TickestContext>();
-            var seederRunner = provider.GetRequiredService<DatabaseSeederRunner>();
-
-            await seederRunner.RunAsync(context, cancellationToken);
-        }
-    }
-
-
-
 }

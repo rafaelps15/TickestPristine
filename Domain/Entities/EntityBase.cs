@@ -2,7 +2,7 @@
 
 namespace Tickest.Domain.Entities.Base;
 
-public abstract class EntityBase
+public abstract class EntityBase<TId>
 {
-    public Guid Id { get; set; }  
+    public TId Id { get; set; }  
 }

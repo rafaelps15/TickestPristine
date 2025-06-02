@@ -6,7 +6,7 @@ namespace Tickest.Domain.Entities.Sectors;
 /// Representa um departamento dentro de um setor. Cada departamento tem um foco específico 
 /// dentro da organização, como TI, Marketing, etc.
 /// </summary>
-public class Department : Entity
+public class Department : Entity<Guid>
 {
     public string Name { get; set; }
     public string Description { get; set; }

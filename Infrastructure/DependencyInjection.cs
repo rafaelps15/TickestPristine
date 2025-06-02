@@ -1,15 +1,15 @@
 ﻿using Infrastructure.Authentication;
 using Infrastructure.Authorization;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Tickest.Application.Abstractions.Authentication;
-using Tickest.Infrastructure.Authentication;
 using System.Text;
+using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces;
+using Tickest.Infrastructure.Authentication;
 
 namespace Tickest.Infrastructure;
 
@@ -17,14 +17,18 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Adiciona suporte ao HttpContext para acessos rápidos ao contexto da aplicação
+        var assembly = typeof(DependencyInjection).Assembly;
+
+        services.AddMediatR(configuration =>
+             configuration.RegisterServicesFromAssembly(assembly));
+
         services.AddHttpContextAccessor();
 
-        // Registra serviços de autenticação, autorização e segurança
+        services.AddScoped<IPermissionProvider, PermissionProvider>();
+
         RegisterAuthenticationServices(services, configuration);
         RegisterAuthorizationServices(services);
 
-        // Registra os serviços de gerenciamento de tokens e autenticação
         RegisterAuthServices(services);
 
         return services;
@@ -43,12 +47,16 @@ public static class DependencyInjection
                     throw new TickestException("O segredo JWT está ausente ou é nulo na configuração.");
                 }
 
-                options.RequireHttpsMetadata = false;
+                options.RequireHttpsMetadata = false;// no prod, true!
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"])),
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
                     ClockSkew = TimeSpan.Zero // Evita a tolerância de tempo 
                 };
             });
@@ -65,6 +73,7 @@ public static class DependencyInjection
         // Configuração opcional de políticas de autorização
         // Exemplo: options.AddPolicy("CreateTicket", policy => policy.Requirements.Add(new PermissionRequirement("CreateTicket")));
         // Exemplo: options.AddPolicy("ManageTickets", policy => policy.Requirements.Add(new PermissionRequirement("ManageTickets")));
+
     }
 
     private static void RegisterAuthServices(IServiceCollection services)

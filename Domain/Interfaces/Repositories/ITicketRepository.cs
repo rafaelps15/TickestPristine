@@ -6,7 +6,7 @@ namespace Tickest.Domain.Interfaces.Repositories;
 /// <summary>
 /// Interface para repositório de tickets, fornecendo métodos para consultar, verificar e manipular tickets.
 /// </summary>
-public interface ITicketRepository:IBaseRepository<Ticket>
+public interface ITicketRepository:IBaseRepository<Ticket, Guid>
 {
     /// <summary>
     /// Obtém uma lista de tickets com um status específico e ativos.

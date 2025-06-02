@@ -7,7 +7,6 @@ using System.Text.Json.Serialization;
 using Tickest.Domain.Exceptions;
 using Tickest.Infrastructure.Mvc.Responses;
 
-
 namespace Tickest.Infrastructure.Mvc.Middlewares;
 
 public sealed class ErrorHandlerMiddleware
@@ -15,10 +14,16 @@ public sealed class ErrorHandlerMiddleware
     private readonly RequestDelegate _next;
     private readonly ILogger<ErrorHandlerMiddleware> _logger;
 
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
+
     public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
     {
-        _next = next ?? throw new ArgumentNullException(nameof(next));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -27,7 +32,7 @@ public sealed class ErrorHandlerMiddleware
         {
             await _next(context);
         }
-        catch (Exception ex) when (LogException(ex,context))
+        catch (Exception ex) when (LogException(ex, context))
         {
             await HandleExceptionAsync(context, ex);
         }
@@ -36,58 +41,44 @@ public sealed class ErrorHandlerMiddleware
     private bool LogException(Exception exception, HttpContext context)
     {
         var request = context.Request;
-        var logMessage = $"Erro capturado no middleware: {exception.Message}, Request Method: {request.Method}, Request Path: {request.Path}, Request Query: {request.QueryString}";
 
-        if (exception is TickestException || exception is ValidationException)
-        {
-            _logger.LogWarning(exception, logMessage);
-        }
-        else
-        {
-            _logger.LogError(exception, logMessage);
-        }
-        return true;
+        _logger.Log(
+            exception is TickestException or ValidationException ? LogLevel.Warning : LogLevel.Error,
+            exception,
+            "Erro capturado no middleware: {Message}. Método: {Method}, Caminho: {Path}, Query: {Query}",
+            exception.Message,
+            request.Method,
+            request.Path,
+            request.QueryString
+        );
+
+        return true; // sempre intercepta
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        if (context == null || exception == null)
-        {
-            throw new TickestException(context is null ? nameof(context) : nameof(exception));
-        }
-
         var correlationId = Guid.NewGuid().ToString();
 
-        var (statusCode, message, detailedMessage) = exception switch
+        var (statusCode, message) = exception switch
         {
-            ValidationException e => ((int)HttpStatusCode.BadRequest, e.Message, e.StackTrace),
-            TickestException e => ((int)HttpStatusCode.BadRequest, e.Message, e.StackTrace),
-            UnauthorizedAccessException => ((int)HttpStatusCode.Unauthorized, "Usuário não autorizado.", null),
-            ArgumentNullException => ((int)HttpStatusCode.BadRequest, "Parâmetro inválido", exception.StackTrace),
-            _ => ((int)HttpStatusCode.InternalServerError, "Erro interno no servidor.", exception.StackTrace)
+            ValidationException ve => ((int)HttpStatusCode.BadRequest, ve.Message),
+            TickestException te => ((int)HttpStatusCode.BadRequest, te.Message),
+            UnauthorizedAccessException => ((int)HttpStatusCode.Unauthorized, "Usuário não autorizado."),
+            ArgumentNullException => ((int)HttpStatusCode.BadRequest, "Parâmetro inválido."),
+            _ => ((int)HttpStatusCode.InternalServerError, "Erro interno no servidor.")
         };
 
-        var response = context.Response;
-        response.ContentType = "application/json";
-        response.StatusCode = statusCode;
-
-        var errorResponse = CreateErrorResponse(message, detailedMessage, correlationId, statusCode);
-
-        return response.WriteAsJsonAsync(errorResponse, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        });
-    }
-
-    private static ErrorResponse CreateErrorResponse(string message, string? detailedMessage, string correlationId, int statusCode)
-    {
-        return new ErrorResponse(
-            Code: "ERR_" + statusCode,
+        var errorResponse = new ErrorResponse(
+            Code: $"ERR_{statusCode}",
             Message: message,
-            DetailedMessage: detailedMessage,
+            DetailedMessage: exception.Message,  // Apenas mensagem, sem stacktrace
             CorrelationId: correlationId,
             Timestamp: DateTime.UtcNow
-            );
+        );
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = statusCode;
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, JsonOptions));
     }
 }

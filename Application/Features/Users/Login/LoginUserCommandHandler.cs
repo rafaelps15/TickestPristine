@@ -8,27 +8,17 @@ namespace Tickest.Application.Features.Users.Login;
 
 internal sealed class LoginUserCommandHandler(
     IAuthService authService,
-    ITokenProvider tokenProvider,
-    IPermissionProvider permissionProvider,
     ILogger<LoginUserCommandHandler> logger) : ICommandHandler<LoginUserCommand,string>
 {
     public async Task<Result<string>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
-        // Reaproveita o método AuthenticateAsync do AuthService
-        var tokenResponse = await authService.AuthenticateAsync(command.Email, command.Password, cancellationToken);
+        var authenticationToken = await authService.AuthenticateAsync(command.Email, command.Password, cancellationToken);
 
-        if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
+        if (authenticationToken == null || string.IsNullOrEmpty(authenticationToken.AccessToken))
         {
             throw new TickestException("Falha ao gerar o token.");
         }
 
-        logger.LogInformation($"Usuário {command.Email} autenticado com sucesso.");
-
-        //Verificar se será necessário verificar o papel do usuario para fazer login 
-
-        logger.LogInformation($"Usuário {command.Email} autenticado com sucesso.");
-
-        // Retorna o token gerado
-        return Result.Success(tokenResponse.AccessToken);
+        return Result.Success(authenticationToken.AccessToken);
     }
 }

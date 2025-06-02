@@ -10,7 +10,7 @@ namespace Tickest.Domain.Entities.Sectors;
 /// <summary>
 /// Representa uma área dentro de um departamento, com foco em uma função ou atividade específica.
 /// </summary>
-public class Area : Entity
+public class Area : Entity<Guid>
 {
     public string Name { get; set; }
     public string Description { get; set; }

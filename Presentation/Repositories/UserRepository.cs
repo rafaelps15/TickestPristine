@@ -6,7 +6,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class UserRepository : BaseRepository<User>, IUserRepository
+public class UserRepository : BaseRepository<User, Guid>, IUserRepository
 {
     public UserRepository(TickestContext context) : base(context) { }
 
@@ -15,7 +15,8 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     public async Task<User?> GetUserByEmailAsync(string userEmail, CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()
-                      .Include(p => p.Role)
+                      .Include(p => p.UserRoles)
+                          .ThenInclude(ur => ur.Role)
                       .FirstOrDefaultAsync(u => u.Email == userEmail, cancellationToken);
 
     public async Task<User?> GetByNameAsync(string userName) =>
@@ -23,12 +24,12 @@ public class UserRepository : BaseRepository<User>, IUserRepository
                       .AsNoTracking()
                       .FirstOrDefaultAsync(user => user.Name == userName);
 
-    public async Task<Role> GetUserRoleAsync(User currentUser, CancellationToken cancellationToken) =>
-        await _context.Users
-                      .Where(u => u.Id == currentUser.Id)
-                      .Select(u => u.Role)
-                      .FirstOrDefaultAsync(cancellationToken);  // Retorna a Role ou null
-
+    public async Task<List<Role>> GetUserRolesAsync(User currentUser, CancellationToken cancellationToken) =>
+        await _context.UserRoles
+                      .Where(ur => ur.UserId == currentUser.Id)
+                      .Include(ur => ur.Role)
+                      .Select(ur => ur.Role)
+                      .ToListAsync(cancellationToken);
 
     #endregion
 

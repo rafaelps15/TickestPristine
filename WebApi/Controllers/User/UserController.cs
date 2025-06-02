@@ -8,30 +8,27 @@ namespace WebApi.Controllers.User
 {
     [ApiController]
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly IPermissionProvider _permissionProvider;
 
-        public UserController(IMediator mediator)
+        public UserController(IMediator mediator, IPermissionProvider permissionProvider)
         {
             _mediator = mediator;
+            _permissionProvider = permissionProvider;
         }
 
         //[Authorize(Roles = "AdminMaster")]
+        // Endpoint para criar um novo usuário
         [AllowAnonymous]
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] RegisterUserCommand command) =>
-            Ok(await _mediator.Send(command));
-
-        // Endpoint para obter os papéis disponíveis e retornar para o front
-        [AllowAnonymous]
-        [HttpGet("roles")]
-        public IActionResult GetAvailableRoles()
+        [HttpPost("create")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
         {
-            var roles = _permissionProvider.GetAvailableRoles();
-            return Ok(roles);
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
+
     }
 }

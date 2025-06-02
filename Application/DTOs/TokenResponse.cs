@@ -5,18 +5,9 @@
 /// </summary>
 public class TokenResponse
 {
-    /// <summary>
-    /// O token de acesso gerado.
-    /// </summary>
-    public string AccessToken { get; set; }
-
-    /// <summary>
-    /// A data e hora de expiração do token.
-    /// </summary>
+    public required Guid UserId { get; set; }
+    public required string Email { get; set; }
+    public required string AccessToken { get; set; }
     public DateTime ExpiresAt { get; set; }
-
-    /// <summary>
-    /// O tipo de token gerado (geralmente "Bearer" para tokens JWT).
-    /// </summary>
     public string TokenType { get; set; } = "Bearer";
 }

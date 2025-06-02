@@ -9,7 +9,7 @@ using Tickest.Domain.Interfaces.Repositories;
 namespace Tickest.Application.Features.Users.Delete;
 
 internal sealed class DeleteUserCommandHandler(
-    IBaseRepository<User> userRepository,
+    IBaseRepository<User,Guid> userRepository,
     IAuthService authService,
     IPermissionProvider permissionProvider,
     ILogger<DeleteUserCommandHandler> logger)

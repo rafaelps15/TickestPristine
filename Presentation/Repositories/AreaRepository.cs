@@ -5,7 +5,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class AreaRepository : BaseRepository<Area>, IAreaRepository
+internal class AreaRepository : BaseRepository<Area,Guid>, IAreaRepository
 {
     protected readonly TickestContext _context;
 

@@ -1,12 +1,10 @@
-﻿using Tickest.Domain.Entities.Base;
-using Tickest.Domain.Entities.Permissions;
-using Tickest.Domain.Entities.Sectors;
+﻿using Tickest.Domain.Entities.Sectors;
 using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Tickets;
 
 namespace Tickest.Domain.Entities.Users;
 
-public class User : Entity
+public class User : Entity<Guid>
 {
     public string Name { get; set; }
     public string Email { get; set; }
@@ -16,12 +14,7 @@ public class User : Entity
     public Guid? SectorId { get; set; }
     public Sector Sector { get; set; }
 
-    // Relacionamento 1:N com Role (um usuário pode ter apenas um papel)
-    public Guid? RoleId { get; set; }
-    public Role Role { get; set; }
-
-
-    // Relacionamento N:N com as especialidades<
+    // Relacionamento N:N com as especialidades
     public ICollection<Specialty> Specialties { get; set; }
 
     // Relacionamento N:N com as áreas
@@ -29,5 +22,5 @@ public class User : Entity
 
     // Coleção de mensagens enviadas por este usuário
     public ICollection<Message> Messages { get; set; }
-
+    public ICollection<UserRole> UserRoles { get; set; }
 }

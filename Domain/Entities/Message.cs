@@ -7,7 +7,7 @@ namespace Tickest.Domain.Entities.Tickets;
 /// <summary>
 /// Message: Representa uma mensagem enviada por um usuário em um ticket (para chat).
 /// </summary>
-public class Message : EntityBase
+public class Message : EntityBase<Guid>
 {
     public string Content { get; set; } // Conteúdo da mensagem
     public DateTime SentDate { get; set; } // Data e hora do envio

@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Users\Get\" />
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

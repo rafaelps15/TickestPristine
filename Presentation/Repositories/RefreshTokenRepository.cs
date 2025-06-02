@@ -7,7 +7,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class RefreshTokenRepository : BaseRepository<RefreshToken>, IRefreshTokenRepository
+public class RefreshTokenRepository : BaseRepository<RefreshToken,Guid>, IRefreshTokenRepository
 {
     private readonly TickestContext _context;
 
