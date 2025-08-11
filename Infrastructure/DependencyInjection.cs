@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Exceptions;
@@ -57,7 +58,8 @@ public static class DependencyInjection
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"])),
-                    ClockSkew = TimeSpan.Zero // Evita a tolerância de tempo 
+                    ClockSkew = TimeSpan.Zero, // Evita a tolerância de tempo 
+                    RoleClaimType = ClaimTypes.Role,
                 };
             });
     }

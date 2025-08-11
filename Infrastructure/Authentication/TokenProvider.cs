@@ -23,6 +23,7 @@ internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions) : ITokenPr
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Name, user.Name),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),            
         }.Concat(roleClaims);
 

@@ -20,6 +20,9 @@ namespace WebApi.Controllers.Auth
         public async Task<IActionResult> Login([FromBody] LoginUserCommand command) =>
             Ok(await _mediator.Send(command));
 
+
+        // Esse método será usado junto ao login do usuario para que gere outro token (RefreshToken)
+        // para que o usuario nao precise logar de novo. -> ainda preciso implentar 
         [HttpPost("renew")]
         [Authorize]
         public async Task<IActionResult> Renew()

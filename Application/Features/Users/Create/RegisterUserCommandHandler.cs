@@ -1,6 +1,7 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
 using Tickest.Domain.Entities;
+using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Helpers;
@@ -16,6 +17,13 @@ internal sealed class RegisterUserCommandHandler(
 {
     public async Task<Result<Guid>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
+        /*Verificar se está correta a criação do usuario
+        Pensar sobre como fazer para vincular a Role necessária
+        Na tela de cadastro de usuário, ao carregar o formulário, buscae a lista de roles via API.
+        Exibe essa lista em um dropdown ou select para o usuário escolher.
+        Envia o ID da role selecionada junto com os dados do novo usuário.
+        */
+
         try
         {
             await unitOfWork.BeginTransactionAsync();

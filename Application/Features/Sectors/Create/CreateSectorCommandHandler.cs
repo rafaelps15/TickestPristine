@@ -21,9 +21,15 @@ internal sealed class CreateSectorCommandHandler(
     {
         #region Validação de Permissões
 
-        //var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        //await permissionProvider.ValidatePermissionAsync(currentUser, "CreateSector");
+        // Validações serão relizadas na controller através da role. 
+        // Criar o Setor e vincular os departamentos que estarão vinculados a ele.
+        // Pensar sobre (vincular o setor a departamento), pois um Setor tem varios departamentos e assim por diante.
+        //Setor - tem departamentos
+        //Departamentos tem áreas
+        //Áreas tem especialidade
+        //Quero que o usuario AdminMaster e AdminGeral possam criar novos setores
 
+     
         #endregion
 
         #region Criação do Setor

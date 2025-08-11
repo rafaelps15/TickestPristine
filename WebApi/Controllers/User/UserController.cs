@@ -7,22 +7,17 @@ using Tickest.Application.Features.Users.Create;
 namespace WebApi.Controllers.User
 {
     [ApiController]
-    [Authorize]
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IPermissionProvider _permissionProvider;
 
         public UserController(IMediator mediator, IPermissionProvider permissionProvider)
         {
             _mediator = mediator;
-            _permissionProvider = permissionProvider;
         }
 
-        //[Authorize(Roles = "AdminMaster")]
-        // Endpoint para criar um novo usuário
-        [AllowAnonymous]
+        [Authorize(Roles = "AdminMaster")]
         [HttpPost("create")]
         public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
         {
