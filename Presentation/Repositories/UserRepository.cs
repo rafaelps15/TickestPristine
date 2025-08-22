@@ -19,7 +19,7 @@ public class UserRepository : BaseRepository<User, Guid>, IUserRepository
                           .ThenInclude(ur => ur.Role)
                       .FirstOrDefaultAsync(u => u.Email == userEmail, cancellationToken);
 
-    public async Task<User?> GetByNameAsync(string userName) =>
+    public async Task<User?> GetByNameAsync(string userName,CancellationToken cancellationToken) =>
          await _context.Users
                       .AsNoTracking()
                       .FirstOrDefaultAsync(user => user.Name == userName);

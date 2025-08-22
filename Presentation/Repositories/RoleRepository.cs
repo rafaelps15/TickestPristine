@@ -16,7 +16,7 @@ public class RoleRepository : BaseRepository<Role, Guid>, IRoleRepository
 
     #region Métodos de consulta
 
-    public async Task<Role> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken) =>
+    public async Task<Role> GetByNameAsync(string roleName, CancellationToken cancellationToken) =>
         await _context.Set<Role>()
            .FirstOrDefaultAsync(r => r.Name == roleName, cancellationToken);
 

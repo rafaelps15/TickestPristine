@@ -23,7 +23,7 @@ public interface IUserRepository : IBaseRepository<User, Guid>
     /// </summary>
     /// <param name="userName">Nome do usuário.</param>
     /// <returns>Usuário correspondente ou null, se não encontrado.</returns>
-    Task<User?> GetByNameAsync(string userName);
+    Task<User?> GetByNameAsync(string userName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Obtém todas as roles associadas ao usuário.

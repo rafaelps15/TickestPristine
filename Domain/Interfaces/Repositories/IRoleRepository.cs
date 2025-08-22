@@ -5,5 +5,5 @@ namespace Tickest.Domain.Interfaces.Repositories;
 
 public interface IRoleRepository : IBaseRepository<Role, Guid>
 {
-    Task<Role> GetRoleByNameAsync(string roleName, CancellationToken cancellationToken);
+    Task<Role> GetByNameAsync(string roleName, CancellationToken cancellationToken);
 }

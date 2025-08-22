@@ -1,91 +1,48 @@
-﻿using Tickest.Application.Abstractions.Messaging;
+﻿using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
 using Tickest.Domain.Entities;
-using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Helpers;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Features.Users.Create;
 
-internal sealed class RegisterUserCommandHandler(
-    IRoleRepository roleRepository,
-    IUserRepository userRepository,
-    IUnitOfWork unitOfWork)
-    : ICommandHandler<RegisterUserCommand, Guid>
-{
-    public async Task<Result<Guid>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
+    internal sealed class RegisterUserCommandHandler(
+     IUserRepository userRepository,
+     IRoleRepository roleRepository,
+     IPasswordHasher passwordHasher)
+     : ICommandHandler<RegisterUserCommand, Guid>
     {
-        /*Verificar se está correta a criação do usuario
-        Pensar sobre como fazer para vincular a Role necessária
-        Na tela de cadastro de usuário, ao carregar o formulário, buscae a lista de roles via API.
-        Exibe essa lista em um dropdown ou select para o usuário escolher.
-        Envia o ID da role selecionada junto com os dados do novo usuário.
-        */
-
-        try
+        public async Task<Result<Guid>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
         {
-            await unitOfWork.BeginTransactionAsync();
-
-            #region Validação de Usuário
-
-            if (await userRepository.GetUserByEmailAsync(command.Email, cancellationToken) is not null)
-                throw new TickestException("O e-mail fornecido já está em uso.");
-
-            #endregion
-
-            #region Obter e Validar Papel
-
-            var role = await roleRepository.GetByIdAsync(command.RoleId, cancellationToken);
-            if (role == null)
-                throw new TickestException("O papel fornecido não é válido.");
-
-            #endregion
-
-            #region Criação do Usuário
-
-            var salt = EncryptionHelper.CreateSaltKey(command.Password.Length);
-            var password = EncryptionHelper.CreatePasswordHashWithSalt(command.Password, salt);
+            var hashedPassword = passwordHasher.Hash(command.Password);
 
             var user = new User
             {
-                Id = Guid.NewGuid(),
-                Email = command.Email,
                 Name = command.Name,
-                PasswordHash = password,
-                Salt = salt,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true,
-                UserRoles = new List<UserRole>()
+                Email = command.Email,
+                PasswordHash = hashedPassword
             };
 
-            var userRole = new UserRole
+            // Vincula roles existentes
+            foreach (var roleName in command.Roles ?? new List<string>())
             {
-                UserId = user.Id,
-                RoleId = role.Id
-            };
+                var role = await roleRepository.GetByNameAsync(roleName, cancellationToken);
+                if (role == null)
+                    throw new TickestException($"Função '{roleName}' não encontrada");
 
-            user.UserRoles.Add(userRole);
-
-            #endregion
-
-            #region Persistência
+                user.UserRoles.Add(new UserRole
+                {
+                    UserId = user.Id,
+                    RoleId = role.Id
+                });
+            }
 
             await userRepository.AddAsync(user, cancellationToken);
-            await unitOfWork.SaveChangesAsync();
 
-            await unitOfWork.CommitTransactionAsync();
-
-            #endregion
-
-            return Result.Success(user.Id);
-        }
-
-        catch (Exception)
-        {
-            await unitOfWork.RollbackTransactionAsync();
-            throw;
-        }
+            return user.Id;
     }
-}
+    }
+
+

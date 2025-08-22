@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
 
         services.AddScoped<IPermissionProvider, PermissionProvider>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         RegisterAuthenticationServices(services, configuration);
         RegisterAuthorizationServices(services);
