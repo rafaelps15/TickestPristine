@@ -39,7 +39,6 @@ internal sealed class CreateTicketCommandHandler(
             Description = command.Description,
             Priority = command.Priority,
             Status = TicketStatus.Open,
-            CreatedAt = DateTime.UtcNow,
             OpenedByUserId = requesterId,
             AssignedToUserId = command.ResponsibleId,
             IsActive = true,

@@ -8,41 +8,46 @@ using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Features.Users.Create;
 
-    internal sealed class RegisterUserCommandHandler(
-     IUserRepository userRepository,
-     IRoleRepository roleRepository,
-     IPasswordHasher passwordHasher)
-     : ICommandHandler<RegisterUserCommand, Guid>
+internal sealed class RegisterUserCommandHandler(
+ IUserRepository _userRepository,
+ IRoleRepository _roleRepository,
+ IPasswordHasher _passwordHasher)
+ : ICommandHandler<RegisterUserCommand, Guid>
+{
+    public async Task<Result<Guid>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        public async Task<Result<Guid>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
+        // Gerar salt único para o usuário
+        var salt = Guid.NewGuid().ToString();
+
+        // Hash da senha com salt
+        var hashedPassword = _passwordHasher.Hash(command.Password + salt);
+
+        var user = new User
         {
-            var hashedPassword = passwordHasher.Hash(command.Password);
+            Name = command.Name,
+            Email = command.Email,
+            PasswordHash = hashedPassword,
+            Salt = salt, // não permitir NULL
+            UserRoles = new List<UserRole>()
+        };
 
-            var user = new User
+        // Vincula roles existentes
+        foreach (var roleName in command.Roles ?? new List<string>())
+        {
+            var role = await _roleRepository.GetByNameAsync(roleName, cancellationToken);
+            if (role == null)
+                throw new TickestException($"Função '{roleName}' não encontrada");
+
+            // Associação direta para evitar conflito de FK
+            user.UserRoles.Add(new UserRole
             {
-                Name = command.Name,
-                Email = command.Email,
-                PasswordHash = hashedPassword
-            };
+                RoleId = role.Id,
+                User = user
+            });
+        }
 
-            // Vincula roles existentes
-            foreach (var roleName in command.Roles ?? new List<string>())
-            {
-                var role = await roleRepository.GetByNameAsync(roleName, cancellationToken);
-                if (role == null)
-                    throw new TickestException($"Função '{roleName}' não encontrada");
+        await _userRepository.AddAsync(user, cancellationToken);
 
-                user.UserRoles.Add(new UserRole
-                {
-                    UserId = user.Id,
-                    RoleId = role.Id
-                });
-            }
-
-            await userRepository.AddAsync(user, cancellationToken);
-
-            return user.Id;
+        return user.Id;
     }
-    }
-
-
+}

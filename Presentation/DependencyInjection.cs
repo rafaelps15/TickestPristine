@@ -32,12 +32,16 @@ public static class DependencyInjection
         services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IDatabaseSeeder, RoleSeeder>();
+
+        services.AddTransient<IDatabaseSeeder, RoleSeeder>();
+
+        // Registrando o runner
+        services.AddTransient<DatabaseSeeder>();
 
         // Registra a unidade de trabalho
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        services.AddScoped<DatabaseSeederRunner>();
+        services.AddScoped<DatabaseSeeder>();
 
         return services;
     }

@@ -2,11 +2,11 @@
 
 namespace Tickest.Persistence.Seeders;
 
-public class DatabaseSeederRunner
+public class DatabaseSeeder
 {
     private readonly IEnumerable<IDatabaseSeeder> _seeders;
 
-    public DatabaseSeederRunner(IEnumerable<IDatabaseSeeder> seeders)
+    public DatabaseSeeder(IEnumerable<IDatabaseSeeder> seeders)
     {
         _seeders = seeders;
     }

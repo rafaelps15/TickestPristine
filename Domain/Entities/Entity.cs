@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+﻿using System;
 using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Exceptions;
 
@@ -6,11 +6,16 @@ namespace Tickest.Domain.Entities;
 
 public abstract class Entity<TId> : EntityBase<TId>
 {
-    public bool IsActive { get; set; }
-    public bool IsDeleted { get; private set; }   // Indica se a entidade foi deletada
-    public DateTime CreatedAt { get; set; }  // Data de criação da entidade
-    public DateTime? DeactivatedAt { get; set; }  // Data de desativação da entidade
-    public DateTime? UpdateAt { get; set; }  // Data de atualização (opcional)
+    public bool IsActive { get; set; } = true;
+    public bool IsDeleted { get; private set; } = false;   
+    public DateTime CreatedAt { get; private set; }       
+    public DateTime? DeactivatedAt { get; private set; }   
+    public DateTime? UpdatedAt { get; private set; }      
+
+    protected Entity()
+    {
+        CreatedAt = DateTime.UtcNow;  
+    }
 
     public void SoftDelete()
     {
@@ -21,6 +26,11 @@ public abstract class Entity<TId> : EntityBase<TId>
 
         IsDeleted = true;
         IsActive = false;
-        DeactivatedAt = DateTime.Now;
+        DeactivatedAt = DateTime.UtcNow;
+    }
+
+    public void Update()
+    {
+        UpdatedAt = DateTime.UtcNow;  
     }
 }

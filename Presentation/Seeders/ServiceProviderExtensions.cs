@@ -11,7 +11,7 @@ public static class ServiceProviderExtensions
         var provider = scope.ServiceProvider;
 
         var context = provider.GetRequiredService<TickestContext>();
-        var seederRunner = provider.GetRequiredService<DatabaseSeederRunner>();
+        var seederRunner = provider.GetRequiredService<DatabaseSeeder>();
 
         await seederRunner.RunAsync(context, cancellationToken);
     }

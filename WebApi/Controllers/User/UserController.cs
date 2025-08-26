@@ -17,8 +17,9 @@ namespace WebApi.Controllers.User
             _mediator = mediator;
         }
 
-        [Authorize(Roles = "AdminMaster")]
+        //[Authorize(Roles = "AdminMaster")]
         [HttpPost("create")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
         {
             var result = await _mediator.Send(command);

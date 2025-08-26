@@ -26,7 +26,7 @@ public class RefreshToken : Entity<Guid>
         }
 
         IsRevoked = true;
-        UpdateAt = DateTime.UtcNow;
+        Update();
     }
 
     public void MarkAsUsed()
@@ -37,6 +37,6 @@ public class RefreshToken : Entity<Guid>
         }
 
         IsUsed = true;
-        UpdateAt = DateTime.UtcNow;
+        Update();
     }
 }

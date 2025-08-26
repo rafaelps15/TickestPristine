@@ -53,8 +53,6 @@ internal sealed class CreateAreaCommandHandler(
             Id = Guid.NewGuid(),
             Name = command.Name,
             Description = command.Description,
-            CreatedAt = DateTime.UtcNow,
-            IsActive = true
         };
 
         if (command.AreaManagerId.HasValue)
