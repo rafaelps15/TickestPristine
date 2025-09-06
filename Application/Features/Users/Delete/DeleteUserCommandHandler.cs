@@ -11,7 +11,6 @@ namespace Tickest.Application.Features.Users.Delete;
 internal sealed class DeleteUserCommandHandler(
     IBaseRepository<User,Guid> userRepository,
     IAuthService authService,
-    IPermissionProvider permissionProvider,
     ILogger<DeleteUserCommandHandler> logger)
     : ICommandHandler<DeleteUserCommand, Guid>
 {
@@ -19,33 +18,25 @@ internal sealed class DeleteUserCommandHandler(
     {
         logger.LogInformation("Iniciando solicitação de exclusão de usuário.");
 
-        #region Validação de Permissões
-
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-        await permissionProvider.ValidatePermissionAsync(currentUser, "DeleteUser");
+        var isAdmin = currentUser.UserRoles.Any(ur => 
+            ur.Role?.Name == "Admin" || ur.Role?.Name == "AdminMaster");
 
-        logger.LogInformation("Usuário {UserId} autorizado para excluir.", currentUser.Id);
-
-        #endregion
-
-        #region Obtenção de Usuário
+        if (!isAdmin)
+            throw new TickestException("Apenas administradores podem excluir usuários.");
 
         var userToDelete = await userRepository.GetByIdAsync(request.UserId);
 
-        if (userToDelete == null)
+        var userRoles = await userRepository.GetUserRolesAllAsync(request.UserId, cancellationToken);
+        foreach (var userRole in userRoles)
         {
-            logger.LogError("Usuário não encontrado. ID: {UserId}", request.UserId);
-            throw new TickestException($"Usuário com ID {request.UserId} não encontrado.");
+            await userRepository.DeleteUserRoleAsync(userRole, cancellationToken);  
         }
 
-        #endregion
-
-        #region Exclusão do Usuário
+        logger.LogInformation("Associações de funções do usuário {UserId} removidas com sucesso.", userToDelete.Id);
 
         await userRepository.DeleteAsync(userToDelete.Id, cancellationToken);
-        logger.LogInformation("Usuário com ID {UserId} excluído com sucesso.", userToDelete.Id);
-
-        #endregion
+        logger.LogInformation("Usuário {UserId} excluído com sucesso.", userToDelete.Id);
 
         return Result.Success(userToDelete.Id);
     }
