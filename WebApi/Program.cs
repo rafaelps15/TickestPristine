@@ -49,6 +49,8 @@ app.UseSwaggerConfiguration();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseSerilogRequestLogging();
 
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

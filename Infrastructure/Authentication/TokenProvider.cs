@@ -8,12 +8,12 @@ using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Entities.Users;
 using Tickest.Infrastructure.Authentication;
 
-namespace Infrastructure.Authentication;
+namespace Tickest.Infrastructure.Authentication;
 
 internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions) : ITokenProvider
 {
     private readonly JwtSettings _jwtSettings = jwtOptions.Value;
-    public string Create(User user)
+    public string GenerateToken(User user)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -24,7 +24,7 @@ internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions) : ITokenPr
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Name, user.Name),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),            
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
         }.Concat(roleClaims);
 
 

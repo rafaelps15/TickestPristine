@@ -18,7 +18,7 @@ internal sealed class DeleteUserCommandHandler(
     {
         logger.LogInformation("Iniciando solicitação de exclusão de usuário.");
 
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUser = await authService.GetCurrentUserId(cancellationToken);
         var isAdmin = currentUser.UserRoles.Any(ur => 
             ur.Role?.Name == "Admin" || ur.Role?.Name == "AdminMaster");
 
@@ -27,6 +27,8 @@ internal sealed class DeleteUserCommandHandler(
 
         var userToDelete = await userRepository.GetByIdAsync(request.UserId);
 
+        //Próxima task: verificar se o usuário a ser deletado é um AdminMaster
+        //Criar o getUserRolesAllAsync e o método DeleteUserRoleAsync no repository
         var userRoles = await userRepository.GetUserRolesAllAsync(request.UserId, cancellationToken);
         foreach (var userRole in userRoles)
         {

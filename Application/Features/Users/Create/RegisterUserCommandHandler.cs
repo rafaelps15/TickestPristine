@@ -48,6 +48,6 @@ internal sealed class RegisterUserCommandHandler(
 
         await _userRepository.AddAsync(user, cancellationToken);
 
-        return user.Id;
+        return Result.Success(user.Id); 
     }
 }

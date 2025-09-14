@@ -1,6 +1,5 @@
 ﻿using Tickest.Domain.Entities.Auths;
 using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Infrastructure.Authentication
