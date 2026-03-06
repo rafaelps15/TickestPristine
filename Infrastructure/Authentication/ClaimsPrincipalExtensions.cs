@@ -22,12 +22,13 @@ internal static class ClaimsPrincipalExtensions
     #region Obter Papel do Usuário
 
     /// <summary>
-    /// Obtém o papel do usuário a partir do token JWT.
+    /// Obtém todas as roles do usuário a partir do token JWT.
     /// </summary>
-    public static string GetUserRole(this ClaimsPrincipal? principal) =>
-        principal?.FindFirstValue(ClaimTypes.Role)
-        ?? throw new TickestException("Papel do usuário não está disponível.");
-    //Retorna a primeira claim do tipo Role (ClaimTypes.Role) — ou lança exceção se não encontrar.
+   public static IEnumerable<string> GetUserRoles(this ClaimsPrincipal? principal) =>
+        principal?.Claims
+            .Where(c => c.Type == ClaimTypes.Role)
+            .Select(c => c.Value)
+            ?? Enumerable.Empty<string>();
     #endregion
 
 

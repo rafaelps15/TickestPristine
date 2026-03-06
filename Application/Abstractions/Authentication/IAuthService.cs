@@ -3,5 +3,6 @@
 public interface IAuthService
 {
     Guid GetCurrentUserId();
-    string GetCurrentUserEmail();   
+    IEnumerable<string> GetUserRoles();
+    bool IsInRole(string role);
 }
