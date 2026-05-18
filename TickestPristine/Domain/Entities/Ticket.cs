@@ -1,4 +1,4 @@
-Ôªøusing Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Entities.Departments;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Enum;
@@ -6,40 +6,37 @@ using Tickest.Domain.Enum;
 namespace Tickest.Domain.Entities.Tickets;
 
 #region Ticket
-/// <summary>
-/// Ticket: Representa um ticket dentro do sistema, com informa√ß√µes sobre o problema ou solicita√ß√£o.
-/// </summary>
 public class Ticket : EntityBase
 {
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     public TicketPriority Priority { get; set; }
     public TicketStatus Status { get; set; }
 
 
-    // Relacionamento com o usu√°rio que abriu o ticket
+    // Relacionamento com o usu·rio que abriu o ticket
     public Guid OpenedByUserId { get; set; }
-    public User OpenedByUser { get; set; } // Usu√°rio que abriu o ticket (ex: Cliente ou Colaborador)
+    public User OpenedByUser { get; set; } = null!; // Usu·rio que abriu o ticket (ex: Cliente ou Colaborador)
 
 
-    // Relacionamento do usu√°rio a quem o ticket foi atribu√≠do
+    // Relacionamento do usu·rio a quem o ticket foi atribuÌdo
     public Guid? AssignedToUserId { get; set; }
-    public User AssignedToUser { get; set; } // Usu√°rio atribu√≠do ao ticket (ex: Analista ou Respons√°vel TI)
+    public User? AssignedToUser { get; set; } // Usu·rio atribuÌdo ao ticket (ex: Analista ou Respons·vel TI)
 
 
-    // Relacionamento com o departamento ao qual o ticket est√° associado
+    // Relacionamento com o departamento ao qual o ticket est· associado
     public Guid DepartmentId { get; set; }
-    public Department Department { get; set; } // Departamento (ex: TI, Suporte, etc.)
+    public Department Department { get; set; } = null!; // Departamento (ex: TI, Suporte, etc.)
 
 
     // Relacionamento com o setor ao qual o ticket pertence
     public Guid SectorId { get; set; }
-    public Sector Sector { get; set; } // Setor (ex: Desenvolvimento, Infraestrutura, etc.)
+    public Sector Sector { get; set; } = null!; // Setor (ex: Desenvolvimento, Infraestrutura, etc.)
 
 
-    // Relacionamento com a √°rea do setor onde o ticket est√° alocado
+    // Relacionamento com a ·rea do setor onde o ticket est· alocado
     public Guid AreaId { get; set; }
-    public Area Area { get; set; } // √Årea (ex: Frontend, Backend, etc.)
+    public Area Area { get; set; } = null!; // ¡rea (ex: Frontend, Backend, etc.)
 
 }
 

@@ -1,4 +1,4 @@
-using Application;
+using Tickest.Application;
 using Serilog;
 using Tickest.Infrastructure;
 using Tickest.Infrastructure.Authentication;

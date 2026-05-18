@@ -14,14 +14,14 @@ namespace Tickest.Domain.Entities.Base
 
         public void SoftDelete()
         {
-            IsDeleted = true;
-            IsActive = false;
-            DeactivatedAt = DateTime.UtcNow;
-
             if (IsDeleted)
             {
                 throw new TickestException("A entidade já foi deletada.");
             }
+
+            IsDeleted = true;
+            IsActive = false;
+            DeactivatedAt = DateTime.UtcNow;
         }
             
     }

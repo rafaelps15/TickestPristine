@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Authorization;
 
-#region "Provedor de Política de Autorização baseado em Permissões"
+#region "Provedor de Pol�tica de Autoriza��o baseado em Permiss�es"
 
 internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
 {
@@ -13,9 +13,6 @@ internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizati
         : base(options) =>
         _authorizationOptions = options.Value;
 
-    /// <summary>
-    /// Obtém a política de autorização com base no nome da política.
-    /// </summary>
     public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         var existingPolicy = await base.GetPolicyAsync(policyName);

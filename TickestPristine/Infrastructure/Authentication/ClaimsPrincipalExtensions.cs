@@ -1,4 +1,4 @@
-Ôªøusing System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Tickest.Domain.Exceptions;
 
@@ -7,26 +7,20 @@ namespace Infrastructure.Authentication;
 
 internal static class ClaimsPrincipalExtensions
 {
-    #region Obter ID do Usu√°rio
-    /// <summary>
-    /// Obt√©m o ID do usu√°rio a partir do token JWT.
-    /// </summary>
+    #region Obter ID do Usu·rio
     public static Guid GetUserId(this ClaimsPrincipal? principal) =>
         Guid.TryParse(principal?.FindFirstValue(JwtRegisteredClaimNames.Sub), out var userId)
             ? userId
-            : throw new TickestException("ID do usu√°rio n√£o est√° dispon√≠vel.");
+            : throw new TickestException("ID do usu·rio n„o est· disponÌvel.");
     #endregion
 
-    #region Obter Papel do Usu√°rio
-    /// <summary>
-    /// Obt√©m o papel do usu√°rio a partir do token JWT.
-    /// </summary>
+    #region Obter Papel do Usu·rio
     public static string GetUserRole(this ClaimsPrincipal? principal) =>
         principal?.FindFirstValue(ClaimTypes.Role)
-        ?? throw new TickestException("Papel do usu√°rio n√£o est√° dispon√≠vel.");
+        ?? throw new TickestException("Papel do usu·rio n„o est· disponÌvel.");
     #endregion
 
-    public static string FindFirstValue( this ClaimsPrincipal principal, string claimType)
+    public static string? FindFirstValue(this ClaimsPrincipal principal, string claimType)
     {
         return principal?.FindFirst(claimType)?.Value;
     }

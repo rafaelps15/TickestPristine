@@ -1,17 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Infrastructure.Authorization;
 
-#region "Requisito de Permissão"
+#region "Requisito de Permiss�o"
 
 internal sealed class PermissionRequirement : IAuthorizationRequirement
 {
     public PermissionRequirement(string permission) =>
-        Permission = permission; // Inicializa a propriedade de permissão
+        Permission = permission; // Inicializa a propriedade de permiss�o
 
-    /// <summary>
-    /// Propriedade que armazena a permissão necessária.
-    /// </summary>
     public string Permission { get; }
 }
 

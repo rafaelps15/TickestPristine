@@ -1,26 +1,23 @@
-Ôªøusing Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Entities.Departments;
 
 #region Sector
-/// <summary>
-/// Sector: Representa um setor dentro de um departamento, como "Desenvolvimento", "Marketing", etc.
-/// </summary>
 public class Sector : EntityBase
 {
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 
     // Relacionamento com departamento
     public Guid DepartmentId { get; set; }
-    public Department Department { get; set; }
+    public Department Department { get; set; } = null!;
 
-    // Respons√°vel pelo setor
+    // Respons·vel pelo setor
     public Guid ResponsibleUserId { get; set; }
-    public User ResponsibleUser { get; set; }
+    public User ResponsibleUser { get; set; } = null!;
 
-    // Rela√ß√£o 1:N com √°reas
-    public ICollection<Area> Areas { get; set; }
+    // RelaÁ„o 1:N com ·reas
+    public ICollection<Area> Areas { get; set; } = [];
 }
 #endregion

@@ -6,9 +6,7 @@ using Tickest.Domain.Exceptions;
 namespace Tickest.Application.Users.Login;
 
 internal sealed class LoginUserCommandHandler(
-    IPasswordHasher passwordHasher,
     IAuthService authService,
-    ITokenProvider tokenProvider,
     IPermissionProvider permissionProvider,
     ILogger<LoginUserCommandHandler> logger)
 {

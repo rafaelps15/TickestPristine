@@ -5,15 +5,15 @@ VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{67ECCA5D-EE5F-4031-BB38-9669CF9606E7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Domain", "Domain\Tickest.Domain.csproj", "{2DE01C11-4F7E-499A-9B11-085CC6BAC237}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Domain", "TickestPristine\Domain\Tickest.Domain.csproj", "{2DE01C11-4F7E-499A-9B11-085CC6BAC237}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Application", "Application\Tickest.Application.csproj", "{D3968275-FA71-4256-B38D-F9DE9810FAC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Application", "TickestPristine\Application\Tickest.Application.csproj", "{D3968275-FA71-4256-B38D-F9DE9810FAC7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Infrastructure", "Infrastructure\Tickest.Infrastructure.csproj", "{7253E1C6-9AAC-46E3-8B8A-41BC38918E0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Infrastructure", "TickestPristine\Infrastructure\Tickest.Infrastructure.csproj", "{7253E1C6-9AAC-46E3-8B8A-41BC38918E0C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Persistence", "Presentation\Tickest.Persistence.csproj", "{7319AE8A-702D-4464-98EF-2581021573EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickest.Persistence", "TickestPristine\Persistence\Tickest.Persistence.csproj", "{7319AE8A-702D-4464-98EF-2581021573EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{4A2377A0-C64C-460C-9C7C-834FAC528B3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "TickestPristine\WebApi\WebApi.csproj", "{4A2377A0-C64C-460C-9C7C-834FAC528B3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

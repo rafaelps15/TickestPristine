@@ -1,32 +1,29 @@
-Ôªøusing Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Entities.Departments;
 
 #region Area
-/// <summary>
-/// √Årea: Representa uma subdivis√£o de um departamento.
-/// </summary>
 public class Area : EntityBase
 {
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 
     // Relacionamento com setor
     public Guid SectorId { get; set; }
-    public Sector Sector { get; set; }
+    public Sector Sector { get; set; } = null!;
 
-    // Respons√°vel pela √°rea
+    // Respons·vel pela ·rea
     public Guid ResponsibleUserId { get; set; }
-    public User ResponsibleUser { get; set; }
+    public User ResponsibleUser { get; set; } = null!;
 
 
-    // Rela√ß√£o N:N com usu√°rios e especialidades
-    public ICollection<AreaUserSpecialty> AreaUserSpecialties { get; set; }
+    // RelaÁ„o N:N com usu·rios e especialidades
+    public ICollection<AreaUserSpecialty> AreaUserSpecialties { get; set; } = [];
 
     // Relacionamento com Specialty
     public Guid SpecialtyId { get; set; }
-    public Specialty Specialty { get; set; }
+    public Specialty Specialty { get; set; } = null!;
 }
 #endregion

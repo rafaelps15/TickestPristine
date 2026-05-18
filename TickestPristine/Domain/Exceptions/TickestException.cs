@@ -4,8 +4,8 @@
 public class TickestException : Exception
 {
     // Propriedades auto-implementadas com inicialização
-    public string ErrorCode { get; init; }
-    public string Details { get; init; }
+    public string? ErrorCode { get; init; }
+    public string? Details { get; init; }
 
     public TickestException(string message) : base(message) { }
 
@@ -15,7 +15,7 @@ public class TickestException : Exception
     public TickestException()
         : base("Ocorreu um erro inesperado no sistema.") { }
 
-    public TickestException(string message, string errorCode, string details = null)
+    public TickestException(string message, string errorCode, string? details = null)
         : base(message)
     {
         ErrorCode = errorCode;

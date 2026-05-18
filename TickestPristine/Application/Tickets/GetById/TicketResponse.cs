@@ -13,14 +13,14 @@ namespace Tickest.Application.Tickets.GetById
         //}
 
         public Guid Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public TicketPriority Priority { get; set; }
         public TicketStatus Status { get; set; }
-        public string OpenedBy { get; set; } // Nome de quem abriu
-        public string AssignedTo { get; set; } // Nome de quem foi atribuído
-        public string Department { get; set; } // Nome do departamento
-        public string Sector { get; set; } // Nome do setor
-        public string Area { get; set; } // Nome da área
+        public string OpenedBy { get; set; } = string.Empty;
+        public string AssignedTo { get; set; } = string.Empty;
+        public string Department { get; set; } = string.Empty;
+        public string Sector { get; set; } = string.Empty;
+        public string Area { get; set; } = string.Empty;
     }
 }

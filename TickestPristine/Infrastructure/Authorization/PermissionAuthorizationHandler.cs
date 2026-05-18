@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using Tickest.Application.Abstractions.Authentication;
@@ -21,24 +21,18 @@ internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<Perm
         _authService = authService;
     }
 
-    /// <summary>
-    /// Verifica se o usuário possui a permissão necessária.
-    /// </summary>
-    /// <summary>
-    /// Verifica se o usuário possui a permissão necessária.
-    /// </summary>
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
         var currentUser = await _authService.GetCurrentUserAsync(CancellationToken.None);
 
         if (currentUser == null || !await _permissionProvider.UserHasPermissionAsync(currentUser.Id, requirement.Permission))
         {
-            _logger.LogWarning($"Permissão '{requirement.Permission}' negada ao usuário {currentUser?.Id}.");
+            _logger.LogWarning($"Permiss�o '{requirement.Permission}' negada ao usu�rio {currentUser?.Id}.");
             context.Fail();
             return;
         }
 
-        _logger.LogInformation($"Permissão '{requirement.Permission}' concedida ao usuário {currentUser?.Id}.");
+        _logger.LogInformation($"Permiss�o '{requirement.Permission}' concedida ao usu�rio {currentUser?.Id}.");
         context.Succeed(requirement);
     }
 }
