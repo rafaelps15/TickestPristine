@@ -10,6 +10,7 @@ namespace Tickest.Application.Tickets.Delete
 {
     internal sealed class SoftDeleteTicketCommandHandler(
         ITicketRepository ticketRepository,
+        IUnitOfWork unitOfWork,
         ILogger<SoftDeleteTicketCommandHandler> logger,
         IAuthService authService,
         IPermissionProvider permissionProvider)
@@ -37,7 +38,7 @@ namespace Tickest.Application.Tickets.Delete
             #region Validação e manipulação do Ticket
 
             // Busca o ticket no repositório após verificar permissões
-            var ticket = await ticketRepository.GetByIdAsync(request.TicketId);
+            var ticket = await ticketRepository.GetByIdAsync(request.TicketId, false, cancellationToken);
             if (ticket == null)
             {
                 logger.LogWarning("Ticket não encontrado: {TicketId}", request.TicketId);
@@ -56,6 +57,7 @@ namespace Tickest.Application.Tickets.Delete
 
             // Atualiza o ticket no repositório
             await ticketRepository.UpdateAsync(ticket, cancellationToken);
+            await unitOfWork.CommitAsync(cancellationToken);
 
             #endregion
 

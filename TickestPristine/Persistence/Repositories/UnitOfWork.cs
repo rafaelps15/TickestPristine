@@ -50,8 +50,9 @@ public class UnitOfWork : IUnitOfWork
                 return await _context.SaveChangesAsync(cancellationToken);
             }
 
+            var result = await _context.SaveChangesAsync(cancellationToken);
             await _currentTransaction.CommitAsync(cancellationToken);
-            return 1;
+            return result;
         }
         catch (DbUpdateException dbEx)
         {

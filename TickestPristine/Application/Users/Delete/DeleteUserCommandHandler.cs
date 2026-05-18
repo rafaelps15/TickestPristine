@@ -11,6 +11,7 @@ namespace Tickest.Application.Users.Delete;
 
 internal sealed class DeleteUserCommandHandler(
     IBaseRepository<User> userRepository,
+    IUnitOfWork unitOfWork,
     IAuthService authService,
     IPermissionProvider permissionProvider,
     ILogger<DeleteUserCommandHandler> logger)
@@ -49,6 +50,7 @@ internal sealed class DeleteUserCommandHandler(
         #region Exclusão do Usuário
 
         await userRepository.DeleteByIdAsync(userToDelete.Id, cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
         logger.LogInformation("Usuário com ID {UserId} excluído com sucesso.", userToDelete.Id);
 
         #endregion

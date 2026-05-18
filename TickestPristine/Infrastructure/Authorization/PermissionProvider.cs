@@ -10,7 +10,6 @@ internal sealed class PermissionProvider : IPermissionProvider
     #region Campos Privados
 
     private readonly IUserRepository _userRepository;
-    private readonly IPermissionRepository _permissionRepository;
     private readonly ILogger<PermissionProvider> _logger;
     private readonly Dictionary<string, Func<HashSet<string>>> _rolePermissions;
 
@@ -20,10 +19,9 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     public PermissionProvider(
         IUserRepository userRepository,
-        IPermissionRepository permissionRepository,
         ILogger<PermissionProvider> logger)
-        => (_userRepository, _permissionRepository, _logger, _rolePermissions) =
-            (userRepository, permissionRepository, logger, InitializeRolePermissions());
+        => (_userRepository, _logger, _rolePermissions) =
+            (userRepository, logger, InitializeRolePermissions());
 
     #endregion
 
@@ -95,28 +93,28 @@ internal sealed class PermissionProvider : IPermissionProvider
     public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
     {
         if (userId == Guid.Empty)
+        {
             throw new TickestException("O ID do usuário não pode ser vazio.", nameof(userId));
+        }
 
         var permissions = new HashSet<string>();
+        var user = await _userRepository.GetWithPermissionsAsync(userId, CancellationToken.None);
 
-        // Obtém permissões atribuídas diretamente ao usuário
-        var userPermissions = await GetPermissionsForUserDirectlyAsync(userId);
-        permissions.UnionWith(userPermissions);
+        if (user is null)
+        {
+            throw new TickestException("Usuário não encontrado.");
+        }
+
+        permissions.UnionWith(GetPermissionsForRole(user.Role));
+        permissions.UnionWith(user.Permissions.Select(permission => permission.Description));
 
         return permissions;
     }
 
-    private Task<IEnumerable<string>> GetPermissionsForUserDirectlyAsync(Guid userId)
-    {
-        // Implementação do repositório de permissões de usuários
-        // Este método será implementado para buscar as permissões atribuídas diretamente ao usuário.
-        throw new TickestException();
-    }
-
     public HashSet<string> GetPermissionsForRole(string roleName)
         => _rolePermissions.TryGetValue(roleName, out var permissions)
-            ? permissions() // Invoca a função associada à chave
-            : new HashSet<string>(); // Retorna um conjunto vazio se o papel não for encontrado
+            ? permissions()
+            : new HashSet<string>();
 
     #endregion
 

@@ -11,6 +11,7 @@ namespace Tickest.Application.Tickets.Reopen;
 
 internal sealed class ReopenTicketCommandHandler(
     ITicketRepository ticketRepository,
+    IUnitOfWork unitOfWork,
     IAuthService authService,
     IPermissionProvider permissionProvider,
     ILogger<ReopenTicketCommandHandler> logger)
@@ -47,6 +48,7 @@ internal sealed class ReopenTicketCommandHandler(
         ticket.Status = TicketStatus.Open;
 
         await ticketRepository.UpdateAsync(ticket, cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
 
         logger.LogInformation("Ticket reaberto com sucesso: {TicketId}", ticket.Id);
 

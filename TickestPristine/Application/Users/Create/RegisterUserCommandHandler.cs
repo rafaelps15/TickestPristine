@@ -14,6 +14,7 @@ internal sealed class RegisterUserCommandHandler(
     IPermissionProvider permissionProvider,
     IAuthService authService,
     IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
     ILogger<RegisterUserCommandHandler> logger)
     : ICommandHandler<RegisterUserCommand, Guid>
 {
@@ -23,7 +24,7 @@ internal sealed class RegisterUserCommandHandler(
 
         #region Validação do Usuário Existente
 
-        var existingUser = await userRepository.GetUserByEmailAsync(command.Email, cancellationToken);
+        var existingUser = await userRepository.GetByEmailAsync(command.Email, cancellationToken);
 
         if (existingUser != null)
         {
@@ -35,23 +36,25 @@ internal sealed class RegisterUserCommandHandler(
 
         #region Validação de Permissões
 
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var hasUsers = await userRepository.AnyAsync(cancellationToken);
 
-        if (currentUser == null)
+        if (!hasUsers)
         {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
+            if (command.Role != "AdminMaster")
+            {
+                throw new TickestException("O primeiro usuário do sistema deve ser AdminMaster.");
+            }
         }
-
-        // Obtém as permissões associadas ao papel do usuário atual
-        var userRole = currentUser.Role;
-        var rolePermissions = permissionProvider.GetPermissionsForRole(userRole);
-
-        // Verifica se o usuário tem permissão para criar um novo usuário
-        if (!rolePermissions.Contains("ManageUsers"))
+        else
         {
-            logger.LogError("Usuário {UserId} com papel {Role} não tem permissão para criar um novo usuário.", currentUser.Id, userRole);
-            throw new TickestException("Você não tem permissão para criar um novo usuário.");
+            var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+            var rolePermissions = permissionProvider.GetPermissionsForRole(currentUser.Role);
+
+            if (!rolePermissions.Contains("ManageUsers"))
+            {
+                logger.LogError("Usuário {UserId} com papel {Role} não tem permissão para criar um novo usuário.", currentUser.Id, currentUser.Role);
+                throw new TickestException("Você não tem permissão para criar um novo usuário.");
+            }
         }
 
         #endregion
@@ -59,8 +62,7 @@ internal sealed class RegisterUserCommandHandler(
         #region Validação do Papel do Novo Usuário
 
         // Verifica se o papel fornecido é válido
-        var validRoles = new HashSet<string> { "AdminMaster", "GeneralAdmin", "SectorAdmin", "DepartmentAdmin", "AreaAdmin", "TicketManager", "Collaborator", "SupportAnalyst" };
-        if (!validRoles.Contains(command.Role))
+        if (permissionProvider.GetPermissionsForRole(command.Role).Count == 0)
         {
             logger.LogError("Papel {Role} inválido para o novo usuário.", command.Role);
             throw new TickestException("Papel inválido.");
@@ -77,7 +79,7 @@ internal sealed class RegisterUserCommandHandler(
             Name = command.Name,
             PasswordHash = passwordHasher.Hash(command.Password),
             CreatedAt = DateTime.UtcNow,
-            Role = command.Role  // Define o papel do novo usuário
+            Role = command.Role
         };
 
         logger.LogInformation("Usuário preparado para persistência: {UserId}.", user.Id);
@@ -87,6 +89,7 @@ internal sealed class RegisterUserCommandHandler(
         #region Persistência no Banco de Dados
 
         await userRepository.AddAsync(user, cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
 
         logger.LogInformation("Novo usuário criado com ID {UserId}.", user.Id);
 

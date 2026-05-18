@@ -3,7 +3,7 @@ using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-public interface IRefreshTokenRepository
+public interface IRefreshTokenRepository : IBaseRepository<RefreshToken>
 {
     Task<RefreshToken> GetByTokenAsync(string token, CancellationToken cancellationToken);
 

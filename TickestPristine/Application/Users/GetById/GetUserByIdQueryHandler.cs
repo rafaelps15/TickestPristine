@@ -18,7 +18,7 @@ internal sealed class GetUserByIdQueryHandler(IAuthService authService, IUserRep
             throw new TickestException("Voce nao tem permissao para acessar esses dados.");
         }
 
-        var user = await userRepository.GetByIdWithDetailsAsync(query.UserId, cancellationToken);
+        var user = await userRepository.GetWithPermissionsAsync(query.UserId, cancellationToken);
 
         if (user is null)
         {

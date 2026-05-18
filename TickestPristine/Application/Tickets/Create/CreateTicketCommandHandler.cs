@@ -11,6 +11,7 @@ namespace Tickest.Application.Tickets.Create;
 
 internal sealed class CreateTicketCommandHandler(
     ITicketRepository ticketRepository,
+    IUnitOfWork unitOfWork,
     ILogger<CreateTicketCommandHandler> logger,
     IAuthService authService,
     IPermissionProvider permissionProvider)
@@ -61,6 +62,7 @@ internal sealed class CreateTicketCommandHandler(
 
         #region Persistência no Repositório
         await ticketRepository.AddAsync(ticket, cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
         logger.LogInformation("Ticket criado com sucesso: {TicketId}", ticket.Id);
         #endregion
 

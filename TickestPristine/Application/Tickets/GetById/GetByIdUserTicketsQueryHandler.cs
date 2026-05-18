@@ -22,7 +22,7 @@ internal sealed class GetByIdUserTicketsQueryHandler(
             throw new TickestException("Usuário inválido.");
         }
 
-        var tickets = await _ticketRepository.GetTicketsByUserAsync(query.UserId, cancellationToken);
+        var tickets = await _ticketRepository.GetActiveByUserAsync(query.UserId, cancellationToken);
 
         if (tickets == null || !tickets.Any())
         {

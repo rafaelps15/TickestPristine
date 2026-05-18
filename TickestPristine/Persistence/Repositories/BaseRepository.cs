@@ -33,31 +33,29 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
     public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         await _context.Set<TEntity>().AddAsync(entity, cancellationToken);
-        await SaveChangesAsync(cancellationToken);
     }
 
     public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         await _context.Set<TEntity>().AddRangeAsync(entities, cancellationToken);
-        await SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         _context.Set<TEntity>().Update(entity);
-        await SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
-    public async Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    public Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         _context.Set<TEntity>().UpdateRange(entities);
-        await SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         _context.Set<TEntity>().Remove(entity);
-        await SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
     public async Task DeleteByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -66,19 +64,13 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         if (entity is not null)
         {
             _context.Set<TEntity>().Remove(entity);
-            await SaveChangesAsync(cancellationToken);
         }
     }
 
-    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    public Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         _context.Set<TEntity>().RemoveRange(entities);
-        await SaveChangesAsync(cancellationToken);
-    }
-
-    protected async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        await _context.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
 }

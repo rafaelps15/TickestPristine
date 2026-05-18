@@ -9,6 +9,7 @@ namespace Tickest.Application.Tickets.Update;
 
 internal sealed class UpdateTicketCommandHandler(
     ITicketRepository ticketRepository,
+    IUnitOfWork unitOfWork,
     IAuthService authService,
     IPermissionProvider permissionProvider,
     ILogger<UpdateTicketCommandHandler> logger)
@@ -34,7 +35,7 @@ internal sealed class UpdateTicketCommandHandler(
 
         #region Obtenção de Ticket
 
-        var ticket = await ticketRepository.GetByIdAsync(request.TicketId);
+        var ticket = await ticketRepository.GetByIdAsync(request.TicketId, false, cancellationToken);
 
         if (ticket == null)
         {
@@ -58,6 +59,7 @@ internal sealed class UpdateTicketCommandHandler(
         ticket.Status = request.Status;
 
         await ticketRepository.UpdateAsync(ticket, cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
 
         logger.LogInformation("Ticket atualizado com sucesso. Ticket ID: {TicketId}", request.TicketId);
 

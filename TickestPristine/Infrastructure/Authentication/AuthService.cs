@@ -20,6 +20,7 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPermissionProvider _permissionProvider;
 
     private const int PasswordHashVersion = 2;
 
@@ -34,9 +35,10 @@ public class AuthService : IAuthService
         IHttpContextAccessor httpContextAccessor,
         ILogger<AuthService> logger,
         IRefreshTokenRepository refreshTokenRepository,
-        IUnitOfWork unitOfWork) =>
-        (_userRepository, _tokenProvider, _passwordHasher, _httpContextAccessor, _logger, _refreshTokenRepository, _unitOfWork) =
-        (userRepository, tokenProvider, passwordHasher, httpContextAccessor, logger, refreshTokenRepository, unitOfWork);
+        IUnitOfWork unitOfWork,
+        IPermissionProvider permissionProvider) =>
+        (_userRepository, _tokenProvider, _passwordHasher, _httpContextAccessor, _logger, _refreshTokenRepository, _unitOfWork, _permissionProvider) =
+        (userRepository, tokenProvider, passwordHasher, httpContextAccessor, logger, refreshTokenRepository, unitOfWork, permissionProvider);
 
     #endregion
 
@@ -46,11 +48,17 @@ public class AuthService : IAuthService
     {
         var user = await ValidateUserCredentialsAsync(email, password, cancellationToken);
 
+        if (!await _permissionProvider.CanUserLoginAsync(user.Id))
+        {
+            throw new TickestException("Usuário sem permissão para acessar o sistema.");
+        }
+
         var newPasswordHash = RehashIfNeeded(password, user.PasswordHash);
         if (newPasswordHash != null)
         {
             user.PasswordHash = newPasswordHash;
             await _userRepository.UpdateAsync(user, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
         }
 
         // Cria o token JWT
@@ -68,7 +76,7 @@ public class AuthService : IAuthService
     public async Task<User> GetCurrentUserAsync(CancellationToken cancellationToken)
     {
         var email = GetEmailFromContext();
-        var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken);
+        var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
 
         if (user == null)
             throw new TickestException("Usuário não encontrado.");
@@ -91,7 +99,7 @@ public class AuthService : IAuthService
 
     public async Task<User> ValidateUserCredentialsAsync(string email, string password, CancellationToken cancellationToken) // Tornado público
     {
-        var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken);
+        var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
         if (user == null || !_passwordHasher.Verify(password, user.PasswordHash))
             throw new TickestException("Credenciais inválidas.");
 
@@ -103,11 +111,15 @@ public class AuthService : IAuthService
         var updatedHash = _passwordHasher.Hash(password);
         user.PasswordHash = updatedHash;
         await _userRepository.UpdateAsync(user, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 
     private string GetEmailFromContext()
     {
-        var email = _httpContextAccessor.HttpContext?.User?.FindFirst("email")?.Value;
+        var principal = _httpContextAccessor.HttpContext?.User;
+        var email = principal?.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email)?.Value
+            ?? principal?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+            ?? principal?.FindFirst("email")?.Value;
         if (string.IsNullOrEmpty(email))
             throw new TickestException("Usuário não autenticado.");
 

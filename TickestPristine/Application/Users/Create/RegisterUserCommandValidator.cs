@@ -17,5 +17,14 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("A senha é obrigatória.")
             .MinimumLength(8).WithMessage("A senha deve ter pelo menos 8 caracteres.");
+
+        RuleFor(x => x.Role)
+            .NotEmpty().WithMessage("A função é obrigatória.");
+
+        RuleFor(x => x.SpecialtyNames)
+            .NotNull().WithMessage("A lista de especialidades é obrigatória.");
+
+        RuleFor(x => x.AreaIds)
+            .NotNull().WithMessage("A lista de áreas é obrigatória.");
     }
 }

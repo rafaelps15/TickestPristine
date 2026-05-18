@@ -6,7 +6,6 @@ using Tickest.Application.Users.Create;
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Authorize]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
@@ -17,8 +16,8 @@ namespace WebApi.Controllers
             _mediator=mediator;
         }
 
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserCommand command) =>
             Ok(await _mediator.Send(command));
     }
