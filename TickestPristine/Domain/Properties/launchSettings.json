@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Tickest.Domain": {
+      "commandName": "Project"
+    }
+  }
+}
