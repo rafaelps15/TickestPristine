@@ -132,7 +132,7 @@ public class AuthService : IAuthService
         if (refreshTokenEntity == null || refreshTokenEntity.ExpiresAt < DateTime.UtcNow)
             throw new TickestException("Refresh token inválido ou expirado.");
 
-        var user = await _userRepository.GetByIdAsync(refreshTokenEntity.UserId);
+        var user = await _userRepository.GetWithPermissionsAsync(refreshTokenEntity.UserId, cancellationToken);
         if (user == null)
             throw new TickestException("Usuário associado ao refresh token não encontrado.");
 

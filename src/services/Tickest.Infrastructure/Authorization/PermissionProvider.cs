@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
+using Tickest.Domain.Constants;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
@@ -7,15 +8,9 @@ namespace Infrastructure.Authorization;
 
 internal sealed class PermissionProvider : IPermissionProvider
 {
-    #region Campos Privados
-
     private readonly IUserRepository _userRepository;
     private readonly ILogger<PermissionProvider> _logger;
     private readonly Dictionary<string, Func<HashSet<string>>> _rolePermissions;
-
-    #endregion
-
-    #region Construtor
 
     public PermissionProvider(
         IUserRepository userRepository,
@@ -23,72 +18,60 @@ internal sealed class PermissionProvider : IPermissionProvider
         => (_userRepository, _logger, _rolePermissions) =
             (userRepository, logger, InitializeRolePermissions());
 
-    #endregion
-
-    #region Permissões por Papel
-
     private static HashSet<string> GetMasterAdminPermissions() => new()
     {
         "FullSystemControl", "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments",
-        "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings","AccessSystem"
+        "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings", "AccessSystem"
     };
 
     private static HashSet<string> GetGeneralAdminPermissions() => new()
     {
         "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments", "ManageAreas",
-        "ManageTickets", "ViewReports","AccessSystem"
+        "ManageTickets", "ViewReports", "AccessSystem"
     };
 
     private static HashSet<string> GetSectorAdminPermissions() => new()
     {
-        "ManageSectors", "ManageDepartments", "ManageAreas","AccessSystem"
+        "ManageSectors", "ManageDepartments", "ManageAreas", "AccessSystem"
     };
 
     private static HashSet<string> GetDepartmentAdminPermissions() => new()
     {
-        "ManageDepartments", "ManageAreas", "AssignDepartmentRoles","AccessSystem"
+        "ManageDepartments", "ManageAreas", "AssignDepartmentRoles", "AccessSystem"
     };
 
     private static HashSet<string> GetAreaAdminPermissions() => new()
     {
-        "ManageAreas", "ManageTasks", "ManageCollaborators","AccessSystem"
+        "ManageAreas", "ManageTasks", "ManageCollaborators", "AccessSystem"
     };
 
     private static HashSet<string> GetTicketManagerPermissions() => new()
     {
-        "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance","AccessSystem"
+        "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance", "AccessSystem"
     };
 
     private static HashSet<string> GetCollaboratorPermissions() => new()
     {
-        "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst","AccessSystem"
+        "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst", "AccessSystem"
     };
 
     private static HashSet<string> GetSupportAnalystPermissions() => new()
     {
-        "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester","AccessSystem"
+        "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester", "AccessSystem"
     };
 
-    #endregion
-
-    #region Inicialização de Permissões por Papel
-
-    private Dictionary<string, Func<HashSet<string>>> InitializeRolePermissions() =>
+    private static Dictionary<string, Func<HashSet<string>>> InitializeRolePermissions() =>
         new()
         {
-            ["AdminMaster"] = GetMasterAdminPermissions,
-            ["GeneralAdmin"] = GetGeneralAdminPermissions,
-            ["SectorAdmin"] = GetSectorAdminPermissions,
-            ["DepartmentAdmin"] = GetDepartmentAdminPermissions,
-            ["AreaAdmin"] = GetAreaAdminPermissions,
-            ["TicketManager"] = GetTicketManagerPermissions,
-            ["Collaborator"] = GetCollaboratorPermissions,
-            ["SupportAnalyst"] = GetSupportAnalystPermissions
+            [SystemRoles.AdminMaster] = GetMasterAdminPermissions,
+            [SystemRoles.GeneralAdmin] = GetGeneralAdminPermissions,
+            [SystemRoles.SectorAdmin] = GetSectorAdminPermissions,
+            [SystemRoles.DepartmentAdmin] = GetDepartmentAdminPermissions,
+            [SystemRoles.AreaAdmin] = GetAreaAdminPermissions,
+            [SystemRoles.TicketManager] = GetTicketManagerPermissions,
+            [SystemRoles.Collaborator] = GetCollaboratorPermissions,
+            [SystemRoles.SupportAnalyst] = GetSupportAnalystPermissions
         };
-
-    #endregion
-
-    #region Métodos de Permissões
 
     public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
     {
@@ -105,7 +88,7 @@ internal sealed class PermissionProvider : IPermissionProvider
             throw new TickestException("Usuário não encontrado.");
         }
 
-        permissions.UnionWith(GetPermissionsForRole(user.Role));
+        permissions.UnionWith(GetPermissionsForRole(user.Role.Name));
         permissions.UnionWith(user.Permissions.Select(permission => permission.Description));
 
         return permissions;
@@ -116,22 +99,17 @@ internal sealed class PermissionProvider : IPermissionProvider
             ? permissions()
             : new HashSet<string>();
 
-    #endregion
-
-    #region Verificação de Permissão
-
     public async Task<bool> UserHasPermissionAsync(Guid userId, string permission)
     {
         try
         {
-            // Verifica se o usuário tem a permissão
             var userPermissions = await GetPermissionsForUserAsync(userId);
             return userPermissions.Contains(permission);
         }
         catch (TickestException ex)
         {
             _logger.LogError(ex, "Erro ao verificar permissão para o usuário.");
-            return false; // Retorna false caso ocorra um erro ao verificar as permissões
+            return false;
         }
     }
 
@@ -152,6 +130,4 @@ internal sealed class PermissionProvider : IPermissionProvider
     {
         return await UserHasPermissionAsync(userId, "AccessSystem");
     }
-
-    #endregion
 }

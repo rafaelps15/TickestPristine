@@ -15,12 +15,12 @@ public class UserSpecialtyConfiguration : IEntityTypeConfiguration<UserSpecialty
         builder.HasOne(us => us.User)
             .WithMany(u => u.UserSpecialties) // Relacionamento no lado de User
             .HasForeignKey(us => us.UserId)
-            .OnDelete(DeleteBehavior.Cascade); // Excluir UserSpecialty ao excluir User
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Relacionamento com Specialty (configuração no lado de UserSpecialty)
         builder.HasOne(us => us.Specialty)
             .WithMany(s => s.UserSpecialties) // Relacionamento no lado de Specialty
             .HasForeignKey(us => us.SpecialtyId)
-            .OnDelete(DeleteBehavior.Cascade); // Excluir UserSpecialty ao excluir Specialty
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

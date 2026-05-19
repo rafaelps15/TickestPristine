@@ -13,17 +13,22 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Name).IsRequired().HasMaxLength(200);
         builder.Property(u => u.Email).IsRequired().HasMaxLength(200);
         builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
-        builder.Property(u => u.Salt).IsRequired().HasMaxLength(255);
+        builder.HasIndex(u => u.Email).IsUnique();
+
+        builder.HasOne(u => u.Role)
+            .WithMany(role => role.Users)
+            .HasForeignKey(u => u.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Relacionamento N:N com Specialties (via UserSpecialty)
         builder.HasMany(u => u.UserSpecialties)
-            .WithOne() // Relacionamento configurado apenas no lado de UserSpecialty
+            .WithOne(userSpecialty => userSpecialty.User)
             .HasForeignKey(us => us.UserId)
             .OnDelete(DeleteBehavior.Restrict); // As especialidades não serão deletadas ao excluir o usuário
 
         // Relacionamento N:N com Areas e Specialties (via AreaUserSpecialty)
         builder.HasMany(u => u.AreaUserSpecialties)
-            .WithOne() // Relacionamento configurado apenas no lado de AreaUserSpecialty
+            .WithOne(areaUserSpecialty => areaUserSpecialty.User)
             .HasForeignKey(aus => aus.UserId)
             .OnDelete(DeleteBehavior.Restrict); // As áreas não serão deletadas ao excluir o usuário
 

@@ -1,11 +1,12 @@
-﻿
 using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Entities.Permissions;
 
 public class Role : EntityBase
 {
+    public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 
-    public ICollection<UserRole> UserRoles { get; set; } = [];
+    public ICollection<User> Users { get; set; } = [];
 }

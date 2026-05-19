@@ -12,6 +12,7 @@ internal class UserRepository : BaseRepository<User>, IUserRepository
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()
+                      .Include(user => user.Role)
                       .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
     public async Task<User?> GetWithPermissionsAsync(Guid userId, CancellationToken cancellationToken) =>
@@ -19,6 +20,7 @@ internal class UserRepository : BaseRepository<User>, IUserRepository
                       .AsNoTracking()
                       .Include(user => user.UserSpecialties)
                           .ThenInclude(userSpecialty => userSpecialty.Specialty)
+                      .Include(user => user.Role)
                       .Include(user => user.Permissions)
                       .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
 

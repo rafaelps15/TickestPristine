@@ -13,9 +13,9 @@ public class AreaUserSpecialtyConfiguration : IEntityTypeConfiguration<AreaUserS
 
         // Relacionamento com Area
         builder.HasOne(aus => aus.Area)
-            .WithMany() // Sem necessidade de configuração explícita de coleções de áreas na área
+            .WithMany(area => area.AreaUserSpecialties)
             .HasForeignKey(aus => aus.AreaId)
-            .OnDelete(DeleteBehavior.Cascade); // Exclusão em cascata
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Relacionamento com User
         builder.HasOne(aus => aus.User)

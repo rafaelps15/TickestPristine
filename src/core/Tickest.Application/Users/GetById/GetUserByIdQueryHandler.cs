@@ -29,6 +29,8 @@ internal sealed class GetUserByIdQueryHandler(IAuthService authService, IUserRep
             user.Id,
             user.Name,
             user.Email,
+            user.RoleId,
+            user.Role.Name,
             user.UserSpecialties.Select(userSpecialty => userSpecialty.Specialty.Name).ToList(),
             user.Permissions.Select(permission => permission.Description).ToList());
     }

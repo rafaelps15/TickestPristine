@@ -27,9 +27,9 @@ public class SectorConfiguration : IEntityTypeConfiguration<Sector>
 
         // Relacionamento com a área (no lado do setor)
         builder.HasMany(s => s.Areas) // Relacionamento com áreas
-            .WithOne() // Não precisa de um relacionamento explícito no lado da área
+            .WithOne(a => a.Sector)
             .HasForeignKey(a => a.SectorId) // Chave estrangeira no lado da área
-            .OnDelete(DeleteBehavior.Cascade); // Exclusão em cascata
+            .OnDelete(DeleteBehavior.Restrict); // Evita múltiplos caminhos de cascata no SQL Server
 
         // Configuração de tabela
         builder.ToTable("Sectors");

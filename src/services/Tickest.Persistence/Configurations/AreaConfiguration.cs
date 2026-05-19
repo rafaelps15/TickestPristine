@@ -27,9 +27,9 @@ public class AreaConfiguration : IEntityTypeConfiguration<Area>
 
         // Relação N:N com usuários e especialidades
         builder.HasMany(a => a.AreaUserSpecialties)
-            .WithOne() // Relacionamento sem a necessidade de um lado explícito em AreaUserSpecialty
+            .WithOne(aus => aus.Area)
             .HasForeignKey(aus => aus.AreaId)
-            .OnDelete(DeleteBehavior.Cascade); // Exclusão em cascata
+            .OnDelete(DeleteBehavior.Restrict); // Evita múltiplos caminhos de cascata no SQL Server
 
         // Configuração de tabela
         builder.ToTable("Areas");

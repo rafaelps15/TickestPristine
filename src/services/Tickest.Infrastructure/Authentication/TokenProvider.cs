@@ -25,7 +25,8 @@ internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions) : ITokenPr
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim("roleId", user.RoleId.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.Name)
             ]),
             Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
             SigningCredentials = credentials,
