@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
+using Tickest.Domain.Constants;
 using Tickest.Domain.Enum;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
@@ -29,7 +30,7 @@ internal sealed class ReopenTicketCommandHandler(
             throw new TickestException("Usuário não autenticado.");
         }
 
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, "ReopenTicket");
+        await permissionProvider.ValidatePermissionAsync(currentUser.Id, SystemPermissions.ReopenTicket);
 
         var ticket = await ticketRepository.GetByIdAsync(request.TicketId, false, cancellationToken);
         if (ticket == null)

@@ -6,6 +6,7 @@ using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Domain.Common;
 using MediatR;
+using Tickest.Domain.Constants;
 
 namespace Tickest.Application.Users.Delete;
 
@@ -31,7 +32,7 @@ internal sealed class DeleteUserCommandHandler(
             throw new TickestException("Usuário não autenticado. Operação de exclusão falhou.");
         }
 
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, "DeleteUser");
+        await permissionProvider.ValidatePermissionAsync(currentUser.Id, SystemPermissions.DeleteUser);
 
         #endregion
 

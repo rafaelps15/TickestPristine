@@ -2,6 +2,7 @@
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
+using Tickest.Domain.Constants;
 using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
@@ -31,7 +32,7 @@ namespace Tickest.Application.Tickets.Delete
             }
 
             //Permissão crítica para a continuidade da execução do processo utilizo "ValidatePermissionAsync"
-            await permissionProvider.ValidatePermissionAsync(currentUser.Id, "DeleteTicket");
+            await permissionProvider.ValidatePermissionAsync(currentUser.Id, SystemPermissions.DeleteTicket);
 
             #endregion
 

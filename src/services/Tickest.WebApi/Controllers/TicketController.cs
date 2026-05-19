@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Tickest.Application.Tickets.Create;
 using Tickest.Application.Tickets.Update;
+using Tickest.Domain.Constants;
 using Tickest.Infrastructure.Authentication;
 
 namespace WebApi.Controllers;
@@ -30,19 +31,19 @@ public class TicketController : ControllerBase
     }
 
     [HttpPost]
-    [HasPermission("create")]
+    [HasPermission(SystemPermissions.CreateTicket)]
     public async Task<IActionResult> CreateTicket([FromBody] CreateTicketCommand command) =>
         Ok(await _mediator.Send(command));
 
     [HttpGet("{id}")]
-    [HasPermission("ViewTicket")]
+    [HasPermission(SystemPermissions.ViewTicket)]
     public async Task<IActionResult> GetTicketById(Guid id)
     {
         return Ok();
     }
 
     [HttpPut("{id}")]
-    [HasPermission("ManageTickets")]
+    [HasPermission(SystemPermissions.AccessSystem)]
     public async Task<IActionResult> UpdateTicketStatus(Guid id, [FromBody] UpdateTicketCommand command) =>
         Ok(await _mediator.Send(command));
 }

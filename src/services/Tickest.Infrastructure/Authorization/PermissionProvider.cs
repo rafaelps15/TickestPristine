@@ -18,59 +18,55 @@ internal sealed class PermissionProvider : IPermissionProvider
         => (_userRepository, _logger, _rolePermissions) =
             (userRepository, logger, InitializeRolePermissions());
 
-    private static HashSet<string> GetMasterAdminPermissions() => new()
+    private static HashSet<string> GetAdminMasterPermissions() => new()
     {
-        "FullSystemControl", "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments",
-        "ManageAreas", "ManageTickets", "ViewReports", "AccessCriticalSettings", "AccessSystem"
-    };
-
-    private static HashSet<string> GetGeneralAdminPermissions() => new()
-    {
-        "ManageUsers", "ManagePermissions", "ManageSectors", "ManageDepartments", "ManageAreas",
-        "ManageTickets", "ViewReports", "AccessSystem"
-    };
-
-    private static HashSet<string> GetSectorAdminPermissions() => new()
-    {
-        "ManageSectors", "ManageDepartments", "ManageAreas", "AccessSystem"
-    };
-
-    private static HashSet<string> GetDepartmentAdminPermissions() => new()
-    {
-        "ManageDepartments", "ManageAreas", "AssignDepartmentRoles", "AccessSystem"
-    };
-
-    private static HashSet<string> GetAreaAdminPermissions() => new()
-    {
-        "ManageAreas", "ManageTasks", "ManageCollaborators", "AccessSystem"
+        SystemPermissions.FullSystemControl,
+        SystemPermissions.ManageUsers,
+        SystemPermissions.DeleteUser,
+        SystemPermissions.ManagePermissions,
+        SystemPermissions.ManageTickets,
+        SystemPermissions.DeleteTicket,
+        SystemPermissions.CloseTicket,
+        SystemPermissions.ReopenTicket,
+        SystemPermissions.AssignTicket,
+        SystemPermissions.ChangeTicketStatus,
+        SystemPermissions.CreateTicket,
+        SystemPermissions.ViewTicket,
+        SystemPermissions.UpdateOwnTicket,
+        SystemPermissions.ViewReports,
+        SystemPermissions.AccessCriticalSettings,
+        SystemPermissions.AccessSystem
     };
 
     private static HashSet<string> GetTicketManagerPermissions() => new()
     {
-        "ManageTickets", "ChangeTicketStatus", "ReassignTickets", "MonitorTicketPerformance", "AccessSystem"
+        SystemPermissions.ManageTickets,
+        SystemPermissions.DeleteTicket,
+        SystemPermissions.CloseTicket,
+        SystemPermissions.ReopenTicket,
+        SystemPermissions.AssignTicket,
+        SystemPermissions.ChangeTicketStatus,
+        SystemPermissions.ViewTicket,
+        SystemPermissions.ViewReports,
+        SystemPermissions.AccessSystem
     };
 
     private static HashSet<string> GetCollaboratorPermissions() => new()
     {
-        "CreateTicket", "TrackTicketStatus", "InteractWithAnalyst", "AccessSystem"
-    };
-
-    private static HashSet<string> GetSupportAnalystPermissions() => new()
-    {
-        "ManageAssignedTickets", "UpdateTicketStatus", "InteractWithRequester", "AccessSystem"
+        SystemPermissions.CreateTicket,
+        SystemPermissions.ViewTicket,
+        SystemPermissions.UpdateOwnTicket,
+        SystemPermissions.TrackTicketStatus,
+        SystemPermissions.InteractWithTicket,
+        SystemPermissions.AccessSystem
     };
 
     private static Dictionary<string, Func<HashSet<string>>> InitializeRolePermissions() =>
         new()
         {
-            [SystemRoles.AdminMaster] = GetMasterAdminPermissions,
-            [SystemRoles.GeneralAdmin] = GetGeneralAdminPermissions,
-            [SystemRoles.SectorAdmin] = GetSectorAdminPermissions,
-            [SystemRoles.DepartmentAdmin] = GetDepartmentAdminPermissions,
-            [SystemRoles.AreaAdmin] = GetAreaAdminPermissions,
+            [SystemRoles.AdminMaster] = GetAdminMasterPermissions,
             [SystemRoles.TicketManager] = GetTicketManagerPermissions,
-            [SystemRoles.Collaborator] = GetCollaboratorPermissions,
-            [SystemRoles.SupportAnalyst] = GetSupportAnalystPermissions
+            [SystemRoles.Collaborator] = GetCollaboratorPermissions
         };
 
     public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
@@ -128,6 +124,6 @@ internal sealed class PermissionProvider : IPermissionProvider
 
     public async Task<bool> CanUserLoginAsync(Guid userId)
     {
-        return await UserHasPermissionAsync(userId, "AccessSystem");
+        return await UserHasPermissionAsync(userId, SystemPermissions.AccessSystem);
     }
 }

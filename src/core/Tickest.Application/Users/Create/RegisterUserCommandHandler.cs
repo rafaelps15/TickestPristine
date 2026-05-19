@@ -43,7 +43,7 @@ internal sealed class RegisterUserCommandHandler(
 
         if (!hasUsers)
         {
-            if (command.RoleId != SystemRoles.AdminMasterId)
+            if (role.Name != SystemRoles.AdminMaster)
             {
                 throw new TickestException("O primeiro usuário do sistema deve ser AdminMaster.");
             }
@@ -53,7 +53,7 @@ internal sealed class RegisterUserCommandHandler(
             var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
             var rolePermissions = permissionProvider.GetPermissionsForRole(currentUser.Role.Name);
 
-            if (!rolePermissions.Contains("ManageUsers"))
+            if (!rolePermissions.Contains(SystemPermissions.ManageUsers))
             {
                 logger.LogError(
                     "Usuário {UserId} com função {Role} não tem permissão para criar um novo usuário.",

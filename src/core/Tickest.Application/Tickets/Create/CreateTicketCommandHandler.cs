@@ -2,6 +2,7 @@
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
+using Tickest.Domain.Constants;
 using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Enum;
 using Tickest.Domain.Exceptions;
@@ -31,7 +32,7 @@ internal sealed class CreateTicketCommandHandler(
         }
 
         // Verificar se o usuário tem permissão para criar ticket
-        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser.Id, "CreateTicket");
+        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser.Id, SystemPermissions.CreateTicket);
         if (!hasPermission)
         {
             logger.LogError("Usuário não tem permissão para criar tickets.");

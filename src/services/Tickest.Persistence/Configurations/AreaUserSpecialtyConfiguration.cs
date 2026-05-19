@@ -19,15 +19,15 @@ public class AreaUserSpecialtyConfiguration : IEntityTypeConfiguration<AreaUserS
 
         // Relacionamento com User
         builder.HasOne(aus => aus.User)
-            .WithMany() // Sem necessidade de configuração explícita de coleções de usuários no usuário
+            .WithMany(user => user.AreaUserSpecialties)
             .HasForeignKey(aus => aus.UserId)
-            .OnDelete(DeleteBehavior.Restrict); // Restrição de exclusão para evitar deleção de usuários
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Relacionamento com Specialty
         builder.HasOne(aus => aus.Specialty)
-            .WithMany() // Sem necessidade de configuração explícita de coleções de especialidades na especialidade
+            .WithMany(specialty => specialty.AreaUserSpecialties)
             .HasForeignKey(aus => aus.SpecialtyId)
-            .OnDelete(DeleteBehavior.Restrict); // Restrição de exclusão para evitar deleção de especialidades
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Configuração de tabela
         builder.ToTable("AreaUserSpecialties");

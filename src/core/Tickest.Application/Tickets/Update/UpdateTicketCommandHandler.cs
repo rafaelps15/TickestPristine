@@ -2,6 +2,7 @@
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
+using Tickest.Domain.Constants;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
@@ -19,8 +20,6 @@ internal sealed class UpdateTicketCommandHandler(
     {
         logger.LogInformation("Iniciando a atualização do ticket.");
 
-        #region Validação de Permissões
-
         var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
 
         if (currentUser == null)
@@ -28,10 +27,6 @@ internal sealed class UpdateTicketCommandHandler(
             logger.LogError("Usuário não autenticado. Falha ao tentar editar o ticket. Requisição realizada por um usuário não autenticado.");
             throw new TickestException("Usuário não autenticado. A operação de edição do ticket falhou porque o usuário não está autenticado.");
         }
-
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, "EditTicket");
-
-        #endregion
 
         #region Obtenção de Ticket
 
@@ -49,6 +44,12 @@ internal sealed class UpdateTicketCommandHandler(
             logger.LogError("O ticket não está ativo. Ticket ID: {TicketId}", request.TicketId);
             throw new TickestException("O ticket não está ativo e não pode ser editado.");
         }
+
+        var requiredPermission = ticket.OpenedByUserId == currentUser.Id
+            ? SystemPermissions.UpdateOwnTicket
+            : SystemPermissions.ManageTickets;
+
+        await permissionProvider.ValidatePermissionAsync(currentUser.Id, requiredPermission);
 
         #endregion
 
