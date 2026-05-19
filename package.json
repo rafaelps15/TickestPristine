@@ -1,0 +1,9 @@
+{
+  "name": "tickest-pristine",
+  "private": true,
+  "scripts": {
+    "build": "dotnet build TickestPristine.sln",
+    "restore": "dotnet restore TickestPristine.sln",
+    "api": "dotnet run --project src/services/Tickest.WebApi/WebApi.csproj"
+  }
+}

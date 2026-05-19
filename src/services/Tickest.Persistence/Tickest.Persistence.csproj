@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Tickest.Domain.csproj" />
+    <ProjectReference Include="..\..\core\Tickest.Domain\Tickest.Domain.csproj" />
   </ItemGroup>
 
 </Project>
