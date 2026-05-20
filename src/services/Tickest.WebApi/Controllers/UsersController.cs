@@ -6,12 +6,12 @@ using Tickest.Application.Users.Create;
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    [Route("api/users")]
+    public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public UserController(IMediator mediator)
+        public UsersController(IMediator mediator)
         {
             _mediator=mediator;
         }
