@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tickest.Application.Users.Create;
+using Tickest.Application.Users.Login;
 
 namespace WebApi.Controllers
 {
@@ -20,5 +21,7 @@ namespace WebApi.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserCommand command) =>
             Ok(await _mediator.Send(command));
+
+        
     }
 }

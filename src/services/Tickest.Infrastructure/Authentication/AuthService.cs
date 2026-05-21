@@ -68,7 +68,9 @@ public class AuthService : IAuthService
 
         return new TokenResponse
         {
-            Token = token
+            AccessToken = token,
+            TokenType = "Bearer",
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
         };
     }
 

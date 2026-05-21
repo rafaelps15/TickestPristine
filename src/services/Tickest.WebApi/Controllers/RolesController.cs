@@ -6,7 +6,7 @@ using Tickest.Application.Roles.GetAll;
 namespace WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/roles")]
 public class RolesController(IMediator mediator) : ControllerBase
 {
     [HttpGet]

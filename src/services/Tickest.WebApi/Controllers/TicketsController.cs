@@ -10,19 +10,19 @@ using Tickest.Infrastructure.Authentication;
 
 namespace WebApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/tickets")]
 [ApiController]
 [Authorize]
-public class TicketController : ControllerBase
+public class TicketsController : ControllerBase
 {
     private readonly IAuthorizationService _authorizationService;
-    private readonly ILogger<TicketController> _logger;
+    private readonly ILogger<TicketsController> _logger;
     private readonly IMediator _mediator;
     private readonly JwtSettings _jwtSettings;
 
-    public TicketController(
+    public TicketsController(
         IAuthorizationService authorizationService,
-        ILogger<TicketController> logger,
+        ILogger<TicketsController> logger,
         IOptions<JwtSettings> jwtSettings,
         IMediator mediator)
     {

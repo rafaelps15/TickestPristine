@@ -4,14 +4,14 @@ using Tickest.Infrastructure;
 using Tickest.Infrastructure.Authentication;
 using Tickest.Infrastructure.Mvc.Middlewares;
 using Tickest.Persistence;
+using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerDocumentation();
 
 builder.Services.AddApplication()
                .AddInfrastructure(builder.Configuration)
