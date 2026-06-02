@@ -100,6 +100,23 @@ namespace Tickest.Persistence.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Name", "Email", "PasswordHash", "RoleId", "IsActive", "IsDeleted", "CreatedAt", "DeactivatedAt", "UpdateAt" },
+                values: new object[]
+                {
+                    new Guid("e7f40fd4-0ef2-47e5-a7ec-3c2c6b91862d"),
+                    "AdminMaster",
+                    "admin@tickest.com.br",
+                    "1-3E4FFDF61099204D2CB3E4A990C521B92951CF669A7C9BBC8175ACE4FA5BDC3C-9867AB473BCCFB68CAF2BB13F4C8C027",
+                    new Guid("b0f7b3e9-2e87-47f6-9f2f-8e21d0c9f5a1"),
+                    true,
+                    false,
+                    new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    null,
+                    null
+                });
+
             migrationBuilder.CreateTable(
                 name: "Departments",
                 columns: table => new

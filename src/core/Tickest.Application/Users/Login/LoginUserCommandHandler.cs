@@ -15,7 +15,7 @@ internal sealed class LoginUserCommandHandler(
     {
         var tokenResponse = await authService.AuthenticateAsync(command.Email, command.Password, cancellationToken);
 
-         if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
+        if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
         {
             throw new TickestException("Falha ao gerar o token.");
         }
