@@ -32,6 +32,6 @@ public class AreaConfiguration : IEntityTypeConfiguration<Area>
             .OnDelete(DeleteBehavior.Restrict); // Evita múltiplos caminhos de cascata no SQL Server
 
         // Configuração de tabela
-        builder.ToTable("Areas");
+        builder.ToTable("areas");
     }
 }

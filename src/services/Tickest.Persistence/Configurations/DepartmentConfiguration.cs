@@ -32,6 +32,6 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .OnDelete(DeleteBehavior.SetNull); // Comportamento de exclusão
 
         // Configuração de tabela
-        builder.ToTable("Departments");
+        builder.ToTable("departments");
     }
 }

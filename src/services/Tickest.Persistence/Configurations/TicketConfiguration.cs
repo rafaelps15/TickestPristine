@@ -50,7 +50,7 @@ namespace Tickest.Persistence.Configurations
                 .OnDelete(DeleteBehavior.Restrict); // Não excluir o ticket se a área for excluída
 
             // Configuração da tabela
-            builder.ToTable("Tickets");
+            builder.ToTable("tickets");
         }
     }
 }

@@ -8,6 +8,8 @@ public class UserSpecialtyConfiguration : IEntityTypeConfiguration<UserSpecialty
 {
     public void Configure(EntityTypeBuilder<UserSpecialty> builder)
     {
+        builder.ToTable("user_specialties");
+
         // Chave primária composta (UserId + SpecialtyId)
         builder.HasKey(us => new { us.UserId, us.SpecialtyId });
 

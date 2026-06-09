@@ -30,6 +30,6 @@ public class AreaUserSpecialtyConfiguration : IEntityTypeConfiguration<AreaUserS
             .OnDelete(DeleteBehavior.Restrict);
 
         // Configuração de tabela
-        builder.ToTable("AreaUserSpecialties");
+        builder.ToTable("area_user_specialties");
     }
 }

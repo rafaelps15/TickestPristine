@@ -19,6 +19,6 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .HasMaxLength(200);
 
         builder.HasIndex(role => role.Name).IsUnique();
-        builder.ToTable("Roles");
+        builder.ToTable("roles");
     }
 }

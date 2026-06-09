@@ -12,7 +12,7 @@ public class SpecialtyConfiguration : IEntityTypeConfiguration<Specialty>
         builder.HasKey(s => s.Id);
 
         // Configuração da tabela
-        builder.ToTable("Specialties");
+        builder.ToTable("specialties");
 
         // Propriedades
         builder.Property(s => s.Name)

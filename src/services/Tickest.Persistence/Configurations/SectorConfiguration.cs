@@ -32,6 +32,6 @@ public class SectorConfiguration : IEntityTypeConfiguration<Sector>
             .OnDelete(DeleteBehavior.Restrict); // Evita múltiplos caminhos de cascata no SQL Server
 
         // Configuração de tabela
-        builder.ToTable("Sectors");
+        builder.ToTable("sectors");
     }
 }
