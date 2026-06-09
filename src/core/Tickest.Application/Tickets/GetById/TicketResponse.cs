@@ -21,6 +21,5 @@ namespace Tickest.Application.Tickets.GetById
         public string AssignedTo { get; set; } = string.Empty;
         public string Department { get; set; } = string.Empty;
         public string Sector { get; set; } = string.Empty;
-        public string Area { get; set; } = string.Empty;
     }
 }

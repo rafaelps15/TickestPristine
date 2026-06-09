@@ -25,12 +25,6 @@ public class SectorConfiguration : IEntityTypeConfiguration<Sector>
             .HasForeignKey(s => s.ResponsibleUserId)
             .OnDelete(DeleteBehavior.Restrict); // Comportamento de exclusão
 
-        // Relacionamento com a área (no lado do setor)
-        builder.HasMany(s => s.Areas) // Relacionamento com áreas
-            .WithOne(a => a.Sector)
-            .HasForeignKey(a => a.SectorId) // Chave estrangeira no lado da área
-            .OnDelete(DeleteBehavior.Restrict); // Evita múltiplos caminhos de cascata no SQL Server
-
         // Configuração de tabela
         builder.ToTable("sectors");
     }

@@ -5,7 +5,6 @@ public interface IUnitOfWork : IDisposable
     IUserRepository Users { get; }
     IRefreshTokenRepository RefreshTokenRepository { get; }
     ITicketRepository TicketRepository { get; }
-    IAreaRepository AreaRepository { get; }
     ISpecialtyRepository SpecialtyRepository { get; }
     ISectorRepository SectorRepository { get; }
 

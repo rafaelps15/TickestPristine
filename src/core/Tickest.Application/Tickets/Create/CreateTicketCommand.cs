@@ -7,6 +7,8 @@ public record CreateTicketCommand(
      string Title,
      string Description,
      TicketPriority Priority,
+     Guid DepartmentId,
+     Guid SectorId,
      Guid? RequesterId,
      Guid ResponsibleId) : ICommand<Guid>;
 

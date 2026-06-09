@@ -17,7 +17,6 @@ public class TickestContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Sector> Sectors { get; set; }
     public DbSet<Department> Departments { get; set; }
-    public DbSet<Area> Areas { get; set; }
     public DbSet<Specialty> Specialties { get; set; }
     public DbSet<UserSpecialty> UserSpecialties { get; set; }
     public DbSet<Permission> Permissions { get; set; }

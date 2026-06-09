@@ -13,7 +13,6 @@ public class UnitOfWork : IUnitOfWork
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITicketRepository _ticketRepository;
     private readonly ISpecialtyRepository _specialtyRepository;
-    private readonly IAreaRepository _areaRepository;
     private readonly ISectorRepository _sectorRepository;
     private bool _disposed;
     private IDbContextTransaction? _currentTransaction;
@@ -24,15 +23,13 @@ public class UnitOfWork : IUnitOfWork
         IRefreshTokenRepository refreshTokenRepository,
         ITicketRepository ticketRepository,
         ISpecialtyRepository specialtyRepository,
-        IAreaRepository areaRepository,
         ISectorRepository sectorRepository)
-        => (_context, _userRepository, _refreshTokenRepository, _ticketRepository, _specialtyRepository, _areaRepository, _sectorRepository) =
-           (context, userRepository, refreshTokenRepository, ticketRepository, specialtyRepository, areaRepository, sectorRepository);
+        => (_context, _userRepository, _refreshTokenRepository, _ticketRepository, _specialtyRepository, _sectorRepository) =
+           (context, userRepository, refreshTokenRepository, ticketRepository, specialtyRepository, sectorRepository);
 
     public IUserRepository Users => _userRepository;
     public IRefreshTokenRepository RefreshTokenRepository => _refreshTokenRepository;
     public ITicketRepository TicketRepository => _ticketRepository;
-    public IAreaRepository AreaRepository => _areaRepository;
     public ISpecialtyRepository SpecialtyRepository => _specialtyRepository;
     public ISectorRepository SectorRepository => _sectorRepository;
 

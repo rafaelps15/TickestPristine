@@ -20,8 +20,6 @@ public class SpecialtyConfiguration : IEntityTypeConfiguration<Specialty>
             .HasMaxLength(150);
 
         builder.Property(s => s.Description)
-            .HasMaxLength(500); // Tamanho máximo para descrição
-
-        // Relacionamento N:N com áreas e usuários é configurado no lado de AreaUserSpecialty
+            .HasMaxLength(500);
     }
 }

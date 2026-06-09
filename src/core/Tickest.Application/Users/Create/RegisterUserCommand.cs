@@ -6,7 +6,9 @@ public record RegisterUserCommand(
     string Name,
     string Email,
     string Password,
-    Guid RoleId
+    Guid RoleId,
+    Guid? SectorId = null,
+    IReadOnlyCollection<Guid>? SpecialtyIds = null
 ) : ICommand<Guid>
 { }
 

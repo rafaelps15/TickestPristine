@@ -3,6 +3,7 @@ using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
 using Tickest.Domain.Constants;
+using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
@@ -15,6 +16,8 @@ internal sealed class RegisterUserCommandHandler(
     IAuthService authService,
     IUserRepository userRepository,
     IRoleRepository roleRepository,
+    ISectorRepository sectorRepository,
+    ISpecialtyRepository specialtyRepository,
     IUnitOfWork unitOfWork,
     ILogger<RegisterUserCommandHandler> logger)
     : ICommandHandler<RegisterUserCommand, Guid>
@@ -64,6 +67,28 @@ internal sealed class RegisterUserCommandHandler(
             }
         }
 
+        if (command.SectorId.HasValue)
+        {
+            var sector = await sectorRepository.GetByIdAsync(command.SectorId.Value, true, cancellationToken);
+
+            if (sector is null)
+            {
+                throw new TickestException("Setor inválido.");
+            }
+        }
+
+        var specialtyIds = command.SpecialtyIds?.Distinct().ToList() ?? [];
+
+        foreach (var specialtyId in specialtyIds)
+        {
+            var specialty = await specialtyRepository.GetByIdAsync(specialtyId, true, cancellationToken);
+
+            if (specialty is null)
+            {
+                throw new TickestException("Especialidade inválida.");
+            }
+        }
+
         var user = new User
         {
             Id = Guid.NewGuid(),
@@ -71,9 +96,19 @@ internal sealed class RegisterUserCommandHandler(
             Name = command.Name,
             PasswordHash = passwordHasher.Hash(command.Password),
             RoleId = command.RoleId,
+            SectorId = command.SectorId,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
+
+        foreach (var specialtyId in specialtyIds)
+        {
+            user.UserSpecialties.Add(new UserSpecialty
+            {
+                UserId = user.Id,
+                SpecialtyId = specialtyId
+            });
+        }
 
         await userRepository.AddAsync(user, cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);

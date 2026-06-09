@@ -53,6 +53,8 @@ internal sealed class CreateTicketCommandHandler(
             CreatedAt = DateTime.UtcNow,
             OpenedByUserId = requesterId,
             AssignedToUserId = command.ResponsibleId,
+            DepartmentId = command.DepartmentId,
+            SectorId = command.SectorId,
             IsActive = true,
         };
 

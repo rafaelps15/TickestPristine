@@ -43,12 +43,6 @@ namespace Tickest.Persistence.Configurations
                 .HasForeignKey(t => t.SectorId)
                 .OnDelete(DeleteBehavior.Restrict); // Não excluir o ticket se o setor for excluído
 
-            // Relacionamento com a área (Area)
-            builder.HasOne(t => t.Area)
-                .WithMany() // Uma área pode ter muitos tickets
-                .HasForeignKey(t => t.AreaId)
-                .OnDelete(DeleteBehavior.Restrict); // Não excluir o ticket se a área for excluída
-
             // Configuração da tabela
             builder.ToTable("tickets");
         }

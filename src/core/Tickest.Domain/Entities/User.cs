@@ -12,7 +12,8 @@ public class User : EntityBase
     public string PasswordHash { get; set; } = string.Empty;
     public Guid RoleId { get; set; }
     public Role Role { get; set; } = null!;
+    public Guid? SectorId { get; set; }
+    public Sector? Sector { get; set; }
     public ICollection<UserSpecialty> UserSpecialties { get; set; } = [];
-    public ICollection<AreaUserSpecialty> AreaUserSpecialties { get; set; } = [];
     public ICollection<Permission> Permissions { get; set; } = [];
 }

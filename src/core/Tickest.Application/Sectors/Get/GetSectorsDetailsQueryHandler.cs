@@ -26,9 +26,8 @@ internal sealed class GetSectorsDetailsQueryHandler(ISectorRepository sectorRepo
         {
             Id = sector.Id,
             Name = sector.Name,
-            DepartmentName = sector.Department?.Name ?? "Nenhum departamento atribuido",
-            ResponsibleUserName = sector.ResponsibleUser?.Name ?? "Nenhum usuario responsavel",
-            AreaNames = sector.Areas?.Select(area => area.Name).ToList() ?? new List<string>()
+            DepartmentName = sector.Department?.Name,
+            ResponsibleUserName = sector.ResponsibleUser?.Name,
         }).ToList();
 
         return Result.Success(response);

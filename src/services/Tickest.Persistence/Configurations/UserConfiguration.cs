@@ -20,17 +20,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(u => u.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(u => u.Sector)
+            .WithMany(sector => sector.Users)
+            .HasForeignKey(u => u.SectorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Relacionamento N:N com Specialties (via UserSpecialty)
         builder.HasMany(u => u.UserSpecialties)
             .WithOne(userSpecialty => userSpecialty.User)
             .HasForeignKey(us => us.UserId)
             .OnDelete(DeleteBehavior.Restrict); // As especialidades não serão deletadas ao excluir o usuário
-
-        // Relacionamento N:N com Areas e Specialties (via AreaUserSpecialty)
-        builder.HasMany(u => u.AreaUserSpecialties)
-            .WithOne(areaUserSpecialty => areaUserSpecialty.User)
-            .HasForeignKey(aus => aus.UserId)
-            .OnDelete(DeleteBehavior.Restrict); // As áreas não serão deletadas ao excluir o usuário
 
         // Relacionamento N:N com Permissions (as permissões serão deletadas ao excluir o usuário)
         builder.HasMany(u => u.Permissions)
