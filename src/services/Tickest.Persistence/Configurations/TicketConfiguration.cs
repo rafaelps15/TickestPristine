@@ -42,9 +42,6 @@ namespace Tickest.Persistence.Configurations
                 .WithMany() // Um setor pode ter muitos tickets
                 .HasForeignKey(t => t.SectorId)
                 .OnDelete(DeleteBehavior.Restrict); // Não excluir o ticket se o setor for excluído
-
-            // Configuração da tabela
-            builder.ToTable("tickets");
         }
     }
 }

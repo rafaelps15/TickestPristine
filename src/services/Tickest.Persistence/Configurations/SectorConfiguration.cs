@@ -24,8 +24,5 @@ public class SectorConfiguration : IEntityTypeConfiguration<Sector>
             .WithMany() // Um usuário pode ser responsável por vários setores
             .HasForeignKey(s => s.ResponsibleUserId)
             .OnDelete(DeleteBehavior.Restrict); // Comportamento de exclusão
-
-        // Configuração de tabela
-        builder.ToTable("sectors");
     }
 }

@@ -30,6 +30,7 @@ public class TickestContext : DbContext
 
         // Aplicar todas as configurações do assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TickestContext).Assembly);
+        modelBuilder.UseSnakeCaseNames();
     }
 
 }

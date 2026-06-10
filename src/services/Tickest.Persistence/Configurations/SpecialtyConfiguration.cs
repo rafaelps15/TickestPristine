@@ -11,9 +11,6 @@ public class SpecialtyConfiguration : IEntityTypeConfiguration<Specialty>
         // Configuração da chave primária
         builder.HasKey(s => s.Id);
 
-        // Configuração da tabela
-        builder.ToTable("specialties");
-
         // Propriedades
         builder.Property(s => s.Name)
             .IsRequired()

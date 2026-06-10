@@ -18,7 +18,10 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.HasIndex(role => role.Name).IsUnique();
-        builder.ToTable("roles");
+        builder.Property(role => role.CreatedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.HasIndex(role => role.Name)
+            .IsUnique();
     }
 }

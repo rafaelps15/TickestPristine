@@ -35,13 +35,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasMany(u => u.Permissions)
             .WithMany() // Sem necessidade de coleções em Permission
             .UsingEntity<Dictionary<string, object>>(
-                "user_permissions",
+                "UserPermissions",
                 j => j.HasOne<Permission>().WithMany().HasForeignKey("PermissionId")
                     .OnDelete(DeleteBehavior.Cascade), // Permissões serão deletadas ao excluir o usuário
                 j => j.HasOne<User>().WithMany().HasForeignKey("UserId")
             );
-
-        // Configuração de tabela
-        builder.ToTable("users");
     }
 }

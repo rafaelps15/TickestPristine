@@ -30,8 +30,5 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .WithMany() // Um usuário pode ser responsável por vários departamentos
             .HasForeignKey(d => d.ResponsibleUserId)
             .OnDelete(DeleteBehavior.SetNull); // Comportamento de exclusão
-
-        // Configuração de tabela
-        builder.ToTable("departments");
     }
 }
