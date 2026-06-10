@@ -91,14 +91,11 @@ internal sealed class RegisterUserCommandHandler(
 
         var user = new User
         {
-            Id = Guid.NewGuid(),
             Email = command.Email,
             Name = command.Name,
             PasswordHash = passwordHasher.Hash(command.Password),
             RoleId = command.RoleId,
-            SectorId = command.SectorId,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            SectorId = command.SectorId
         };
 
         foreach (var specialtyId in specialtyIds)

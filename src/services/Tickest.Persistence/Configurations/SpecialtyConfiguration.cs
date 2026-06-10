@@ -1,22 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Specialties;
+using Tickest.Persistence.Configurations.Base;
 
 namespace Tickest.Persistence.Configurations;
 
-public class SpecialtyConfiguration : IEntityTypeConfiguration<Specialty>
+public class SpecialtyConfiguration : BaseEntityConfiguration<Specialty>
 {
-    public void Configure(EntityTypeBuilder<Specialty> builder)
+    public override void Configure(EntityTypeBuilder<Specialty> builder)
     {
-        // Configuração da chave primária
-        builder.HasKey(s => s.Id);
-
-        // Propriedades
-        builder.Property(s => s.Name)
-            .IsRequired()
-            .HasMaxLength(150);
-
-        builder.Property(s => s.Description)
-            .HasMaxLength(500);
+        base.Configure(builder);
+        builder.Property(s => s.Name).IsRequired().HasMaxLength(150);
+        builder.Property(s => s.Description).HasMaxLength(500);
     }
 }
+

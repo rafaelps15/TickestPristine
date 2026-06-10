@@ -2,43 +2,28 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Users;
+using Tickest.Persistence.Configurations.Base;
 
 namespace Tickest.Persistence.Configurations;
 
-public class UserConfiguration : IEntityTypeConfiguration<User>
+public class UserConfiguration : BaseEntityConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public override void Configure(EntityTypeBuilder<User> builder)
     {
-        // Configurações básicas da entidade User
+        base.Configure(builder);
         builder.Property(u => u.Name).IsRequired().HasMaxLength(200);
         builder.Property(u => u.Email).IsRequired().HasMaxLength(200);
         builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
         builder.HasIndex(u => u.Email).IsUnique();
-
-        builder.HasOne(u => u.Role)
-            .WithMany(role => role.Users)
-            .HasForeignKey(u => u.RoleId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(u => u.Sector)
-            .WithMany(sector => sector.Users)
-            .HasForeignKey(u => u.SectorId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Relacionamento N:N com Specialties (via UserSpecialty)
-        builder.HasMany(u => u.UserSpecialties)
-            .WithOne(userSpecialty => userSpecialty.User)
-            .HasForeignKey(us => us.UserId)
-            .OnDelete(DeleteBehavior.Restrict); // As especialidades não serão deletadas ao excluir o usuário
-
-        // Relacionamento N:N com Permissions (as permissões serão deletadas ao excluir o usuário)
+        builder.HasOne(u => u.Role).WithMany(r => r.Users).HasForeignKey(u => u.RoleId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(u => u.Sector).WithMany(s => s.Users).HasForeignKey(u => u.SectorId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(u => u.UserSpecialties).WithOne(us => us.User).HasForeignKey(us => us.UserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(u => u.Permissions)
-            .WithMany() // Sem necessidade de coleções em Permission
+            .WithMany()
             .UsingEntity<Dictionary<string, object>>(
                 "UserPermissions",
-                j => j.HasOne<Permission>().WithMany().HasForeignKey("PermissionId")
-                    .OnDelete(DeleteBehavior.Cascade), // Permissões serão deletadas ao excluir o usuário
-                j => j.HasOne<User>().WithMany().HasForeignKey("UserId")
-            );
+                j => j.HasOne<Permission>().WithMany().HasForeignKey("PermissionId").OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<User>().WithMany().HasForeignKey("UserId"));
     }
 }
+

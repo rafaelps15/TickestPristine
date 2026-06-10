@@ -45,7 +45,7 @@ internal sealed class ReopenTicketCommandHandler(
             throw new TickestException("O ticket já está ativo ou foi deletado.");
         }
 
-        ticket.IsActive = true;
+        ticket.Activate();
         ticket.Status = TicketStatus.Open;
 
         await ticketRepository.UpdateAsync(ticket, cancellationToken);

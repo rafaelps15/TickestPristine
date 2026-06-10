@@ -2,39 +2,21 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Auths;
 using Tickest.Domain.Entities.Users;
+using Tickest.Persistence.Configurations.Base;
 
 namespace Tickest.Persistence.Configurations;
 
-public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+public class RefreshTokenConfiguration : BaseEntityConfiguration<RefreshToken>
 {
-    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    public override void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
-        builder.HasKey(rt => rt.Id);
-
-        builder.HasOne<User>()  
-            .WithMany() // Muitos refresh tokens para um usuário
-            .HasForeignKey(rt => rt.UserId)
-            .IsRequired();
-
-        // Configura o campo Token como não nulo
-        builder.Property(rt => rt.Token)
-            .IsRequired()
-            .HasMaxLength(500); 
-
-        // Configura o campo ExpiresAt como não nulo
-        builder.Property(rt => rt.ExpiresAt)
-            .IsRequired();
-
-        // Configura o campo IsRevoked como não nulo
-        builder.Property(rt => rt.IsRevoked)
-            .IsRequired()
-            .HasDefaultValue(false);
-
-        // Configura o campo IsUsed como não nulo
-        builder.Property(rt => rt.IsUsed)
-            .IsRequired()
-            .HasDefaultValue(false);
-
+        base.Configure(builder);
+        builder.HasOne<User>().WithMany().HasForeignKey(rt => rt.UserId).IsRequired();
+        builder.Property(rt => rt.Token).IsRequired().HasMaxLength(500);
+        builder.Property(rt => rt.ExpiresAt).IsRequired();
+        builder.Property(rt => rt.IsRevoked).IsRequired().HasDefaultValue(false);
+        builder.Property(rt => rt.IsUsed).IsRequired().HasDefaultValue(false);
         builder.HasIndex(rt => rt.UserId);
     }
 }
+

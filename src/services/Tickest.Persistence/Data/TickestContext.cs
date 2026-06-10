@@ -22,7 +22,7 @@ public class TickestContext : DbContext
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
-
+    public DbSet<Role> Roles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,7 +30,7 @@ public class TickestContext : DbContext
 
         // Aplicar todas as configurações do assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TickestContext).Assembly);
-        modelBuilder.UseSnakeCaseNames();
+        modelBuilder.UseSnakeCaseNames<TickestContext>();
     }
 
 }

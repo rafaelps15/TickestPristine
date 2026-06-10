@@ -1,15 +1,25 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Tickest.Persistence.Data;
 
 internal static class ModelBuilderSnakeCaseExtensions
 {
-    public static void UseSnakeCaseNames(this ModelBuilder modelBuilder)
+    public static void UseSnakeCaseNames<TContext>(this ModelBuilder modelBuilder)
+        where TContext : DbContext
     {
+        var dbSetNames = typeof(TContext)
+            .GetProperties()
+            .Where(property => property.PropertyType.IsGenericType)
+            .Where(property => property.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
+            .ToDictionary(
+                property => property.PropertyType.GetGenericArguments()[0],
+                property => property.Name);
+
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            var tableName = entityType.GetTableName();
+            var tableName = GetTableName(entityType, dbSetNames);
 
             if (!string.IsNullOrWhiteSpace(tableName))
             {
@@ -36,6 +46,16 @@ internal static class ModelBuilderSnakeCaseExtensions
                 index.SetDatabaseName(ToSnakeCase(index.GetDatabaseName() ?? string.Empty));
             }
         }
+    }
+
+    private static string? GetTableName(IReadOnlyEntityType entityType, IReadOnlyDictionary<Type, string> dbSetNames)
+    {
+        if (entityType.ClrType is not null && dbSetNames.TryGetValue(entityType.ClrType, out var dbSetName))
+        {
+            return dbSetName;
+        }
+
+        return entityType.GetTableName();
     }
 
     private static string ToSnakeCase(string value)

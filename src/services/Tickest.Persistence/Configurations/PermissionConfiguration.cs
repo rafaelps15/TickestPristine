@@ -1,17 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Permissions;
+using Tickest.Persistence.Configurations.Base;
 
 namespace Tickest.Persistence.Configurations;
 
-public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
+public class PermissionConfiguration : BaseEntityConfiguration<Permission>
 {
-    public void Configure(EntityTypeBuilder<Permission> builder)
+    public override void Configure(EntityTypeBuilder<Permission> builder)
     {
-        builder.HasKey(p => p.Id);
-
-        builder.Property(p => p.Description)
-            .IsRequired()
-            .HasMaxLength(200);
+        base.Configure(builder);
+        builder.Property(p => p.Description).IsRequired().HasMaxLength(200);
     }
 }
+

@@ -1,27 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Permissions;
+using Tickest.Persistence.Configurations.Base;
 
 namespace Tickest.Persistence.Configurations;
 
-public class RoleConfiguration : IEntityTypeConfiguration<Role>
+public class RoleConfiguration : BaseEntityConfiguration<Role>
 {
-    public void Configure(EntityTypeBuilder<Role> builder)
+    public override void Configure(EntityTypeBuilder<Role> builder)
     {
-        builder.HasKey(role => role.Id);
-
-        builder.Property(role => role.Name)
-            .IsRequired()
-            .HasMaxLength(80);
-
-        builder.Property(role => role.Description)
-            .IsRequired()
-            .HasMaxLength(200);
-
-        builder.Property(role => role.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.HasIndex(role => role.Name)
-            .IsUnique();
+        base.Configure(builder);
+        builder.Property(r => r.Name).IsRequired().HasMaxLength(80);
+        builder.Property(r => r.Description).IsRequired().HasMaxLength(200);
+        builder.HasIndex(r => r.Name).IsUnique();
     }
 }
+

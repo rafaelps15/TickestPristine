@@ -45,17 +45,14 @@ internal sealed class CreateTicketCommandHandler(
 
         var ticket = new Ticket
         {
-            Id = Guid.NewGuid(),  // Gerando o GUID para o ticket
             Title = command.Title,
             Description = command.Description,
             Priority = command.Priority,
             Status = TicketStatus.Open,
-            CreatedAt = DateTime.UtcNow,
             OpenedByUserId = requesterId,
             AssignedToUserId = command.ResponsibleId,
             DepartmentId = command.DepartmentId,
-            SectorId = command.SectorId,
-            IsActive = true,
+            SectorId = command.SectorId
         };
 
         // Implementação futura do evento de criação de ticket:
