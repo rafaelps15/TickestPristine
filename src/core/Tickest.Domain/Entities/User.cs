@@ -8,6 +8,7 @@ namespace Tickest.Domain.Entities.Users;
 public class User : EntityBase
 {
     public string Name { get; set; } = string.Empty;
+    public string EmployeeCode { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public Guid RoleId { get; set; }

@@ -10,6 +10,10 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .NotEmpty().WithMessage("O nome é obrigatório.")
             .MinimumLength(3).WithMessage("O nome deve ter pelo menos 3 caracteres.");
 
+        RuleFor(x => x.EmployeeCode)
+            .NotEmpty().WithMessage("O código do funcionário é obrigatório.")
+            .MaximumLength(50).WithMessage("O código do funcionário deve ter no máximo 10 caracteres.");
+
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("O email é obrigatório.")
             .EmailAddress().WithMessage("O email fornecido tem um formato inválido.");

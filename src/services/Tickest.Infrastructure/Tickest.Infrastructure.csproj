@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Configurations\**" />
+    <EmbeddedResource Remove="Configurations\**" />
+    <None Remove="Configurations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.3.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
@@ -20,10 +26,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\core\Tickest.Domain\Tickest.Domain.csproj" />
     <ProjectReference Include="..\..\core\Tickest.Application\Tickest.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Configurations\" />
   </ItemGroup>
 
 	<!--Isso garante que o appsettings.json seja copiado para a pasta de saída durante o processo de build.-->

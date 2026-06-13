@@ -4,6 +4,7 @@ namespace Tickest.Application.Users.Create;
 
 public record RegisterUserCommand(
     string Name,
+    string EmployeeCode,
     string Email,
     string Password,
     Guid RoleId,

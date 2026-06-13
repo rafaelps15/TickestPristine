@@ -34,6 +34,14 @@ internal sealed class RegisterUserCommandHandler(
             throw new TickestException("O e-mail fornecido já está em uso.");
         }
 
+        var existingEmployeeCode = await userRepository.GetByEmployeeCodeAsync(command.EmployeeCode, cancellationToken);
+
+        if (existingEmployeeCode is not null)
+        {
+            logger.LogError("O código de funcionário {EmployeeCode} já está em uso.", command.EmployeeCode);
+            throw new TickestException("O código de funcionário fornecido já está em uso.");
+        }
+
         var role = await roleRepository.GetByIdAsync(command.RoleId, true, cancellationToken);
 
         if (role is null || permissionProvider.GetPermissionsForRole(role.Name).Count == 0)
@@ -92,6 +100,7 @@ internal sealed class RegisterUserCommandHandler(
         var user = new User
         {
             Email = command.Email,
+            EmployeeCode = command.EmployeeCode,
             Name = command.Name,
             PasswordHash = passwordHasher.Hash(command.Password),
             RoleId = command.RoleId,

@@ -15,6 +15,11 @@ internal class UserRepository : BaseRepository<User>, IUserRepository
                       .Include(user => user.Role)
                       .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
+    public async Task<User?> GetByEmployeeCodeAsync(string employeeCode, CancellationToken cancellationToken) =>
+        await _context.Users
+                      .AsNoTracking()
+                      .FirstOrDefaultAsync(u => u.EmployeeCode == employeeCode, cancellationToken);
+
     public async Task<User?> GetWithPermissionsAsync(Guid userId, CancellationToken cancellationToken) =>
         await _context.Users
                       .AsNoTracking()

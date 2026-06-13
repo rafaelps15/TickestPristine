@@ -12,9 +12,11 @@ public class UserConfiguration : BaseEntityConfiguration<User>
     {
         base.Configure(builder);
         builder.Property(u => u.Name).IsRequired().HasMaxLength(200);
+        builder.Property(u => u.EmployeeCode).IsRequired().HasMaxLength(10);
         builder.Property(u => u.Email).IsRequired().HasMaxLength(200);
         builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
         builder.HasIndex(u => u.Email).IsUnique();
+        builder.HasIndex(u => u.EmployeeCode).IsUnique();
         builder.HasOne(u => u.Role).WithMany(r => r.Users).HasForeignKey(u => u.RoleId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(u => u.Sector).WithMany(s => s.Users).HasForeignKey(u => u.SectorId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(u => u.UserSpecialties).WithOne(us => us.User).HasForeignKey(us => us.UserId).OnDelete(DeleteBehavior.Restrict);

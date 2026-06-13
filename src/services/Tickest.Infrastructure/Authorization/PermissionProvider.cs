@@ -38,6 +38,17 @@ internal sealed class PermissionProvider : IPermissionProvider
         SystemPermissions.AccessSystem
     };
 
+    private static HashSet<string> GetAdminPermissions() => new()
+    {
+        SystemPermissions.AccessSystem,
+        SystemPermissions.ManageUsers,
+        SystemPermissions.CreateTicket,
+        SystemPermissions.ViewTicket,
+        SystemPermissions.AssignTicket,
+        SystemPermissions.UpdateOwnTicket,
+        SystemPermissions.CloseTicket
+    };
+
     private static HashSet<string> GetTicketManagerPermissions() => new()
     {
         SystemPermissions.ManageTickets,
@@ -65,6 +76,7 @@ internal sealed class PermissionProvider : IPermissionProvider
         new()
         {
             [SystemRoles.AdminMaster] = GetAdminMasterPermissions,
+            [SystemRoles.Admin] = GetAdminPermissions,
             [SystemRoles.TicketManager] = GetTicketManagerPermissions,
             [SystemRoles.Collaborator] = GetCollaboratorPermissions
         };
