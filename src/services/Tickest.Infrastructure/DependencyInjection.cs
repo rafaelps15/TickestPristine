@@ -1,4 +1,4 @@
-Ôªøusing Infrastructure.Authentication;
+using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -16,14 +16,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Adiciona suporte ao HttpContext para acessos r√°pidos ao contexto da aplica√ß√£o
+        // Adiciona suporte ao HttpContext para acessos r·pidos ao contexto da aplicaÁ„o
         services.AddHttpContextAccessor();
 
-        // Registra servi√ßos de autentica√ß√£o, autoriza√ß√£o e seguran√ßa
+        // Registra serviÁos de autenticaÁ„o, autorizaÁ„o e seguranÁa
         RegisterAuthenticationServices(services, configuration);
         RegisterAuthorizationServices(services);
 
-        // Registra os servi√ßos de gerenciamento de tokens e autentica√ß√£o
+        // Registra os serviÁos de gerenciamento de tokens e autenticaÁ„o
         RegisterAuthServices(services);
 
         return services;
@@ -31,7 +31,7 @@ public static class DependencyInjection
 
     private static void RegisterAuthenticationServices(IServiceCollection services, IConfiguration configuration)
     {
-        // Configura o JwtBearer para autentica√ß√£o baseada em token JWT
+        // Configura o JwtBearer para autenticaÁ„o baseada em token JWT
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -39,7 +39,7 @@ public static class DependencyInjection
 
                 if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Secret))
                 {
-                    throw new TickestException("O segredo JWT est√° ausente ou √© nulo na configura√ß√£o.");
+                    throw new TickestException("O segredo JWT est· ausente ou È nulo na configuraÁ„o.");
                 }
 
                 options.RequireHttpsMetadata = false;
@@ -48,7 +48,7 @@ public static class DependencyInjection
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
-                    ClockSkew = TimeSpan.Zero // Evita a toler√¢ncia de tempo 
+                    ClockSkew = TimeSpan.Zero // Evita a toler‚ncia de tempo 
                 };
             });
     }
@@ -56,20 +56,21 @@ public static class DependencyInjection
 
     private static void RegisterAuthorizationServices(IServiceCollection services)
     {
-        // Registra servi√ßos necess√°rios para o controle de permiss√µes
+        // Registra serviÁos necess·rios para o controle de permissıes
         services.AddScoped<IPermissionProvider, PermissionProvider>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
-        // Configura√ß√£o opcional de pol√≠ticas de autoriza√ß√£o
+        // ConfiguraÁ„o opcional de polÌticas de autorizaÁ„o
         // Exemplo: options.AddPolicy("CreateTicket", policy => policy.Requirements.Add(new PermissionRequirement("CreateTicket")));
         // Exemplo: options.AddPolicy("ManageTickets", policy => policy.Requirements.Add(new PermissionRequirement("ManageTickets")));
     }
 
     private static void RegisterAuthServices(IServiceCollection services)
     {
-        // Registra os servi√ßos necess√°rios para autentica√ß√£o e fornecimento de tokens
+        // Registra os serviÁos necess·rios para autenticaÁ„o e fornecimento de tokens
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
     }

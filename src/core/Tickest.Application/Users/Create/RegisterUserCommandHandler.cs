@@ -12,8 +12,6 @@ namespace Tickest.Application.Users.Create;
 
 internal sealed class RegisterUserCommandHandler(
     IPasswordHasher passwordHasher,
-    IPermissionProvider permissionProvider,
-    IAuthService authService,
     IUserRepository userRepository,
     IRoleRepository roleRepository,
     ISectorRepository sectorRepository,
@@ -42,39 +40,14 @@ internal sealed class RegisterUserCommandHandler(
             throw new TickestException("O código de funcionário fornecido já está em uso.");
         }
 
-        var role = await roleRepository.GetByIdAsync(command.RoleId, true, cancellationToken);
+        var role = await roleRepository.GetByNameAsync(SystemRoles.Collaborator, cancellationToken);
 
-        if (role is null || permissionProvider.GetPermissionsForRole(role.Name).Count == 0)
+        if (role is null)
         {
-            logger.LogError("Função {RoleId} inválida para o novo usuário.", command.RoleId);
-            throw new TickestException("Função inválida.");
+            throw new TickestException("Função padrão de colaborador não encontrada ou inativa.");
         }
 
-        var hasUsers = await userRepository.AnyAsync(cancellationToken);
-
-        if (!hasUsers)
-        {
-            if (role.Name != SystemRoles.AdminMaster)
-            {
-                throw new TickestException("O primeiro usuário do sistema deve ser AdminMaster.");
-            }
-        }
-        else
-        {
-            var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-            var rolePermissions = permissionProvider.GetPermissionsForRole(currentUser.Role.Name);
-
-            if (!rolePermissions.Contains(SystemPermissions.ManageUsers))
-            {
-                logger.LogError(
-                    "Usuário {UserId} com função {Role} não tem permissão para criar um novo usuário.",
-                    currentUser.Id,
-                    currentUser.Role.Name);
-
-                throw new TickestException("Você não tem permissão para criar um novo usuário.");
-            }
-        }
-
+        // Temporario para teste: valida setor apenas quando informado.
         if (command.SectorId.HasValue)
         {
             var sector = await sectorRepository.GetByIdAsync(command.SectorId.Value, true, cancellationToken);
@@ -85,6 +58,7 @@ internal sealed class RegisterUserCommandHandler(
             }
         }
 
+        // Temporario para teste: aceita cadastro sem especialidades.
         var specialtyIds = command.SpecialtyIds?.Distinct().ToList() ?? [];
 
         foreach (var specialtyId in specialtyIds)
@@ -99,11 +73,11 @@ internal sealed class RegisterUserCommandHandler(
 
         var user = new User
         {
-            Email = command.Email,
-            EmployeeCode = command.EmployeeCode,
             Name = command.Name,
+            EmployeeCode = command.EmployeeCode,
+            Email = command.Email,
             PasswordHash = passwordHasher.Hash(command.Password),
-            RoleId = command.RoleId,
+            RoleId = role.Id,
             SectorId = command.SectorId
         };
 

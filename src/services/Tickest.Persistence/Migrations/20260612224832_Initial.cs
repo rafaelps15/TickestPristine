@@ -207,7 +207,7 @@ namespace Tickest.Persistence.Migrations
                     new Guid("e7f40fd4-0ef2-47e5-a7ec-3c2c6b91862d"),
                     "adminMaster",
                     "ADM-0001",
-                    "adminMaster@tickest.com.br",
+                    "adminmaster@tickest.com.br",
                     "1-AB1C7F34C62083DE0AB89C9E89F281CFAF032C4CAB629C5222A0E2D88090432A-A47034423858E72A88B5B7FDE528DDCD",
                     new Guid("b0f7b3e9-2e87-47f6-9f2f-8e21d0c9f5a1"),
                     true,

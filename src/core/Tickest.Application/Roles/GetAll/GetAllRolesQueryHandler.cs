@@ -1,5 +1,6 @@
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Common;
+using Tickest.Domain.Constants;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Roles.GetAll;
@@ -14,8 +15,9 @@ internal sealed class GetAllRolesQueryHandler(IRoleRepository roleRepository)
         var roles = await roleRepository.GetAllAsync(true, cancellationToken);
 
         var response = roles
-            .OrderBy(role => role.Name)
-            .Select(role => new RoleResponse(role.Id, role.Name, role.Description))
+            .Where(r => r.IsActive && !r.IsDeleted && r.Name != SystemRoles.AdminMaster)
+            .OrderBy(r => r.Name)
+            .Select(r => new RoleResponse(r.Id, r.Name, r.Description))
             .ToList();
 
         return Result.Success<IReadOnlyList<RoleResponse>>(response);

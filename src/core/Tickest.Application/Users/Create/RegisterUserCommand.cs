@@ -7,7 +7,7 @@ public record RegisterUserCommand(
     string EmployeeCode,
     string Email,
     string Password,
-    Guid RoleId,
+    // Temporario para teste: voltar a obrigar setor e especialidades no cadastro final.
     Guid? SectorId = null,
     IReadOnlyCollection<Guid>? SpecialtyIds = null
 ) : ICommand<Guid>

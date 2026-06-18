@@ -12,17 +12,23 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
 
         RuleFor(x => x.EmployeeCode)
             .NotEmpty().WithMessage("O código do funcionário é obrigatório.")
-            .MaximumLength(50).WithMessage("O código do funcionário deve ter no máximo 10 caracteres.");
+            .MaximumLength(10).WithMessage("O código do funcionário deve ter no máximo 10 caracteres.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("O email é obrigatório.")
-            .EmailAddress().WithMessage("O email fornecido tem um formato inválido.");
+            .EmailAddress().WithMessage("O email fornecido tem um formato inválido.")
+            .Must(email => string.IsNullOrWhiteSpace(email) || email == email.ToLowerInvariant())
+            .WithMessage("O email deve estar em letras minúsculas.");
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("A senha é obrigatória.")
             .MinimumLength(8).WithMessage("A senha deve ter pelo menos 8 caracteres.");
 
-        RuleFor(x => x.RoleId)
-            .NotEmpty().WithMessage("A função é obrigatória.");
+        // Temporario para teste: reativar quando setor e especialidades forem obrigatorios no cadastro.
+        // RuleFor(x => x.SectorId)
+        //     .NotEmpty().WithMessage("O setor é obrigatório.");
+
+        // RuleFor(x => x.SpecialtyIds)
+        //     .NotEmpty().WithMessage("Informe pelo menos uma especialidade.");
     }
 }

@@ -17,6 +17,7 @@ public class UsersController : ControllerBase
         _mediator = mediator;
     }
 
+    // Endpoint to create a new user (Somente Admin e AdminMaster podem criar usuários)
     [HttpPost]
     [HasPermission(SystemPermissions.ManageUsers)]
     public async Task<IActionResult> CreateUser([FromBody] RegisterUserCommand command) =>

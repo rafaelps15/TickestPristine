@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Tickest.Domain.Exceptions;
 
 
-namespace Infrastructure.Authentication;
+namespace Tickest.Infrastructure.Authentication;
 
 internal static class ClaimsPrincipalExtensions
 {
