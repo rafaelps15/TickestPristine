@@ -22,4 +22,16 @@ public class UsersController : ControllerBase
     [HasPermission(SystemPermissions.ManageUsers)]
     public async Task<IActionResult> CreateUser([FromBody] RegisterUserCommand command) =>
         Ok(await _mediator.Send(command));
+
+    [HttpGet]
+    [HasPermission(SystemPermissions.AccessSystem)]
+    public async Task<IActionResult> GetById(Guid userId)
+    {
+        // Implement the logic to retrieve user details by ID
+        // For example, you can use _mediator to send a query to get user details
+        // var userDetails = await _mediator.Send(new GetUserByIdQuery(userId));
+        // return Ok(userDetails);
+        return Ok(); // Placeholder response
+    }
+
 }

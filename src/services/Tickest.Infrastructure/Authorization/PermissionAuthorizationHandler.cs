@@ -1,38 +1,38 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
-using System.Threading;
-using Tickest.Application.Abstractions.Authentication;
+using Microsoft.Extensions.DependencyInjection;
+using Tickest.Infrastructure.Authentication;
 
 namespace Infrastructure.Authorization;
 
-internal sealed class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+internal sealed class PermissionAuthorizationHandler(IServiceScopeFactory serviceScopeFactory)
+    : AuthorizationHandler<PermissionRequirement>
 {
-    private readonly ILogger<PermissionAuthorizationHandler> _logger;
-    private readonly IPermissionProvider _permissionProvider;
-    private readonly Dictionary<Guid, HashSet<string>> _userPermissionsCache = new();
-    private readonly IAuthService _authService;
-
-    public PermissionAuthorizationHandler(
-        ILogger<PermissionAuthorizationHandler> logger,
-        IPermissionProvider permissionProvider,
-        IAuthService authService)
+    protected override async Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
+        PermissionRequirement requirement)
     {
-        (_logger, _permissionProvider) = (logger, permissionProvider);
-        _authService = authService;
-    }
-
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
-    {
-        var currentUser = await _authService.GetCurrentUserAsync(CancellationToken.None);
-
-        if (currentUser == null || !await _permissionProvider.UserHasPermissionAsync(currentUser.Id, requirement.Permission))
+        if (context.User is not { Identity.IsAuthenticated: true } or { Identity.IsAuthenticated: false })
         {
-            _logger.LogWarning($"Permissão '{requirement.Permission}' negada ao usuário {currentUser?.Id}.");
-            context.Fail();
+            context.Succeed(requirement);
+
             return;
         }
 
-        _logger.LogInformation($"Permissão '{requirement.Permission}' concedida ao usuário {currentUser?.Id}.");
-        context.Succeed(requirement);
+        using IServiceScope scope = serviceScopeFactory.CreateScope();
+
+        PermissionProvider permissionProvider = scope.ServiceProvider.GetRequiredService<PermissionProvider>();
+
+        Guid userId = context.User.GetUserId();
+
+        HashSet<string> permissions = await permissionProvider.GetForUserIdAsync(userId);
+
+        if (permissions.Contains(requirement.Permission))
+        {
+            context.Succeed(requirement);
+
+            return;
+        }
     }
 }
+
+

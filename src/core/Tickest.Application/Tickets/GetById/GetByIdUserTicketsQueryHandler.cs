@@ -16,7 +16,6 @@ internal sealed class GetByIdUserTicketsQueryHandler(
     {
         var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
 
-        // Verificando se o usuário autenticado está tentando acessar seus próprios tickets
         if (query.UserId == currentUser.Id)
         {
             throw new TickestException("Usuário inválido.");

@@ -81,6 +81,13 @@ internal sealed class PermissionProvider : IPermissionProvider
             [SystemRoles.Collaborator] = GetCollaboratorPermissions
         };
 
+    public Task<HashSet<string>> GetForUserIdAsync(Guid userId)
+    {
+        HashSet<string> permissionsSet = [];
+
+        return Task.FromResult(permissionsSet);
+    }
+
     public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
     {
         if (userId == Guid.Empty)

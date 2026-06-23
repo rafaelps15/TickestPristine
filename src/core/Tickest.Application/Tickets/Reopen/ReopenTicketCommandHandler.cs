@@ -11,6 +11,7 @@ using Tickest.Domain.Interfaces.Repositories;
 namespace Tickest.Application.Tickets.Reopen;
 
 internal sealed class ReopenTicketCommandHandler(
+    IUserContext userContext,
     ITicketRepository ticketRepository,
     IUnitOfWork unitOfWork,
     IAuthService authService,
@@ -22,15 +23,15 @@ internal sealed class ReopenTicketCommandHandler(
     {
         logger.LogInformation("Iniciando a reabertura do ticket.");
 
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUserId = userContext.UserId;
 
-        if (currentUser == null)
+        if (currentUserId == null)
         {
             logger.LogError("Usuário não autenticado.");
             throw new TickestException("Usuário não autenticado.");
         }
 
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, SystemPermissions.ReopenTicket);
+        await permissionProvider.ValidatePermissionAsync(currentUserId, SystemPermissions.ReopenTicket);
 
         var ticket = await ticketRepository.GetByIdAsync(request.TicketId, false, cancellationToken);
         if (ticket == null)

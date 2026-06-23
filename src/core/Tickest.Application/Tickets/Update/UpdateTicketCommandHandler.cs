@@ -9,6 +9,7 @@ using Tickest.Domain.Interfaces.Repositories;
 namespace Tickest.Application.Tickets.Update;
 
 internal sealed class UpdateTicketCommandHandler(
+    IUserContext userContext,
     ITicketRepository ticketRepository,
     IUnitOfWork unitOfWork,
     IAuthService authService,
@@ -20,9 +21,11 @@ internal sealed class UpdateTicketCommandHandler(
     {
         logger.LogInformation("Iniciando a atualização do ticket.");
 
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUserId = userContext.UserId;
 
-        if (currentUser == null)
+        //var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+
+        if (currentUserId == null)
         {
             logger.LogError("Usuário não autenticado. Falha ao tentar editar o ticket. Requisição realizada por um usuário não autenticado.");
             throw new TickestException("Usuário não autenticado. A operação de edição do ticket falhou porque o usuário não está autenticado.");

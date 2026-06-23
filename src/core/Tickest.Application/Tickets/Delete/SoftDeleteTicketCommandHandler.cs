@@ -10,6 +10,7 @@ using Tickest.Domain.Interfaces.Repositories;
 namespace Tickest.Application.Tickets.Delete
 {
     internal sealed class SoftDeleteTicketCommandHandler(
+        IUserContext userContext,
         ITicketRepository ticketRepository,
         IUnitOfWork unitOfWork,
         ILogger<SoftDeleteTicketCommandHandler> logger,
@@ -23,16 +24,16 @@ namespace Tickest.Application.Tickets.Delete
 
             #region Validação de Permissões
 
-            var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+            var currentuserId = userContext.UserId;
 
-            if (currentUser == null)
+            if (currentuserId == null)
             {
                 logger.LogError("Usuário não autenticado.");
                 throw new TickestException("Usuário não encontrado.");
             }
 
             //Permissão crítica para a continuidade da execução do processo utilizo "ValidatePermissionAsync"
-            await permissionProvider.ValidatePermissionAsync(currentUser.Id, SystemPermissions.DeleteTicket);
+            await permissionProvider.ValidatePermissionAsync(currentuserId, SystemPermissions.DeleteTicket);
 
             #endregion
 

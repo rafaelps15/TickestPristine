@@ -6,14 +6,14 @@ using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Users.GetById;
 
-internal sealed class GetUserByIdQueryHandler(IAuthService authService, IUserRepository userRepository)
+internal sealed class GetUserByIdQueryHandler(IUserContext usercontext, IUserRepository userRepository)
     : IQueryHandler<GetUserByIdQuery, UserResponse>
 {
     public async Task<Result<UserResponse>> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
     {
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUserId = usercontext.UserId;
 
-        if (query.UserId != currentUser.Id)
+        if (query.UserId != currentUserId)
         {
             throw new TickestException("Voce nao tem permissao para acessar esses dados.");
         }

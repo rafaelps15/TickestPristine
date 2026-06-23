@@ -24,11 +24,10 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .NotEmpty().WithMessage("A senha é obrigatória.")
             .MinimumLength(8).WithMessage("A senha deve ter pelo menos 8 caracteres.");
 
-        // Temporario para teste: reativar quando setor e especialidades forem obrigatorios no cadastro.
-        // RuleFor(x => x.SectorId)
-        //     .NotEmpty().WithMessage("O setor é obrigatório.");
+        //RuleFor(x => x.sectorid)
+        //    .Notempty().withmessage("o setor é obrigatório.");
 
-        // RuleFor(x => x.SpecialtyIds)
-        //     .NotEmpty().WithMessage("Informe pelo menos uma especialidade.");
+        //RuleFor(x => x.specialtyids)
+        //    .Notempty().withmessage("informe pelo menos uma especialidade.");
     }
 }

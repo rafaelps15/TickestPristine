@@ -11,6 +11,7 @@ using Tickest.Domain.Interfaces.Repositories;
 namespace Tickest.Application.Tickets.Create;
 
 internal sealed class CreateTicketCommandHandler(
+    IUserContext userContext,
     ITicketRepository ticketRepository,
     IUnitOfWork unitOfWork,
     ILogger<CreateTicketCommandHandler> logger,
@@ -22,26 +23,24 @@ internal sealed class CreateTicketCommandHandler(
     {
         logger.LogInformation("Iniciando a criação de um novo ticket.");
 
-        #region Validação de Permissões
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+        var currentUserId = userContext.UserId;
 
-        if (currentUser == null)
+        if (currentUserId == null)
         {
             logger.LogError("Usuário não autenticado.");
             throw new TickestException("Usuário não autenticado.");
         }
 
         // Verificar se o usuário tem permissão para criar ticket
-        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUser.Id, SystemPermissions.CreateTicket);
+        var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUserId, SystemPermissions.CreateTicket);
         if (!hasPermission)
         {
             logger.LogError("Usuário não tem permissão para criar tickets.");
             throw new TickestException("Usuário não tem permissão para criar tickets.");
         }
-        #endregion
 
         #region Criação do Ticket
-        var requesterId = command.RequesterId ?? currentUser.Id;
+        var requesterId = command.RequesterId ?? currentUserId;
 
         var ticket = new Ticket
         {
