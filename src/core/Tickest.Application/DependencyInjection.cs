@@ -17,7 +17,7 @@ public static class DependencyInjection
         // Registra todos os validadores do FluentValidation encontrados no assembly
         services.AddValidatorsFromAssembly(assembly);
 
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
         return services;
     }
 }

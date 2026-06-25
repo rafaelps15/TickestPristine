@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi;
 
 namespace WebApi.Extensions;
 
@@ -10,23 +11,29 @@ public static class SwaggerExtensions
 
         services.AddSwaggerGen(options =>
         {
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.CustomSchemaIds(type => type.FullName?.Replace('+', '-') ?? type.Name);
+
+            var securityScheme = new OpenApiSecurityScheme
             {
-                Name = "Authorization",
+                Name = "JWT Authentication",
                 Description = "Informe o token JWT no formato: Bearer {seu token}",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
+                Scheme = JwtBearerDefaults.AuthenticationScheme,
                 BearerFormat = "JWT"
-            });
+            };
 
-            options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+            options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securityScheme);
+
+            var securityRequirement = new OpenApiSecurityRequirement
             {
                 {
-                    new OpenApiSecuritySchemeReference("Bearer"),
-                    new List<string>()
+                    new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme),
+                    []
                 }
-            });
+            };
+
+            options.AddSecurityRequirement(_ => securityRequirement);
         });
 
         return services;

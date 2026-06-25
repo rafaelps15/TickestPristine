@@ -14,6 +14,7 @@ namespace Tickest.Application.Tickets.Delete
         ITicketRepository ticketRepository,
         IUnitOfWork unitOfWork,
         ILogger<SoftDeleteTicketCommandHandler> logger,
+        IDateTimeProvider dateTimeProvider,
             IPermissionProvider permissionProvider)
         : ICommandHandler<SoftDeleteTicketCommand, Guid>
     {
@@ -48,7 +49,7 @@ namespace Tickest.Application.Tickets.Delete
             }
 
             // Executa a exclusão lógica
-            ticket.SoftDelete();
+            ticket.SoftDelete(dateTimeProvider.UtcNow);
 
             // Atualiza o ticket no repositório
             await ticketRepository.UpdateAsync(ticket, cancellationToken);

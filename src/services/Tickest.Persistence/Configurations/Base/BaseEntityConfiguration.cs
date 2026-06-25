@@ -10,6 +10,7 @@ public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguratio
     public virtual void Configure(EntityTypeBuilder<TEntity> builder)
     {
         builder.HasKey(e => e.Id);
+        builder.Ignore(e => e.DomainEvents);
         builder.Property(e => e.IsActive).HasDefaultValue(true);
         builder.Property(e => e.IsDeleted).HasDefaultValue(false);
         builder.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()").ValueGeneratedOnAdd();

@@ -1,18 +1,24 @@
+using Tickest.SharedKernel;
 using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Domain.Entities.Base;
 
-public abstract class EntityBase
+public abstract class EntityBase : Entity
 {
     public Guid Id { get; protected set; } = Guid.NewGuid();
     public bool IsActive { get; private set; } = true;
     public bool IsDeleted { get; private set; }
-    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; private set; }
     public DateTime? DeactivatedAt { get; private set; }
     public DateTime? DeletedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public void Activate()
+    protected EntityBase()
+    {
+        CreatedAt = DateTime.UtcNow;
+    }
+
+    public void Activate(DateTime utcNow)
     {
         if (IsDeleted)
         {
@@ -21,10 +27,10 @@ public abstract class EntityBase
 
         IsActive = true;
         DeactivatedAt = null;
-        MarkAsUpdated();
+        MarkAsUpdated(utcNow);
     }
 
-    public void Deactivate()
+    public void Deactivate(DateTime utcNow)
     {
         if (IsDeleted)
         {
@@ -37,11 +43,11 @@ public abstract class EntityBase
         }
 
         IsActive = false;
-        DeactivatedAt = DateTime.UtcNow;
-        MarkAsUpdated();
+        DeactivatedAt = utcNow;
+        MarkAsUpdated(utcNow);
     }
 
-    public void SoftDelete()
+    public void SoftDelete(DateTime utcNow)
     {
         if (IsDeleted)
         {
@@ -50,12 +56,12 @@ public abstract class EntityBase
 
         IsDeleted = true;
         IsActive = false;
-        DeletedAt = DateTime.UtcNow;
-        MarkAsUpdated();
+        DeletedAt = utcNow;
+        MarkAsUpdated(utcNow);
     }
 
-    public void MarkAsUpdated()
+    public void MarkAsUpdated(DateTime utcNow)
     {
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = utcNow;
     }
 }

@@ -1,49 +1,25 @@
-using Tickest.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Tickest.Application.Tickets.Create;
 using Tickest.Application.Tickets.Update;
 using Tickest.Domain.Constants;
-using Tickest.Infrastructure.Authentication;
+using Tickest.Infrastructure.Authorization;
 
 namespace WebApi.Controllers;
 
-[Route("api/tickets")]
 [ApiController]
 [Authorize]
-public class TicketsController : ControllerBase
+[Route("api/tickets")]
+public class TicketsController(IMediator mediator) : ControllerBase
 {
-    private readonly IAuthorizationService _authorizationService;
-    private readonly ILogger<TicketsController> _logger;
-    private readonly IMediator _mediator;
-    private readonly JwtSettings _jwtSettings;
-
-    public TicketsController(
-        IAuthorizationService authorizationService,
-        ILogger<TicketsController> logger,
-        IOptions<JwtSettings> jwtSettings,
-        IMediator mediator)
-    {
-        (_authorizationService, _logger, _jwtSettings, _mediator) =
-               (authorizationService, logger, jwtSettings.Value, mediator);
-    }
-
     [HttpPost]
     [HasPermission(SystemPermissions.CreateTicket)]
-    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketCommand command) =>
-        Ok(await _mediator.Send(command));
+    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketCommand command, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(command, cancellationToken));
 
-    [HttpGet("{id}")]
-    [HasPermission(SystemPermissions.ViewTicket)]
-    public async Task<IActionResult> GetTicketById(Guid id)
-    {
-        return Ok();
-    }
-
-    [HttpPut("{id}")]
+    [HttpPut("{id:guid}")]
     [HasPermission(SystemPermissions.AccessSystem)]
-    public async Task<IActionResult> UpdateTicketStatus(Guid id, [FromBody] UpdateTicketCommand command) =>
-        Ok(await _mediator.Send(command));
+    public async Task<IActionResult> UpdateTicketStatus(Guid id, [FromBody] UpdateTicketCommand command, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(command, cancellationToken));
 }

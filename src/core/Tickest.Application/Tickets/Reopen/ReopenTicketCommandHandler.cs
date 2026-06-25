@@ -14,6 +14,7 @@ internal sealed class ReopenTicketCommandHandler(
     ITicketRepository ticketRepository,
     IUnitOfWork unitOfWork,
     IPermissionProvider permissionProvider,
+    IDateTimeProvider dateTimeProvider,
     ILogger<ReopenTicketCommandHandler> logger)
     : ICommandHandler<ReopenTicketCommand, Guid>
 {
@@ -39,7 +40,7 @@ internal sealed class ReopenTicketCommandHandler(
             throw new TickestException("O ticket já está ativo ou foi deletado.");
         }
 
-        ticket.Activate();
+        ticket.Activate(dateTimeProvider.UtcNow);
         ticket.Status = TicketStatus.Open;
 
         await ticketRepository.UpdateAsync(ticket, cancellationToken);

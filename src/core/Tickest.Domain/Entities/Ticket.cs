@@ -1,11 +1,11 @@
-﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Entities.Departments;
 using Tickest.Domain.Entities.Users;
 using Tickest.Domain.Enum;
+using Tickest.Domain.Events.Tickets;
 
 namespace Tickest.Domain.Entities.Tickets;
 
-#region Ticket
 public class Ticket : EntityBase
 {
     public string Title { get; set; } = string.Empty;
@@ -24,5 +24,34 @@ public class Ticket : EntityBase
 
     public Guid SectorId { get; set; }
     public Sector Sector { get; set; } = null!;
+
+    public static Ticket Create(
+        string title,
+        string description,
+        TicketPriority priority,
+        Guid openedByUserId,
+        Guid? assignedToUserId,
+        Guid departmentId,
+        Guid sectorId)
+    {
+        var ticket = new Ticket
+        {
+            Title = title,
+            Description = description,
+            Priority = priority,
+            Status = TicketStatus.Open,
+            OpenedByUserId = openedByUserId,
+            AssignedToUserId = assignedToUserId,
+            DepartmentId = departmentId,
+            SectorId = sectorId
+        };
+
+        ticket.RaiseDomainEvent(new TicketCreatedDomainEvent(
+            ticket.Id,
+            ticket.OpenedByUserId,
+            ticket.DepartmentId,
+            ticket.SectorId));
+
+        return ticket;
+    }
 }
-#endregion

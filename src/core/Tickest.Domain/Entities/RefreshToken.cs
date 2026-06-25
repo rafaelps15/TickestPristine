@@ -13,7 +13,7 @@ public class RefreshToken : EntityBase
 
     public bool IsValid(DateTime utcNow) => !IsUsed && !IsRevoked && utcNow < ExpiresAt;
 
-    public void Revoke()
+    public void Revoke(DateTime utcNow)
     {
         if (IsUsed)
         {
@@ -26,10 +26,10 @@ public class RefreshToken : EntityBase
         }
 
         IsRevoked = true;
-        MarkAsUpdated();
+        MarkAsUpdated(utcNow);
     }
 
-    public void MarkAsUsed()
+    public void MarkAsUsed(DateTime utcNow)
     {
         if (IsUsed)
         {
@@ -37,6 +37,6 @@ public class RefreshToken : EntityBase
         }
 
         IsUsed = true;
-        MarkAsUpdated();
+        MarkAsUpdated(utcNow);
     }
 }

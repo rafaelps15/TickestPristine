@@ -46,7 +46,7 @@ public class RefreshTokenService
             throw new TickestException("Refresh token não encontrado.", nameof(token));
         }
 
-        refreshToken.Revoke();
+        refreshToken.Revoke(_dateTimeProvider.UtcNow);
         await _refreshTokenRepository.UpdateAsync(refreshToken, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
     }
@@ -60,7 +60,7 @@ public class RefreshTokenService
             throw new TickestException("Refresh token não encontrado.", nameof(token));
         }
 
-        refreshToken.MarkAsUsed();
+        refreshToken.MarkAsUsed(_dateTimeProvider.UtcNow);
         await _refreshTokenRepository.UpdateAsync(refreshToken, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
     }
