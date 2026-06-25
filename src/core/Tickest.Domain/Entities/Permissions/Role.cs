@@ -3,7 +3,7 @@ using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Domain.Entities.Permissions;
 
-public class Role : EntityBase
+public class Role : AuditableEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

@@ -3,20 +3,14 @@ using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Domain.Entities.Base;
 
-public abstract class EntityBase : Entity
+public abstract class AuditableEntity : Entity
 {
-    public Guid Id { get; protected set; } = Guid.NewGuid();
     public bool IsActive { get; private set; } = true;
     public bool IsDeleted { get; private set; }
-    public DateTime CreatedAt { get; private set; }
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; private set; }
     public DateTime? DeactivatedAt { get; private set; }
     public DateTime? DeletedAt { get; private set; }
-    public DateTime? UpdatedAt { get; private set; }
-
-    protected EntityBase()
-    {
-        CreatedAt = DateTime.UtcNow;
-    }
 
     public void Activate(DateTime utcNow)
     {

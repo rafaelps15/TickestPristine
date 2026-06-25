@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tickest.Domain.Entities.Base;
 
 namespace Tickest.Persistence.Configurations.Base;
 
 public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
-    where TEntity : EntityBase
+    where TEntity : AuditableEntity
 {
     public virtual void Configure(EntityTypeBuilder<TEntity> builder)
     {

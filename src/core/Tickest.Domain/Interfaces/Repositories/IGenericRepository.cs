@@ -3,7 +3,7 @@ using Tickest.Domain.Entities.Base;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 
-public interface IBaseRepository<TEntity> where TEntity : EntityBase
+public interface IBaseRepository<TEntity> where TEntity : AuditableEntity
 {
     Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 

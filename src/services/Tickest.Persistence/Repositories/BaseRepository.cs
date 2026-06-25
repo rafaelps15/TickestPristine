@@ -6,7 +6,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : EntityBase
+public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : AuditableEntity
 {
     protected readonly TickestContext _context;
 

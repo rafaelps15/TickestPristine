@@ -29,12 +29,7 @@ internal static class ApiProblemDetailsFactory
         problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
         problemDetails.Extensions["timestamp"] = utcNow;
 
-        if (exception is ValidationException validationException)
-        {
-            problemDetails.Extensions["errors"] = validationException.Errors
-                .Select(error => error.ErrorMessage)
-                .ToArray();
-        }
+        AddExceptionDetails(problemDetails, exception);
 
         return problemDetails;
     }
@@ -62,6 +57,30 @@ internal static class ApiProblemDetailsFactory
         }
 
         return problemDetails;
+    }
+
+    private static void AddExceptionDetails(ProblemDetails problemDetails, Exception exception)
+    {
+        if (exception is TickestException tickestException)
+        {
+            AddIfNotEmpty(problemDetails, "errorCode", tickestException.ErrorCode);
+            AddIfNotEmpty(problemDetails, "details", tickestException.Details);
+        }
+
+        if (exception is ValidationException validationException)
+        {
+            problemDetails.Extensions["errors"] = validationException.Errors
+                .Select(error => error.ErrorMessage)
+                .ToArray();
+        }
+    }
+
+    private static void AddIfNotEmpty(ProblemDetails problemDetails, string key, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            problemDetails.Extensions[key] = value;
+        }
     }
 
     private static int GetStatusCode(Exception exception) =>

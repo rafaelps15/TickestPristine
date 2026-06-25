@@ -6,7 +6,7 @@ using Tickest.Domain.Events.Tickets;
 
 namespace Tickest.Domain.Entities.Tickets;
 
-public class Ticket : EntityBase
+public class Ticket : AuditableEntity
 {
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

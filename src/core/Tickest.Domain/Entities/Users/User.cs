@@ -1,11 +1,11 @@
-﻿using Tickest.Domain.Entities.Base;
+using Tickest.Domain.Entities.Base;
 using Tickest.Domain.Entities.Departments;
 using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Specialties;
 
 namespace Tickest.Domain.Entities.Users;
 
-public class User : EntityBase
+public class User : AuditableEntity
 {
     public string Name { get; set; } = string.Empty;
     public string EmployeeCode { get; set; } = string.Empty;
