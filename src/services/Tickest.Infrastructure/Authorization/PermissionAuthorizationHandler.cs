@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Tickest.Application.Abstractions.Authentication;
 using Tickest.Infrastructure.Authentication;
 
-namespace Infrastructure.Authorization;
+namespace Tickest.Infrastructure.Authorization;
 
 internal sealed class PermissionAuthorizationHandler(IServiceScopeFactory serviceScopeFactory)
     : AuthorizationHandler<PermissionRequirement>
@@ -11,20 +12,20 @@ internal sealed class PermissionAuthorizationHandler(IServiceScopeFactory servic
         AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-        if (context.User is not { Identity.IsAuthenticated: true } or { Identity.IsAuthenticated: false })
+        if (context.User?.Identity?.IsAuthenticated != true)
         {
-            context.Succeed(requirement);
+            context.Fail();
 
             return;
         }
 
         using IServiceScope scope = serviceScopeFactory.CreateScope();
 
-        PermissionProvider permissionProvider = scope.ServiceProvider.GetRequiredService<PermissionProvider>();
+        IPermissionProvider permissionProvider = scope.ServiceProvider.GetRequiredService<IPermissionProvider>();
 
         Guid userId = context.User.GetUserId();
 
-        HashSet<string> permissions = await permissionProvider.GetForUserIdAsync(userId);
+        HashSet<string> permissions = await permissionProvider.GetPermissionsForUserAsync(userId);
 
         if (permissions.Contains(requirement.Permission))
         {

@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Entities.Users;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 using MediatR;
 using Tickest.Domain.Constants;
 

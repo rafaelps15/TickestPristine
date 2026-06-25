@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Infrastructure.Authorization;
+namespace Tickest.Infrastructure.Authorization;
 
-#region "Atributo de Permissão"
+#region "Atributo de PermissÃ£o"
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 public sealed class HasPermissionAttribute : AuthorizeAttribute
 {
-    public HasPermissionAttribute(string permission) => Policy = permission; // Atribui a permissão diretamente
+    public HasPermissionAttribute(string permission) => Policy = permission; // Atribui a permissÃ£o diretamente
 
 }
 

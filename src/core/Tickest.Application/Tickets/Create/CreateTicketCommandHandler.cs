@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 using Tickest.Domain.Constants;
 using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Enum;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Tickets.Create;
@@ -15,7 +15,6 @@ internal sealed class CreateTicketCommandHandler(
     ITicketRepository ticketRepository,
     IUnitOfWork unitOfWork,
     ILogger<CreateTicketCommandHandler> logger,
-    IAuthService authService,
     IPermissionProvider permissionProvider)
     : ICommandHandler<CreateTicketCommand, Guid>
 {
@@ -24,12 +23,6 @@ internal sealed class CreateTicketCommandHandler(
         logger.LogInformation("Iniciando a criação de um novo ticket.");
 
         var currentUserId = userContext.UserId;
-
-        if (currentUserId == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
-        }
 
         // Verificar se o usuário tem permissão para criar ticket
         var hasPermission = await permissionProvider.UserHasPermissionAsync(currentUserId, SystemPermissions.CreateTicket);

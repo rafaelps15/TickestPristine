@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 using Tickest.Domain.Constants;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Tickets.Update;
@@ -12,7 +12,6 @@ internal sealed class UpdateTicketCommandHandler(
     IUserContext userContext,
     ITicketRepository ticketRepository,
     IUnitOfWork unitOfWork,
-    IAuthService authService,
     IPermissionProvider permissionProvider,
     ILogger<UpdateTicketCommandHandler> logger)
     : ICommandHandler<UpdateTicketCommand, Guid>
@@ -22,14 +21,6 @@ internal sealed class UpdateTicketCommandHandler(
         logger.LogInformation("Iniciando a atualização do ticket.");
 
         var currentUserId = userContext.UserId;
-
-        //var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-
-        if (currentUserId == null)
-        {
-            logger.LogError("Usuário não autenticado. Falha ao tentar editar o ticket. Requisição realizada por um usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado. A operação de edição do ticket falhou porque o usuário não está autenticado.");
-        }
 
         #region Obtenção de Ticket
 
@@ -48,11 +39,11 @@ internal sealed class UpdateTicketCommandHandler(
             throw new TickestException("O ticket não está ativo e não pode ser editado.");
         }
 
-        var requiredPermission = ticket.OpenedByUserId == currentUser.Id
+        var requiredPermission = ticket.OpenedByUserId == currentUserId
             ? SystemPermissions.UpdateOwnTicket
             : SystemPermissions.ManageTickets;
 
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, requiredPermission);
+        await permissionProvider.ValidatePermissionAsync(currentUserId, requiredPermission);
 
         #endregion
 

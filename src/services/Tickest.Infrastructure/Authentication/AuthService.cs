@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.DTOs;
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 using Tickest.Domain.Entities.Users;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Infrastructure.Authentication;

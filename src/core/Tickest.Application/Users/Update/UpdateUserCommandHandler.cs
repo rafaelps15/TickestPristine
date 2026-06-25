@@ -1,11 +1,11 @@
-﻿//using Microsoft.Extensions.Configuration;
+//using Microsoft.Extensions.Configuration;
 //using Microsoft.Extensions.Logging;
 //using System.Threading;
 //using Tickest.Application.Abstractions.Authentication;
 //using Tickest.Application.Abstractions.Messaging;
 //using Tickest.Domain.Contracts.Responses.User;
 //using Tickest.Domain.Entities;
-//using Tickest.Domain.Exceptions;
+//using Tickest.SharedKernel.Exceptions;
 //using Tickest.Domain.Interfaces.Repositories;
 
 //namespace Tickest.Application.Users.Update;

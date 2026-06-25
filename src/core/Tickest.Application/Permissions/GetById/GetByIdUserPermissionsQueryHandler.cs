@@ -1,6 +1,6 @@
-﻿//using MediatR;
+//using MediatR;
 //using Tickest.Application.Abstractions.Messaging;
-//using Tickest.Domain.Common;
+//using Tickest.SharedKernel;
 //using Tickest.Domain.Entities.Permissions;
 //using Tickest.Domain.Interfaces.Repositories;
 

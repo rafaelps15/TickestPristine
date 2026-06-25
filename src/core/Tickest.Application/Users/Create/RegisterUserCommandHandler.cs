@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 using Tickest.Domain.Constants;
 using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Users.Create;
@@ -47,7 +47,7 @@ internal sealed class RegisterUserCommandHandler(
             throw new TickestException("Função padrão de colaborador não encontrada ou inativa.");
         }
 
-        // Temporario para teste: valida setor apenas quando informado.
+        // Temporário para teste: valida setor apenas quando informado.
         if (command.SectorId.HasValue)
         {
             var sector = await sectorRepository.GetByIdAsync(command.SectorId.Value, true, cancellationToken);
@@ -58,7 +58,7 @@ internal sealed class RegisterUserCommandHandler(
             }
         }
 
-        // Temporario para teste: aceita cadastro sem especialidades.
+        // Temporário para teste: aceita cadastro sem especialidades.
         var specialtyIds = command.SpecialtyIds?.Distinct().ToList() ?? [];
 
         foreach (var specialtyId in specialtyIds)

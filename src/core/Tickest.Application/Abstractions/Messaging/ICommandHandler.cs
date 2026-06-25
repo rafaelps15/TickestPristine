@@ -1,6 +1,6 @@
-﻿using MediatR;
+using MediatR;
 
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 
 namespace Tickest.Application.Abstractions.Messaging;
 

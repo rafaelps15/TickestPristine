@@ -1,13 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 
 
 namespace Tickest.Infrastructure.Authentication;
 
 internal static class ClaimsPrincipalExtensions
 {
-    #region Obter ID do Usu·rio
+    #region Obter ID do Usu√°rio
 
     public static Guid GetUserId(this ClaimsPrincipal? principal)
     {
@@ -15,17 +15,17 @@ internal static class ClaimsPrincipalExtensions
 
         return Guid.TryParse(userId, out Guid parsedUserId) ?
             parsedUserId :
-            throw new TickestException("ID do usu·rio n„o È v·lido.");
+            throw new TickestException("ID do usu√°rio n√£o √© v√°lido.");
     }
         
 
     #endregion
 
-    #region Obter Papel do Usu·rio
+    #region Obter Papel do Usu√°rio
 
     public static string GetUserRole(this ClaimsPrincipal? principal) =>
         principal?.FindFirstValue(ClaimTypes.Role)
-        ?? throw new TickestException("Papel do usu·rio n„o est· disponÌvel.");
+        ?? throw new TickestException("Papel do usu√°rio n√£o est√° dispon√≠vel.");
 
     #endregion
 

@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 using Tickest.Domain.Constants;
 using Tickest.Domain.Entities.Tickets;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Tickets.Delete
@@ -14,8 +14,7 @@ namespace Tickest.Application.Tickets.Delete
         ITicketRepository ticketRepository,
         IUnitOfWork unitOfWork,
         ILogger<SoftDeleteTicketCommandHandler> logger,
-        IAuthService authService,
-        IPermissionProvider permissionProvider)
+            IPermissionProvider permissionProvider)
         : ICommandHandler<SoftDeleteTicketCommand, Guid>
     {
         public async Task<Result<Guid>> Handle(SoftDeleteTicketCommand request, CancellationToken cancellationToken)
@@ -25,12 +24,6 @@ namespace Tickest.Application.Tickets.Delete
             #region Validação de Permissões
 
             var currentuserId = userContext.UserId;
-
-            if (currentuserId == null)
-            {
-                logger.LogError("Usuário não autenticado.");
-                throw new TickestException("Usuário não encontrado.");
-            }
 
             //Permissão crítica para a continuidade da execução do processo utilizo "ValidatePermissionAsync"
             await permissionProvider.ValidatePermissionAsync(currentuserId, SystemPermissions.DeleteTicket);

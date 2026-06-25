@@ -1,22 +1,19 @@
-﻿using MediatR;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Tickets.GetById;
 
 internal sealed class GetByIdUserTicketsQueryHandler(
-    IAuthService _authService,
+    IUserContext userContext,
     ITicketRepository _ticketRepository
 ) : IQueryHandler<GetByIdUserTicketsQuery, List<TicketResponse>>
 {
     public async Task<Result<List<TicketResponse>>> Handle(GetByIdUserTicketsQuery query, CancellationToken cancellationToken)
     {
-        var currentUser = await _authService.GetCurrentUserAsync(cancellationToken);
-
-        if (query.UserId == currentUser.Id)
+        if (query.UserId != userContext.UserId)
         {
             throw new TickestException("Usuário inválido.");
         }

@@ -1,25 +1,25 @@
 using System.Security.Cryptography;
 using Tickest.Application.Abstractions.Authentication;
 
-namespace Infrastructure.Authentication;
+namespace Tickest.Infrastructure.Authentication;
 
 internal sealed class PasswordHasher : IPasswordHasher
 {
     #region Constantes e Algoritmo
     private const int SaltSize = 16;  // Tamanho do salt gerado
     private const int HashSize = 32;  // Tamanho do hash gerado
-    private const int Iterations = 500_000; // N˙mero de iteraÁıes para derivar a chave
+    private const int Iterations = 500_000; // N√∫mero de itera√ß√µes para derivar a chave
     private static readonly HashAlgorithmName Algorithm = HashAlgorithmName.SHA512;  // Algoritmo de hash
-    private const int Version = 1; // Vers„o atual do algoritmo
+    private const int Version = 1; // Vers√£o atual do algoritmo
     #endregion
 
     #region Gerar Hash
     public string Hash(string password)
     {
-        var salt = RandomNumberGenerator.GetBytes(SaltSize); // Gera um salt aleatÛrio
+        var salt = RandomNumberGenerator.GetBytes(SaltSize); // Gera um salt aleat√≥rio
         var hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, Algorithm, HashSize); // Gera o hash com o salt
 
-        // Usa interpolaÁ„o de string para melhor legibilidade (C# 13 suporta diretivas simplificadas)
+        // Usa interpola√ß√£o de string para melhor legibilidade (C# 13 suporta diretivas simplificadas)
         return $"{Version}-{Convert.ToHexString(hash)}-{Convert.ToHexString(salt)}";
     }
     #endregion
@@ -27,17 +27,17 @@ internal sealed class PasswordHasher : IPasswordHasher
     #region Verificar Hash
     public bool Verify(string password, string passwordHash)
     {
-        var parts = passwordHash.Split('-'); // Divide vers„o, hash e salt
+        var parts = passwordHash.Split('-'); // Divide vers√£o, hash e salt
         if (parts.Length != 3)
         {
-            throw new FormatException("Formato de hash inv·lido.");
+            throw new FormatException("Formato de hash inv√°lido.");
         }
 
-        // Extrai a vers„o, hash e salt
+        // Extrai a vers√£o, hash e salt
         var version = int.Parse(parts[0]);
         if (version != Version)
         {
-            throw new InvalidOperationException("Vers„o do hash incompatÌvel.");
+            throw new InvalidOperationException("Vers√£o do hash incompat√≠vel.");
         }
 
         var hash = Convert.FromHexString(parts[1]);
@@ -48,17 +48,17 @@ internal sealed class PasswordHasher : IPasswordHasher
     }
     #endregion
 
-    #region Rehash se Necess·rio
+    #region Rehash se Necess√°rio
     public string? RehashIfNeeded(string password, string passwordHash)
     {
         var parts = passwordHash.Split('-');
         if (parts.Length != 3)
         {
-            throw new FormatException("Formato de hash inv·lido.");
+            throw new FormatException("Formato de hash inv√°lido.");
         }
 
         var version = int.Parse(parts[0]);
-        return version < Version ? Hash(password) : null; // Recalcula se a vers„o for inferior
+        return version < Version ? Hash(password) : null; // Recalcula se a vers√£o for inferior
     }
     #endregion
 }

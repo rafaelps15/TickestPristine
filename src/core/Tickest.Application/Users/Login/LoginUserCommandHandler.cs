@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Application.Users.Login;
 

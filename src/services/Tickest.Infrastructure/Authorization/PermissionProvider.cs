@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Constants;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
-namespace Infrastructure.Authorization;
+namespace Tickest.Infrastructure.Authorization;
 
 internal sealed class PermissionProvider : IPermissionProvider
 {
@@ -80,13 +80,6 @@ internal sealed class PermissionProvider : IPermissionProvider
             [SystemRoles.TicketManager] = GetTicketManagerPermissions,
             [SystemRoles.Collaborator] = GetCollaboratorPermissions
         };
-
-    public Task<HashSet<string>> GetForUserIdAsync(Guid userId)
-    {
-        HashSet<string> permissionsSet = [];
-
-        return Task.FromResult(permissionsSet);
-    }
 
     public async Task<HashSet<string>> GetPermissionsForUserAsync(Guid userId)
     {

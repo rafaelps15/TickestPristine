@@ -1,4 +1,4 @@
-﻿using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.Abstractions.Authentication;
 using Microsoft.Extensions.Logging;
 
 namespace Tickest.Infrastructure.Authorization;

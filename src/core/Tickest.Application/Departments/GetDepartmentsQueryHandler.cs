@@ -1,6 +1,6 @@
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Departments;

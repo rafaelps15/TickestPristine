@@ -1,5 +1,5 @@
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 using Tickest.Domain.Constants;
 using Tickest.Domain.Interfaces.Repositories;
 

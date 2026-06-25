@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.Authorization;
+namespace Tickest.Infrastructure.Authorization;
 
-#region "Provedor de PolÌtica de AutorizaÁ„o baseado em Permissıes"
+#region "Provedor de Pol√≠tica de Autoriza√ß√£o baseado em Permiss√µes"
 
 internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
 {

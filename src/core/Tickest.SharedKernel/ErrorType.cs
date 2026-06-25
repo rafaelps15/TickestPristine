@@ -1,4 +1,4 @@
-﻿namespace Tickest.Domain.Common;
+﻿namespace Tickest.SharedKernel;
 
 public enum ErrorType
 {

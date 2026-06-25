@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -8,7 +8,7 @@ using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Entities.Users;
 using Tickest.Infrastructure.Authentication;
 
-namespace Infrastructure.Authentication;
+namespace Tickest.Infrastructure.Authentication;
 
 internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions) : ITokenProvider
 {

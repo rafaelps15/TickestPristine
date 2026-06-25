@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tickest.Application.Abstractions.Data;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 using Tickest.Persistence.Repositories;
@@ -13,6 +14,9 @@ public static class DependencyInjection
     {
         services.AddDbContext<TickestContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped<IApplicationDbContext>(provider =>
+            provider.GetRequiredService<TickestContext>());
 
         // Registra repositórios
         services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));

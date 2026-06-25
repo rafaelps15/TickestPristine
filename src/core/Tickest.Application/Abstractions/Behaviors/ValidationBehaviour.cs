@@ -1,7 +1,7 @@
-﻿using FluentValidation;
+using FluentValidation;
 using MediatR;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Application.Abstractions.Behaviors;
 

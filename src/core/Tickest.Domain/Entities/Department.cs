@@ -12,7 +12,7 @@ public class Department : EntityBase
     // Relacionamento com setores
     public ICollection<Sector> Sectors { get; set; } = [];
 
-    // Respons·vel pelo departamento
+    // Respons√°vel pelo departamento
     public Guid? ResponsibleUserId { get; set; }
     public User? ResponsibleUser { get; set; }
 }

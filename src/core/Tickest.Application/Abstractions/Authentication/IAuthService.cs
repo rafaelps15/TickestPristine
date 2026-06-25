@@ -1,5 +1,5 @@
 using Tickest.Application.DTOs;
-using Tickest.Domain.Common;
+using Tickest.SharedKernel;
 using Tickest.Domain.Entities.Users;
 
 namespace Tickest.Application.Abstractions.Authentication;

@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable> 
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +13,10 @@
     <EmbeddedResource Remove="Entities\Models\**" />
     <None Remove="Contracts\**" />
     <None Remove="Entities\Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tickest.SharedKernel\Tickest.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

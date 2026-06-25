@@ -1,6 +1,6 @@
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Sector.Get;
@@ -12,14 +12,14 @@ internal sealed class GetSectorsDetailsQueryHandler(ISectorRepository sectorRepo
     {
         if (query.SectorId == Guid.Empty)
         {
-            throw new TickestException("ID do setor invalido.");
+            throw new TickestException("ID do setor inválido.");
         }
 
         var sectors = await sectorRepository.GetAllAsync(cancellationToken: cancellationToken);
 
         if (!sectors.Any())
         {
-            throw new TickestException($"Setor com ID {query.SectorId} nao encontrado.");
+            throw new TickestException($"Setor com ID {query.SectorId} não encontrado.");
         }
 
         var response = sectors.Select(sector => new SectorResponse

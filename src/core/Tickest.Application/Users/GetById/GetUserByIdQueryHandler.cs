@@ -1,28 +1,35 @@
+using Microsoft.EntityFrameworkCore;
 using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.Abstractions.Data;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
-using Tickest.Domain.Exceptions;
-using Tickest.Domain.Interfaces.Repositories;
+using Tickest.SharedKernel;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Application.Users.GetById;
 
-internal sealed class GetUserByIdQueryHandler(IUserContext usercontext, IUserRepository userRepository)
+internal sealed class GetUserByIdQueryHandler(IUserContext userContext, IApplicationDbContext context)
     : IQueryHandler<GetUserByIdQuery, UserResponse>
 {
     public async Task<Result<UserResponse>> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
     {
-        var currentUserId = usercontext.UserId;
+        var currentUserId = userContext.UserId;
 
         if (query.UserId != currentUserId)
         {
-            throw new TickestException("Voce nao tem permissao para acessar esses dados.");
+            throw new TickestException("Você não tem permissão para acessar esses dados.");
         }
 
-        var user = await userRepository.GetWithPermissionsAsync(query.UserId, cancellationToken);
+        var user = await context.Users
+            .AsNoTracking()
+            .Include(u => u.Role)
+            .Include(u => u.UserSpecialties)
+                .ThenInclude(us => us.Specialty)
+            .Include(u => u.Permissions)
+            .FirstOrDefaultAsync(u => u.Id == query.UserId, cancellationToken);
 
         if (user is null)
         {
-            throw new TickestException($"Usuario com ID {query.UserId} nao encontrado.");
+            throw new TickestException($"Usuário com ID {query.UserId} não encontrado.");
         }
 
         return new UserResponse(

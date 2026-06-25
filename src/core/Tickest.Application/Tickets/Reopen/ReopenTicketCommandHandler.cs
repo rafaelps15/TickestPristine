@@ -1,12 +1,11 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.Domain.Common;
 using Tickest.Domain.Constants;
 using Tickest.Domain.Enum;
-using Tickest.Domain.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
+using Tickest.SharedKernel;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Application.Tickets.Reopen;
 
@@ -14,7 +13,6 @@ internal sealed class ReopenTicketCommandHandler(
     IUserContext userContext,
     ITicketRepository ticketRepository,
     IUnitOfWork unitOfWork,
-    IAuthService authService,
     IPermissionProvider permissionProvider,
     ILogger<ReopenTicketCommandHandler> logger)
     : ICommandHandler<ReopenTicketCommand, Guid>
@@ -25,16 +23,11 @@ internal sealed class ReopenTicketCommandHandler(
 
         var currentUserId = userContext.UserId;
 
-        if (currentUserId == null)
-        {
-            logger.LogError("Usuário não autenticado.");
-            throw new TickestException("Usuário não autenticado.");
-        }
-
         await permissionProvider.ValidatePermissionAsync(currentUserId, SystemPermissions.ReopenTicket);
 
         var ticket = await ticketRepository.GetByIdAsync(request.TicketId, false, cancellationToken);
-        if (ticket == null)
+
+        if (ticket is null)
         {
             logger.LogError("Ticket não encontrado.");
             throw new TickestException("Ticket não encontrado.");

@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\core\Tickest.SharedKernel\Tickest.SharedKernel.csproj" />
     <ProjectReference Include="..\..\core\Tickest.Domain\Tickest.Domain.csproj" />
     <ProjectReference Include="..\..\core\Tickest.Application\Tickest.Application.csproj" />
   </ItemGroup>

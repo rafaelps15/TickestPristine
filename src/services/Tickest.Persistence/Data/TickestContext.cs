@@ -5,10 +5,11 @@ using Tickest.Domain.Entities.Permissions;
 using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Tickets;
 using Tickest.Domain.Entities.Users;
+using Tickest.Application.Abstractions.Data;
 
 namespace Tickest.Persistence.Data;
 
-public class TickestContext : DbContext
+public class TickestContext : DbContext, IApplicationDbContext
 {
     public TickestContext(DbContextOptions<TickestContext> options)
         : base(options) { }

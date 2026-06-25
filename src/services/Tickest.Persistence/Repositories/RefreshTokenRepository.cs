@@ -1,7 +1,7 @@
-Ôªøusing Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Tickest.Domain.Entities.Auths;
 using Tickest.Domain.Entities.Users;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.Persistence.Data;
 
@@ -11,32 +11,32 @@ public class RefreshTokenRepository : BaseRepository<RefreshToken>, IRefreshToke
 {
     public RefreshTokenRepository(TickestContext context) : base(context) { }
 
-    #region M√©todos de Consulta
+    #region MÈtodos de Consulta
 
-    // M√©todo para buscar o refresh token usando um token espec√≠fico
+    // MÈtodo para buscar o refresh token usando um token especÌfico
     public async Task<RefreshToken> GetByTokenAsync(string token, CancellationToken cancellationToken) =>
         await _context.RefreshTokens
             .FirstOrDefaultAsync(rt => rt.Token == token && rt.IsActive, cancellationToken)
-            ?? throw new TickestException("Refresh token n√£o encontrado.");
+            ?? throw new TickestException("Refresh token n„o encontrado.");
 
-    // M√©todo para buscar o usu√°rio associado a um refresh token espec√≠fico
+    // MÈtodo para buscar o usu·rio associado a um refresh token especÌfico
     public async Task<User> GetByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        // Busca o refresh token sem rastrear a entidade no contexto (o que √© mais eficiente)
+        // Busca o refresh token sem rastrear a entidade no contexto (o que È mais eficiente)
         var refreshTokenEntity = await _context.RefreshTokens
             .AsNoTracking()
             .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
 
         if (refreshTokenEntity is null)
-            throw new TickestException("Refresh token n√£o encontrado.");
+            throw new TickestException("Refresh token n„o encontrado.");
 
-        // Busca o usu√°rio associado ao refresh token
+        // Busca o usu·rio associado ao refresh token
         var user = await _context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == refreshTokenEntity.UserId, cancellationToken);
 
         if (user is null)
-            throw new TickestException("Usu√°rio associado ao refresh token n√£o encontrado.");
+            throw new TickestException("Usu·rio associado ao refresh token n„o encontrado.");
 
         return user;
     }

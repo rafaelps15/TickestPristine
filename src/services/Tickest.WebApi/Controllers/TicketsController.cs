@@ -1,4 +1,4 @@
-﻿using Infrastructure.Authorization;
+using Tickest.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

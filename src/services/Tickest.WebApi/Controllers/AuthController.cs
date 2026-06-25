@@ -17,14 +17,14 @@ public class AuthController : ControllerBase
         _mediator = mediator;
     }
 
-    // Login do usu·rio - retorna token JWT
+    // Login do usu√°rio. Retorna o token JWT.
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginUserCommand command) =>
         Ok(await _mediator.Send(command));
 
 
-    // Endpoint to create a new user (usu·rio cria a prÛpria conta) - caso de usos diferentes do endpoint de criaÁ„o de usu·rio (somente Admin e AdminMaster podem criar usu·rios)
+    // Registra uma nova conta pelo pr√≥prio usu√°rio.
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command) =>

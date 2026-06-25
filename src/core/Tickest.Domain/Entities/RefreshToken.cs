@@ -1,5 +1,5 @@
-﻿using Tickest.Domain.Entities.Base;
-using Tickest.Domain.Exceptions;
+using Tickest.Domain.Entities.Base;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Domain.Entities.Auths;
 

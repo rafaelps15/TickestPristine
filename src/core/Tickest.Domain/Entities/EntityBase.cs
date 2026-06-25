@@ -1,4 +1,4 @@
-﻿using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Domain.Entities.Base;
 

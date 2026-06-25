@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Infrastructure.Authorization;
+namespace Tickest.Infrastructure.Authorization;
 
-#region "Requisito de Permiss„o"
+#region "Requisito de Permiss√£o"
 
 internal sealed class PermissionRequirement : IAuthorizationRequirement
 {
     public PermissionRequirement(string permission) =>
-        Permission = permission; // Inicializa a propriedade de permiss„o
+        Permission = permission; // Inicializa a propriedade de permiss√£o
 
     public string Permission { get; }
 }

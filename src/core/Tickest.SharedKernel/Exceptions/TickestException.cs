@@ -1,9 +1,7 @@
-﻿namespace Tickest.Domain.Exceptions;
-
+namespace Tickest.SharedKernel.Exceptions;
 
 public class TickestException : Exception
 {
-    // Propriedades auto-implementadas com inicialização
     public string? ErrorCode { get; init; }
     public string? Details { get; init; }
 
@@ -25,7 +23,6 @@ public class TickestException : Exception
     public TickestException(IEnumerable<string> validationErrors)
         : base("Erros de validação encontrados.")
     {
-        // Concatena os erros de validação em uma única string
         Details = string.Join("; ", validationErrors);
     }
 

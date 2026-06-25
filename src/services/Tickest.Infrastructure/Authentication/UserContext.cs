@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Tickest.Application.Abstractions.Authentication;
-using Tickest.Domain.Exceptions;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Infrastructure.Authentication;
 
@@ -18,5 +18,5 @@ internal sealed class UserContext : IUserContext
             .HttpContext?
             .User
             .GetUserId() ??
-        throw new TickestException("N„o foi possÌvel obter o ID do usu·rio a partir do contexto HTTP.");
+        throw new TickestException("N√£o foi poss√≠vel obter o ID do usu√°rio a partir do contexto HTTP.");
 }
