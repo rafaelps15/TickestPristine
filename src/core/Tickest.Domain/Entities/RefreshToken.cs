@@ -11,7 +11,7 @@ public class RefreshToken : EntityBase
     public bool IsRevoked { get; set; }
     public bool IsUsed { get; set; }
 
-    public bool IsValid() => !IsUsed && !IsRevoked && DateTime.UtcNow < ExpiresAt;
+    public bool IsValid(DateTime utcNow) => !IsUsed && !IsRevoked && utcNow < ExpiresAt;
 
     public void Revoke()
     {

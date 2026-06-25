@@ -6,13 +6,14 @@ using System.Security.Claims;
 using System.Text;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Domain.Entities.Users;
-using Tickest.Infrastructure.Authentication;
+using Tickest.SharedKernel;
 
 namespace Tickest.Infrastructure.Authentication;
 
-internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions) : ITokenProvider
+internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions, IDateTimeProvider dateTimeProvider) : ITokenProvider
 {
     private readonly JwtSettings _jwtSettings = jwtOptions.Value;
+
     public string Create(User user)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
@@ -28,7 +29,7 @@ internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions) : ITokenPr
                 new Claim("roleId", user.RoleId.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.Name)
             ]),
-            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
+            Expires = dateTimeProvider.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
             SigningCredentials = credentials,
             Issuer = _jwtSettings.Issuer,
             Audience = _jwtSettings.Audience

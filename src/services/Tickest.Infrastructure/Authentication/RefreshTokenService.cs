@@ -1,6 +1,7 @@
 using Tickest.Domain.Entities.Auths;
 using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
+using Tickest.SharedKernel;
 
 namespace Tickest.Infrastructure.Authentication;
 
@@ -8,9 +9,10 @@ public class RefreshTokenService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
-    public RefreshTokenService(IUnitOfWork unitOfWork, IRefreshTokenRepository refreshTokenRepository) =>
-        (_unitOfWork, _refreshTokenRepository) = (unitOfWork ?? throw new TickestException(nameof(unitOfWork)), refreshTokenRepository);
+    public RefreshTokenService(IUnitOfWork unitOfWork, IRefreshTokenRepository refreshTokenRepository, IDateTimeProvider dateTimeProvider) =>
+        (_unitOfWork, _refreshTokenRepository, _dateTimeProvider) = (unitOfWork ?? throw new TickestException(nameof(unitOfWork)), refreshTokenRepository, dateTimeProvider);
 
     public async Task<RefreshToken> GenerateRefreshToken(Guid userId, CancellationToken cancellationToken)
     {
@@ -18,7 +20,7 @@ public class RefreshTokenService
         {
             UserId = userId,
             Token = Guid.NewGuid().ToString(),
-            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            ExpiresAt = _dateTimeProvider.UtcNow.AddDays(7),
             IsRevoked = false,
             IsUsed = false
         };
@@ -32,7 +34,7 @@ public class RefreshTokenService
     public async Task<bool> ValidateRefreshTokenAsync(string token, CancellationToken cancellationToken)
     {
         var refreshToken = await _refreshTokenRepository.FindAsync(r => r.Token == token && !r.IsRevoked, cancellationToken);
-        return refreshToken?.IsValid() == true;
+        return refreshToken?.IsValid(_dateTimeProvider.UtcNow) == true;
     }
 
     public async Task RevokeRefreshTokenAsync(string token, CancellationToken cancellationToken)

@@ -21,6 +21,7 @@ public class AuthService : IAuthService
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPermissionProvider _permissionProvider;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     private const int PasswordHashVersion = 2;
 
@@ -36,9 +37,10 @@ public class AuthService : IAuthService
         ILogger<AuthService> logger,
         IRefreshTokenRepository refreshTokenRepository,
         IUnitOfWork unitOfWork,
-        IPermissionProvider permissionProvider) =>
-        (_userRepository, _tokenProvider, _passwordHasher, _httpContextAccessor, _logger, _refreshTokenRepository, _unitOfWork, _permissionProvider) =
-        (userRepository, tokenProvider, passwordHasher, httpContextAccessor, logger, refreshTokenRepository, unitOfWork, permissionProvider);
+        IPermissionProvider permissionProvider,
+        IDateTimeProvider dateTimeProvider) =>
+        (_userRepository, _tokenProvider, _passwordHasher, _httpContextAccessor, _logger, _refreshTokenRepository, _unitOfWork, _permissionProvider, _dateTimeProvider) =
+        (userRepository, tokenProvider, passwordHasher, httpContextAccessor, logger, refreshTokenRepository, unitOfWork, permissionProvider, dateTimeProvider);
 
     #endregion
 
@@ -70,7 +72,7 @@ public class AuthService : IAuthService
         {
             AccessToken = token,
             TokenType = "Bearer",
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            ExpiresAt = _dateTimeProvider.UtcNow.AddHours(1),
         };
     }
 
@@ -131,7 +133,7 @@ public class AuthService : IAuthService
     private async Task<User> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
         var refreshTokenEntity = await _unitOfWork.RefreshTokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
-        if (refreshTokenEntity == null || refreshTokenEntity.ExpiresAt < DateTime.UtcNow)
+        if (refreshTokenEntity == null || refreshTokenEntity.ExpiresAt < _dateTimeProvider.UtcNow)
             throw new TickestException("Refresh token inválido ou expirado.");
 
         var user = await _userRepository.GetWithPermissionsAsync(refreshTokenEntity.UserId, cancellationToken);

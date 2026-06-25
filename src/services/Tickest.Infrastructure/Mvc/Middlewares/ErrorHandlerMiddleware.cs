@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Tickest.SharedKernel.Exceptions;
 using Tickest.Infrastructure.Mvc.Responses;
+using Tickest.SharedKernel;
 
 
 namespace Tickest.Infrastructure.Mvc.Middlewares;
@@ -14,11 +15,13 @@ public sealed class ErrorHandlerMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ErrorHandlerMiddleware> _logger;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
-    public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
+    public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger, IDateTimeProvider dateTimeProvider)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -49,7 +52,7 @@ public sealed class ErrorHandlerMiddleware
         return true;
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         if (context == null || exception == null)
         {
@@ -80,14 +83,14 @@ public sealed class ErrorHandlerMiddleware
         });
     }
 
-    private static ErrorResponse CreateErrorResponse(string message, string? detailedMessage, string correlationId, int statusCode)
+    private ErrorResponse CreateErrorResponse(string message, string? detailedMessage, string correlationId, int statusCode)
     {
         return new ErrorResponse(
             Code: "ERR_" + statusCode,
             Message: message,
             DetailedMessage: detailedMessage,
             CorrelationId: correlationId,
-            Timestamp: DateTime.UtcNow
+            Timestamp: _dateTimeProvider.UtcNow
             );
     }
 }

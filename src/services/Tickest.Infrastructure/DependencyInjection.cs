@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Tickest.Application.Abstractions.Authentication;
 using System.Text;
+using Tickest.Infrastructure.Time;
+using Tickest.SharedKernel;
 using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Infrastructure;
@@ -23,6 +25,7 @@ public static class DependencyInjection
         RegisterAuthorizationServices(services);
 
         // Registra os serviços de gerenciamento de tokens e autenticação
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         RegisterAuthServices(services);
 
         return services;
