@@ -1,15 +1,20 @@
 using Tickest.Domain.Entities.Base;
+using Tickest.SharedKernel;
 using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Domain.Entities.Auths;
 
 public class RefreshToken : AuditableEntity
 {
-    public Guid UserId { get; set; }
-    public string Token { get; set; } = string.Empty;
-    public DateTime ExpiresAt { get; set; }
-    public bool IsRevoked { get; set; }
-    public bool IsUsed { get; set; }
+    public EntityId UserId { get; private set; } = null!;
+    public string Token { get; private set; } = null!;
+    public DateTime ExpiresAt { get; private set; }
+    public bool IsRevoked { get; private set; }
+    public bool IsUsed { get; private set; }
+
+    private RefreshToken()
+    {
+    }
 
     public bool IsValid(DateTime utcNow) => !IsUsed && !IsRevoked && utcNow < ExpiresAt;
 

@@ -5,8 +5,12 @@ namespace Tickest.Domain.Entities.Permissions;
 
 public class Role : AuditableEntity
 {
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string Name { get; private set; } = null!;
+    public string Description { get; private set; } = null!;
 
-    public ICollection<User> Users { get; set; } = [];
+    public ICollection<User> Users { get; private set; } = [];
+
+    private Role()
+    {
+    }
 }

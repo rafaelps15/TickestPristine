@@ -4,7 +4,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-internal class DepartmentRepository : BaseRepository<Department>, IDepartmentRepository
+internal class DepartmentRepository : Repository<Department>, IDepartmentRepository
 {
-    public DepartmentRepository(TickestContext context) : base(context) { }
+    public DepartmentRepository(ApplicationDbContext context) : base(context) { }
 }

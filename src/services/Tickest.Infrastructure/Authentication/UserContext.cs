@@ -4,17 +4,10 @@ using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Infrastructure.Authentication;
 
-internal sealed class UserContext : IUserContext
+internal sealed class UserContext(IHttpContextAccessor httpContextAccessor) : IUserContext
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public UserContext(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor; 
-    }
-
     public Guid UserId =>
-        _httpContextAccessor
+        httpContextAccessor
             .HttpContext?
             .User
             .GetUserId() ??

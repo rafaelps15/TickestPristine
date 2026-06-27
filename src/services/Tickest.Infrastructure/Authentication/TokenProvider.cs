@@ -1,22 +1,26 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.DTOs;
 using Tickest.Domain.Entities.Users;
 using Tickest.SharedKernel;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Infrastructure.Authentication;
 
-internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions, IDateTimeProvider dateTimeProvider) : ITokenProvider
+internal sealed class TokenProvider(
+    IConfiguration configuration,
+    IDateTimeProvider dateTimeProvider)
+    : ITokenProvider
 {
-    private readonly JwtSettings _jwtSettings = jwtOptions.Value;
-
-    public string Create(User user)
+    public TokenResponse Create(User user)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+        var jwtSettings = GetJwtSettings();
+        var expiresAt = dateTimeProvider.UtcNow.AddMinutes(jwtSettings.ExpirationInMinutes);
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -29,16 +33,32 @@ internal sealed class TokenProvider(IOptions<JwtSettings> jwtOptions, IDateTimeP
                 new Claim("roleId", user.RoleId.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.Name)
             ]),
-            Expires = dateTimeProvider.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
+            Expires = expiresAt,
             SigningCredentials = credentials,
-            Issuer = _jwtSettings.Issuer,
-            Audience = _jwtSettings.Audience
+            Issuer = jwtSettings.Issuer,
+            Audience = jwtSettings.Audience
         };
 
         var handler = new JsonWebTokenHandler();
+        var token = handler.CreateToken(tokenDescriptor);
 
-        string token = handler.CreateToken(tokenDescriptor);
+        return new TokenResponse
+        {
+            AccessToken = token,
+            ExpiresAt = expiresAt,
+            TokenType = "Bearer"
+        };
+    }
 
-        return token;
+    private JwtSettings GetJwtSettings()
+    {
+        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+        if (jwtSettings is null || string.IsNullOrWhiteSpace(jwtSettings.Secret))
+        {
+            throw new TickestException("O segredo JWT está ausente ou é nulo na configuração.");
+        }
+
+        return jwtSettings;
     }
 }

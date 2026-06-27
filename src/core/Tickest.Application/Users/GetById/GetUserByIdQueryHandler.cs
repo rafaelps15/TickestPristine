@@ -7,14 +7,14 @@ using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Application.Users.GetById;
 
-internal sealed class GetUserByIdQueryHandler(IUserContext userContext, IApplicationDbContext context)
+internal sealed class GetUserByIdQueryHandler(
+    IUserContext userContext,
+    IApplicationDbContext context)
     : IQueryHandler<GetUserByIdQuery, UserResponse>
 {
     public async Task<Result<UserResponse>> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
     {
-        var currentUserId = userContext.UserId;
-
-        if (query.UserId != currentUserId)
+        if (query.UserId != userContext.UserId)
         {
             throw new TickestException("Você não tem permissão para acessar esses dados.");
         }
@@ -38,7 +38,7 @@ internal sealed class GetUserByIdQueryHandler(IUserContext userContext, IApplica
             user.Email,
             user.RoleId,
             user.Role.Name,
-            user.UserSpecialties.Select(userSpecialty => userSpecialty.Specialty.Name).ToList(),
-            user.Permissions.Select(permission => permission.Description).ToList());
+            user.UserSpecialties.Select(us => us.Specialty.Name).ToList(),
+            user.Permissions.Select(p => p.Description).ToList());
     }
 }

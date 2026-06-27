@@ -4,7 +4,7 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class PermissionRepository : BaseRepository<Permission>, IPermissionRepository
+public class PermissionRepository : Repository<Permission>, IPermissionRepository
 {
-    public PermissionRepository(TickestContext context) : base(context) { }
+    public PermissionRepository(ApplicationDbContext context) : base(context) { }
 }

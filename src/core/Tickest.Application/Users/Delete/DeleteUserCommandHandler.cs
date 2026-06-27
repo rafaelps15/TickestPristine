@@ -1,19 +1,18 @@
 using Microsoft.Extensions.Logging;
-using Tickest.Application.Abstractions.Messaging;
 using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.Abstractions.Messaging;
+using Tickest.Domain.Constants;
 using Tickest.Domain.Entities.Users;
-using Tickest.SharedKernel.Exceptions;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.SharedKernel;
-using MediatR;
-using Tickest.Domain.Constants;
+using Tickest.SharedKernel.Exceptions;
 
 namespace Tickest.Application.Users.Delete;
 
 internal sealed class DeleteUserCommandHandler(
     IBaseRepository<User> userRepository,
     IUnitOfWork unitOfWork,
-    IAuthService authService,
+    IUserContext userContext,
     IPermissionProvider permissionProvider,
     ILogger<DeleteUserCommandHandler> logger)
     : ICommandHandler<DeleteUserCommand, Guid>
@@ -22,21 +21,7 @@ internal sealed class DeleteUserCommandHandler(
     {
         logger.LogInformation("Iniciando solicitação de exclusão de usuário.");
 
-        #region Validação de Permissões
-
-        var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
-
-        if (currentUser == null)
-        {
-            logger.LogError("Usuário não autenticado. Requisição de exclusão não permitida.");
-            throw new TickestException("Usuário não autenticado. Operação de exclusão falhou.");
-        }
-
-        await permissionProvider.ValidatePermissionAsync(currentUser.Id, SystemPermissions.DeleteUser);
-
-        #endregion
-
-        #region Obtenção de Usuário
+        await permissionProvider.ValidatePermissionAsync(userContext.UserId, SystemPermissions.DeleteUser);
 
         var userToDelete = await userRepository.GetByIdAsync(request.UserId);
 
@@ -46,16 +31,11 @@ internal sealed class DeleteUserCommandHandler(
             throw new TickestException($"Usuário com ID {request.UserId} não encontrado.");
         }
 
-        #endregion
-
-        #region Exclusão do Usuário
-
         await userRepository.DeleteByIdAsync(userToDelete.Id, cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
+
         logger.LogInformation("Usuário com ID {UserId} excluído com sucesso.", userToDelete.Id);
 
-        #endregion
-
-        return Result<Guid>.Success(userToDelete.Id);
+        return Result<Guid>.Success((Guid)userToDelete.Id);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Tickest.Application.Abstractions.Messaging;
 
-namespace Tickest.Application.Sector.Get;
+namespace Tickest.Application.Sectors.Get;
 
 public sealed record GetSectorsDetailsQuery(Guid SectorId) : IQuery<List<SectorResponse>>;
 

@@ -1,8 +1,8 @@
 using Serilog;
 using Tickest.Application;
 using Tickest.Infrastructure;
-using Tickest.Infrastructure.Authentication;
 using Tickest.Persistence;
+using Tickest.SharedKernel;
 using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);

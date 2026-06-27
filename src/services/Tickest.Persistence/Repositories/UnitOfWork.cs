@@ -8,7 +8,7 @@ namespace Tickest.Persistence.Repositories;
 
 public class UnitOfWork : IUnitOfWork
 {
-    private readonly TickestContext _context;
+    private readonly ApplicationDbContext _context;
     private readonly IUserRepository _userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITicketRepository _ticketRepository;
@@ -18,7 +18,7 @@ public class UnitOfWork : IUnitOfWork
     private IDbContextTransaction? _currentTransaction;
 
     public UnitOfWork(
-        TickestContext context,
+        ApplicationDbContext context,
         IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository,
         ITicketRepository ticketRepository,

@@ -5,19 +5,17 @@ using Tickest.Persistence.Data;
 
 namespace Tickest.Persistence.Repositories;
 
-public class SpecialtyRepository : BaseRepository<Specialty>, ISpecialtyRepository
+public sealed class SpecialtyRepository(ApplicationDbContext context)
+    : Repository<Specialty>(context), ISpecialtyRepository
 {
-    public SpecialtyRepository(TickestContext context) : base(context) { }
-
-    public async Task<ICollection<Specialty>> GetSpecialtiesByNamesAsync(IEnumerable<string> specialtyNames, CancellationToken cancellationToken)
+    public async Task<ICollection<Specialty>> GetSpecialtiesByNamesAsync(
+        IEnumerable<string> specialtyNames,
+        CancellationToken cancellationToken)
     {
-        // Realiza busca das as especialidades pelos nomes
-        var specialties = await _context.Specialties
-            .Where(s => specialtyNames.Contains(s.Name))  // Filtra pelo nome da especialidade
-            .ToListAsync(cancellationToken);  
+        var names = specialtyNames.ToArray();
 
-        return specialties;
+        return await DbSet
+            .Where(s => names.Contains(s.Name))
+            .ToListAsync(cancellationToken);
     }
-
-   
 }

@@ -5,7 +5,5 @@ namespace Tickest.Application.Abstractions.Authentication;
 
 public interface ITokenProvider
 {
-    //TokenResponse GenerateToken(User user);
-
-    string Create(User user);
+    TokenResponse Create(User user);
 }

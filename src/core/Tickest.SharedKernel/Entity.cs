@@ -1,10 +1,11 @@
 namespace Tickest.SharedKernel;
 
-public abstract class Entity
+public abstract class Entity<TEntityId>
+    where TEntityId : ValueObject
 {
     private readonly List<IDomainEvent> _domainEvents = [];
 
-    public Guid Id { get; protected init; } = Guid.NewGuid();
+    public TEntityId Id { get; protected init; } = default!;
 
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
@@ -16,5 +17,13 @@ public abstract class Entity
     protected void RaiseDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Add(domainEvent);
+    }
+}
+
+public abstract class Entity : Entity<EntityId>
+{
+    protected Entity()
+    {
+        Id = EntityId.New();
     }
 }

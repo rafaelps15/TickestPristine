@@ -1,22 +1,19 @@
 using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
+using Tickest.Application.Abstractions.Data;
 using Tickest.Application.Abstractions.Messaging;
-using Tickest.SharedKernel;
+using Tickest.Application.Abstractions.ReadServices;
 using Tickest.Domain.Constants;
-using Tickest.Domain.Entities.Specialties;
 using Tickest.Domain.Entities.Users;
+using Tickest.SharedKernel;
 using Tickest.SharedKernel.Exceptions;
-using Tickest.Domain.Interfaces.Repositories;
 
 namespace Tickest.Application.Users.Create;
 
 internal sealed class RegisterUserCommandHandler(
+    IApplicationDbContext context,
+    IUserRegistrationReadService readService,
     IPasswordHasher passwordHasher,
-    IUserRepository userRepository,
-    IRoleRepository roleRepository,
-    ISectorRepository sectorRepository,
-    ISpecialtyRepository specialtyRepository,
-    IUnitOfWork unitOfWork,
     ILogger<RegisterUserCommandHandler> logger)
     : ICommandHandler<RegisterUserCommand, Guid>
 {
@@ -24,77 +21,55 @@ internal sealed class RegisterUserCommandHandler(
     {
         logger.LogInformation("Iniciando a criação de um novo usuário.");
 
-        var existingUser = await userRepository.GetByEmailAsync(command.Email, cancellationToken);
-
-        if (existingUser is not null)
+        if (await readService.EmailExistsAsync(command.Email, cancellationToken))
         {
             logger.LogError("O e-mail {Email} já está em uso.", command.Email);
             throw new TickestException("O e-mail fornecido já está em uso.");
         }
 
-        var existingEmployeeCode = await userRepository.GetByEmployeeCodeAsync(command.EmployeeCode, cancellationToken);
-
-        if (existingEmployeeCode is not null)
+        if (await readService.EmployeeCodeExistsAsync(command.EmployeeCode, cancellationToken))
         {
             logger.LogError("O código de funcionário {EmployeeCode} já está em uso.", command.EmployeeCode);
             throw new TickestException("O código de funcionário fornecido já está em uso.");
         }
 
-        var role = await roleRepository.GetByNameAsync(SystemRoles.Collaborator, cancellationToken);
+        var specialtyIds = command.SpecialtyIds?.Distinct().Select(id => (EntityId)id).ToList() ?? [];
 
-        if (role is null)
+        var roleId = await readService.GetActiveRoleIdByNameAsync(SystemRoles.Collaborator, cancellationToken);
+
+        if (roleId is null)
         {
             throw new TickestException("Função padrão de colaborador não encontrada ou inativa.");
         }
 
-        // Temporário para teste: valida setor apenas quando informado.
-        if (command.SectorId.HasValue)
+        if (command.SectorId.HasValue && !await readService.ActiveSectorExistsAsync(command.SectorId.Value, cancellationToken))
         {
-            var sector = await sectorRepository.GetByIdAsync(command.SectorId.Value, true, cancellationToken);
-
-            if (sector is null)
-            {
-                throw new TickestException("Setor inválido.");
-            }
+            throw new TickestException("Setor inválido.");
         }
 
-        // Temporário para teste: aceita cadastro sem especialidades.
-        var specialtyIds = command.SpecialtyIds?.Distinct().ToList() ?? [];
+        if (specialtyIds.Count > 0 && !await readService.ActiveSpecialtiesExistAsync(specialtyIds, cancellationToken))
+        {
+            throw new TickestException("Uma ou mais especialidades são inválidas.");
+        }
+
+        var user = User.Create(
+            command.Name,
+            command.EmployeeCode,
+            command.Email,
+            passwordHasher.Hash(command.Password),
+            roleId,
+            command.SectorId);
 
         foreach (var specialtyId in specialtyIds)
         {
-            var specialty = await specialtyRepository.GetByIdAsync(specialtyId, true, cancellationToken);
-
-            if (specialty is null)
-            {
-                throw new TickestException("Especialidade inválida.");
-            }
+            user.AddSpecialty(specialtyId);
         }
 
-        var user = new User
-        {
-            Name = command.Name,
-            EmployeeCode = command.EmployeeCode,
-            Email = command.Email,
-            PasswordHash = passwordHasher.Hash(command.Password),
-            RoleId = role.Id,
-            SectorId = command.SectorId
-        };
-
-        foreach (var specialtyId in specialtyIds)
-        {
-            user.UserSpecialties.Add(new UserSpecialty
-            {
-                UserId = user.Id,
-                SpecialtyId = specialtyId
-            });
-        }
-
-        await userRepository.AddAsync(user, cancellationToken);
-        await unitOfWork.CommitAsync(cancellationToken);
+        await context.Users.AddAsync(user, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Novo usuário criado com ID {UserId}.", user.Id);
 
-        return Result.Success(user.Id);
+        return Result.Success((Guid)user.Id);
     }
 }

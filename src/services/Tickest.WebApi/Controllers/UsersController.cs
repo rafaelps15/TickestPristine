@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tickest.Application.Users.Create;
 using Tickest.Application.Users.GetCurrent;
 using Tickest.Domain.Constants;
-using Tickest.Infrastructure.Authorization;
+using WebApi.Authorization;
 
 namespace WebApi.Controllers;
 

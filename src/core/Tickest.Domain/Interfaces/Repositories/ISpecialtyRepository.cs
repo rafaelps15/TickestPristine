@@ -1,5 +1,4 @@
-﻿// Camada Domain - Tickest.Domain.Interfaces.Repositories
-using Tickest.Domain.Entities.Specialties;
+﻿using Tickest.Domain.Entities.Specialties;
 
 namespace Tickest.Domain.Interfaces.Repositories;
 

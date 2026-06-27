@@ -1,12 +1,12 @@
-using Tickest.Infrastructure.Authentication;
-using Tickest.Infrastructure.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Tickest.Application.Abstractions.Authentication;
 using System.Text;
+using Tickest.Application.Abstractions.Authentication;
+using Tickest.Infrastructure.Authentication;
+using Tickest.Infrastructure.Authorization;
 using Tickest.Infrastructure.Time;
 using Tickest.SharedKernel;
 using Tickest.SharedKernel.Exceptions;
@@ -17,63 +17,55 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Adiciona suporte ao HttpContext para acessos rápidos ao contexto da aplicação
         services.AddHttpContextAccessor();
-
-        // Registra serviços de autenticação, autorização e segurança
-        RegisterAuthenticationServices(services, configuration);
-        RegisterAuthorizationServices(services);
-
-        // Registra os serviços de gerenciamento de tokens e autenticação
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        RegisterAuthServices(services);
+
+        services.AddAuthenticationServices(configuration);
+        services.AddAuthorizationServices();
 
         return services;
     }
 
-    private static void RegisterAuthenticationServices(IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Configura o JwtBearer para autenticação baseada em token JWT
+        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+        if (jwtSettings is null || string.IsNullOrWhiteSpace(jwtSettings.Secret))
+        {
+            throw new TickestException("O segredo JWT está ausente ou é nulo na configuração.");
+        }
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
-
-                if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Secret))
-                {
-                    throw new TickestException("O segredo JWT está ausente ou é nulo na configuração.");
-                }
-
                 options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
-                    ClockSkew = TimeSpan.Zero // Evita a tolerância de tempo 
+                    ClockSkew = TimeSpan.Zero
                 };
             });
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<ITokenProvider, TokenProvider>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+        return services;
     }
 
-
-    private static void RegisterAuthorizationServices(IServiceCollection services)
+    private static IServiceCollection AddAuthorizationServices(this IServiceCollection services)
     {
-        // Registra serviços necessários para o controle de permissões
         services.AddScoped<IPermissionProvider, PermissionProvider>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
-        // Configuração opcional de políticas de autorização
-        // Exemplo: options.AddPolicy("CreateTicket", policy => policy.Requirements.Add(new PermissionRequirement("CreateTicket")));
-        // Exemplo: options.AddPolicy("ManageTickets", policy => policy.Requirements.Add(new PermissionRequirement("ManageTickets")));
-    }
-
-    private static void RegisterAuthServices(IServiceCollection services)
-    {
-        // Registra os serviços necessários para autenticação e fornecimento de tokens
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IUserContext, UserContext>();
-        services.AddScoped<ITokenProvider, TokenProvider>();
-        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        return services;
     }
 }

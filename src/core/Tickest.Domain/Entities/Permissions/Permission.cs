@@ -4,5 +4,9 @@ namespace Tickest.Domain.Entities.Permissions;
 
 public class Permission : AuditableEntity
 {
-    public string Description { get; set; } = string.Empty;
+    public string Description { get; private set; } = null!;
+
+    private Permission()
+    {
+    }
 }

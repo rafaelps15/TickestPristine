@@ -3,29 +3,31 @@ using Microsoft.Extensions.Options;
 
 namespace Tickest.Infrastructure.Authorization;
 
-#region "Provedor de Política de Autorização baseado em Permissões"
-
 internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
 {
     private readonly AuthorizationOptions _authorizationOptions;
 
     public PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
-        : base(options) =>
+        : base(options)
+    {
         _authorizationOptions = options.Value;
+    }
 
     public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
-        var existingPolicy = await base.GetPolicyAsync(policyName);
-        if (existingPolicy != null) return existingPolicy;
+        var policy = await base.GetPolicyAsync(policyName);
+
+        if (policy is not null)
+        {
+            return policy;
+        }
 
         var permissionPolicy = new AuthorizationPolicyBuilder()
             .AddRequirements(new PermissionRequirement(policyName))
             .Build();
 
         _authorizationOptions.AddPolicy(policyName, permissionPolicy);
+
         return permissionPolicy;
     }
-
 }
-
-#endregion

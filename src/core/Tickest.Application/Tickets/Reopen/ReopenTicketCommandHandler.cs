@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using Tickest.Application.Abstractions.Authentication;
 using Tickest.Application.Abstractions.Messaging;
 using Tickest.Domain.Constants;
-using Tickest.Domain.Enum;
 using Tickest.Domain.Interfaces.Repositories;
 using Tickest.SharedKernel;
 using Tickest.SharedKernel.Exceptions;
@@ -22,9 +21,7 @@ internal sealed class ReopenTicketCommandHandler(
     {
         logger.LogInformation("Iniciando a reabertura do ticket.");
 
-        var currentUserId = userContext.UserId;
-
-        await permissionProvider.ValidatePermissionAsync(currentUserId, SystemPermissions.ReopenTicket);
+        await permissionProvider.ValidatePermissionAsync(userContext.UserId, SystemPermissions.ReopenTicket);
 
         var ticket = await ticketRepository.GetByIdAsync(request.TicketId, false, cancellationToken);
 
@@ -40,14 +37,13 @@ internal sealed class ReopenTicketCommandHandler(
             throw new TickestException("O ticket já está ativo ou foi deletado.");
         }
 
-        ticket.Activate(dateTimeProvider.UtcNow);
-        ticket.Status = TicketStatus.Open;
+        ticket.Reopen(dateTimeProvider.UtcNow);
 
         await ticketRepository.UpdateAsync(ticket, cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
 
         logger.LogInformation("Ticket reaberto com sucesso: {TicketId}", ticket.Id);
 
-        return ticket.Id;
+        return Result.Success((Guid)ticket.Id);
     }
 }

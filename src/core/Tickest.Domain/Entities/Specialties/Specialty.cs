@@ -4,7 +4,11 @@ namespace Tickest.Domain.Entities.Specialties;
 
 public class Specialty : AuditableEntity
 {
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public ICollection<UserSpecialty> UserSpecialties { get; set; } = [];
+    public string Name { get; private set; } = null!;
+    public string Description { get; private set; } = null!;
+    public ICollection<UserSpecialty> UserSpecialties { get; private set; } = [];
+
+    private Specialty()
+    {
+    }
 }
